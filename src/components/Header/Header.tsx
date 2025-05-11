@@ -27,7 +27,7 @@ const Header = () => {
   return (
     <header 
       className={`sticky top-0 z-40 w-full transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md py-2' : 'bg-white py-4'
+        isScrolled ? 'bg-white/90 backdrop-blur-sm shadow-sm py-1' : 'bg-white/80 backdrop-blur-sm py-2'
       }`}
     >
       <div className="container mx-auto px-4">
@@ -36,7 +36,7 @@ const Header = () => {
             <MobileNav />
           </div>
           
-          <div className="flex items-center py-4"> {/* Increased padding for more space */}
+          <div className="flex items-center py-2"> {/* Reduced padding from py-4 to py-2 */}
             <Logo />
           </div>
           
