@@ -56,30 +56,6 @@ const megaMenuData: MegaMenu = {
         description: 'Browse our complete collection'
       }
     ]
-  },
-  'Goals': {
-    columns: [
-      {
-        title: 'Fitness Goals',
-        items: [
-          { label: 'Build Muscle', href: '/goals/build-muscle' },
-          { label: 'Lose Weight', href: '/goals/lose-weight' },
-          { label: 'Increase Energy', href: '/goals/increase-energy' },
-          { label: 'Improve Recovery', href: '/goals/improve-recovery' },
-          { label: 'Enhance Performance', href: '/goals/enhance-performance' },
-        ]
-      },
-      {
-        title: 'Health Goals',
-        items: [
-          { label: 'General Wellness', href: '/goals/wellness' },
-          { label: 'Immune Support', href: '/goals/immune-support' },
-          { label: 'Better Sleep', href: '/goals/sleep' },
-          { label: 'Stress Management', href: '/goals/stress-management' },
-          { label: 'Joint Health', href: '/goals/joint-health' },
-        ]
-      }
-    ]
   }
 };
 
@@ -167,14 +143,6 @@ const DesktopNav = () => {
             )}
           </li>
         ))}
-        <li>
-          <Link 
-            to="/bundles" 
-            className="font-medium text-white hover:text-primary transition-colors duration-200"
-          >
-            Bundles
-          </Link>
-        </li>
         <li>
           <Link 
             to="/products" 

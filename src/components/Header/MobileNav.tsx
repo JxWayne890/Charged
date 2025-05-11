@@ -23,17 +23,7 @@ const menuItems: MenuItem[] = [
       { label: 'Daily Essentials', href: '/category/daily-essentials' },
     ],
   },
-  {
-    label: 'Goals',
-    href: '/goals',
-    submenu: [
-      { label: 'Build Muscle', href: '/goals/build-muscle' },
-      { label: 'Lose Weight', href: '/goals/lose-weight' },
-      { label: 'Improve Performance', href: '/goals/improve-performance' },
-      { label: 'General Health', href: '/goals/general-health' },
-    ],
-  },
-  { label: 'Bundles', href: '/bundles' },
+  { label: 'All Products', href: '/products' },
   { label: 'Blog', href: '/blog' },
 ];
 
@@ -156,8 +146,62 @@ const MobileNav = () => {
               <Menu size={22} />
               <span className="text-xs mt-1">Menu</span>
             </SheetTrigger>
-            <SheetContent side="right" className="w-3/4 sm:max-w-md">
-              {/* Same content as the left menu */}
+            <SheetContent side="right" className="w-3/4 sm:max-w-md bg-white">
+              {/* Content for the right menu sheet */}
+              <div className="flex flex-col h-full">
+                <div className="flex justify-between items-center mb-6">
+                  <Logo />
+                  <SheetTrigger className="p-2">
+                    <X size={24} />
+                  </SheetTrigger>
+                </div>
+                
+                <nav className="flex-grow">
+                  <ul className="space-y-1">
+                    {menuItems.map((item) => (
+                      <li key={item.label} className="border-b border-gray-200">
+                        {item.submenu ? (
+                          <div>
+                            <button
+                              onClick={() => toggleSubMenu(item.label)}
+                              className="flex justify-between items-center w-full py-3 px-2 hover:bg-gray-100 rounded transition"
+                            >
+                              <span className="font-medium">{item.label}</span>
+                              {expandedItems.includes(item.label) ? (
+                                <ChevronDown size={18} />
+                              ) : (
+                                <ChevronRight size={18} />
+                              )}
+                            </button>
+                            
+                            {expandedItems.includes(item.label) && (
+                              <ul className="pl-4 space-y-1 py-2 bg-gray-50">
+                                {item.submenu.map((subItem) => (
+                                  <li key={subItem.label}>
+                                    <Link
+                                      to={subItem.href}
+                                      className="block py-2 px-3 hover:text-primary transition"
+                                    >
+                                      {subItem.label}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        ) : (
+                          <Link
+                            to={item.href}
+                            className="block py-3 px-2 hover:bg-gray-100 rounded transition"
+                          >
+                            <span className="font-medium">{item.label}</span>
+                          </Link>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              </div>
             </SheetContent>
           </Sheet>
         </div>
