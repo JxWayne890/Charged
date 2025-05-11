@@ -1,6 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+
 interface HeroSectionProps {
   title: string;
   subtitle: string;
@@ -8,6 +9,7 @@ interface HeroSectionProps {
   ctaLink: string;
   backgroundImage: string;
 }
+
 const HeroSection = ({
   title,
   subtitle,
@@ -15,11 +17,15 @@ const HeroSection = ({
   ctaLink,
   backgroundImage
 }: HeroSectionProps) => {
-  return <div className="relative bg-black h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
+  return (
+    <div className="relative bg-black h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
       {/* Background Image with Overlay */}
-      <div className="absolute inset-0 bg-cover bg-center opacity-70" style={{
-      backgroundImage: `url(${backgroundImage})`
-    }}></div>
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-70" 
+        style={{
+          backgroundImage: `url(${backgroundImage || '/lovable-uploads/2938ee41-0bf0-46aa-9344-11afa927721b.png'})`
+        }}
+      ></div>
       
       {/* Content */}
       <div className="relative h-full container mx-auto px-4 flex flex-col justify-center items-start">
@@ -37,6 +43,8 @@ const HeroSection = ({
           </Button>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default HeroSection;
