@@ -120,7 +120,7 @@ const DesktopNav = () => {
           >
             <Link 
               to={`/${menuItem.toLowerCase()}`} 
-              className="flex items-center font-medium hover:text-primary transition-colors duration-200"
+              className="flex items-center font-medium text-white hover:text-primary transition-colors duration-200"
             >
               {menuItem}
               <ChevronDown size={16} className="ml-1" />
@@ -135,7 +135,7 @@ const DesktopNav = () => {
                   <div className="col-span-2 grid grid-cols-2 gap-8">
                     {megaMenuData[menuItem].columns.map((column, idx) => (
                       <div key={idx}>
-                        <h3 className="font-oswald text-sm uppercase mb-3 tracking-wide">{column.title}</h3>
+                        <h3 className="font-oswald text-sm uppercase mb-3 tracking-wide text-black">{column.title}</h3>
                         <ul className="space-y-2">
                           {column.items.map((item) => (
                             <li key={item.label}>
@@ -182,7 +182,7 @@ const DesktopNav = () => {
         <li>
           <Link 
             to="/bundles" 
-            className="font-medium hover:text-primary transition-colors duration-200"
+            className="font-medium text-white hover:text-primary transition-colors duration-200"
           >
             Bundles
           </Link>
@@ -190,7 +190,7 @@ const DesktopNav = () => {
         <li>
           <Link 
             to="/blog" 
-            className="font-medium hover:text-primary transition-colors duration-200"
+            className="font-medium text-white hover:text-primary transition-colors duration-200"
           >
             Blog
           </Link>

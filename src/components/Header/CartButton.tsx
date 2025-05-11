@@ -8,7 +8,7 @@ const CartButton = () => {
   return (
     <button
       onClick={() => setIsCartOpen(true)}
-      className="relative p-2 hover:text-primary transition-colors duration-200"
+      className="relative p-2 text-white hover:text-primary transition-colors duration-200"
       aria-label="Shopping Cart"
     >
       <ShoppingCart size={20} />

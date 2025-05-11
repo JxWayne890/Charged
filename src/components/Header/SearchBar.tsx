@@ -23,7 +23,7 @@ const SearchBar = () => {
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="p-2 hover:text-primary transition-colors duration-200"
+          className="p-2 text-white hover:text-primary transition-colors duration-200"
           aria-label="Search"
         >
           <Search size={20} />
