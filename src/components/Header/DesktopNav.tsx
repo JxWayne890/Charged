@@ -109,8 +109,8 @@ const DesktopNav = () => {
   };
 
   return (
-    <nav className="hidden lg:block">
-      <ul className="flex items-center space-x-6">
+    <nav className="hidden lg:block w-full">
+      <ul className="flex items-center justify-center space-x-6">
         {Object.keys(megaMenuData).map((menuItem) => (
           <li 
             key={menuItem} 

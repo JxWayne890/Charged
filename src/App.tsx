@@ -12,6 +12,14 @@ import AnnouncementBar from "./components/AnnouncementBar";
 import CartDrawer from "./components/CartDrawer";
 import NotFound from "./pages/NotFound";
 
+// Import category pages
+import ShopPage from "./pages/categories/ShopPage";
+import ProteinPage from "./pages/categories/ProteinPage";
+import PreWorkoutPage from "./pages/categories/PreWorkoutPage";
+import WeightLossPage from "./pages/categories/WeightLossPage";
+import AminoAcidsPage from "./pages/categories/AminoAcidsPage";
+import WellnessPage from "./pages/categories/WellnessPage";
+
 const queryClient = new QueryClient();
 
 // Set a date 7 days in the future for the flash sale
@@ -34,6 +42,15 @@ const App = () => (
             <main className="flex-1">
               <Routes>
                 <Route path="/" element={<Index />} />
+                
+                {/* Category Pages */}
+                <Route path="/shop" element={<ShopPage />} />
+                <Route path="/category/protein" element={<ProteinPage />} />
+                <Route path="/category/pre-workout" element={<PreWorkoutPage />} />
+                <Route path="/category/weight-loss" element={<WeightLossPage />} />
+                <Route path="/category/amino-acids" element={<AminoAcidsPage />} />
+                <Route path="/category/wellness" element={<WellnessPage />} />
+                
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

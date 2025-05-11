@@ -43,7 +43,7 @@ const Header = () => {
             <Logo />
           </div>
           
-          <div className="hidden lg:block mx-4 flex-1">
+          <div className="hidden lg:flex flex-1 justify-center">
             <DesktopNav />
           </div>
           
