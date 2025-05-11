@@ -9,11 +9,15 @@ import { products } from '@/data/products';
 import { blogPosts } from '@/data/blog';
 import { ugcItems, categoryLinks } from '@/data/dummyData';
 import BlogPostCard from '@/components/BlogPostCard';
+import FeaturedProductCarousel from '@/components/FeaturedProductCarousel';
 
 const Index = () => {
   // Filter for featured and best seller products
   const featuredProducts = products.filter(product => product.featured);
   const bestSellerProducts = products.filter(product => product.bestSeller);
+  
+  // Get only the first 5 featured products for the auto scroll carousel
+  const limitedFeaturedProducts = featuredProducts.slice(0, 5);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -25,6 +29,9 @@ const Index = () => {
         ctaLink="/best-sellers"
         backgroundImage="/lovable-uploads/2938ee41-0bf0-46aa-9344-11afa927721b.png"
       />
+      
+      {/* Featured Products Auto Carousel - NEW SECTION */}
+      <FeaturedProductCarousel products={limitedFeaturedProducts} />
 
       {/* Quick Category Links */}
       <section className="container mx-auto px-4 py-12">
