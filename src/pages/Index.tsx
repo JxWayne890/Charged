@@ -23,7 +23,7 @@ const Index = () => {
         subtitle="Premium supplements backed by science to help you reach your goals."
         ctaText="Shop Best-Sellers"
         ctaLink="/best-sellers"
-        backgroundImage="https://images.unsplash.com/photo-1534258936925-c58bed479fcb?q=80&w=1200&auto=format&fit=crop"
+        backgroundImage="" // This prop is no longer used as we're directly setting the image in the component
       />
 
       {/* Quick Category Links */}

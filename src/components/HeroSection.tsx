@@ -22,7 +22,7 @@ const HeroSection = ({
       {/* Background Image with Overlay */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-70"
-        style={{ backgroundImage: `url(${backgroundImage})` }}
+        style={{ backgroundImage: `url(public/lovable-uploads/27dac938-26b9-4202-8a44-8954f41f8604.png)` }}
       ></div>
       
       {/* Bolt overlay */}
