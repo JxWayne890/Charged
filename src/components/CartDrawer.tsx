@@ -1,7 +1,7 @@
 
 import { Minus, Plus, X, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -36,10 +36,13 @@ const CartDrawer = () => {
               <ShoppingCart className="mr-2" size={20} />
               Your Cart ({cartItems.length})
             </SheetTitle>
-            <SheetClose>
+            <button 
+              onClick={handleClose}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100"
+            >
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
-            </SheetClose>
+            </button>
           </div>
         </SheetHeader>
         
