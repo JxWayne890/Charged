@@ -37,6 +37,15 @@ const HeroSection = ({
       {/* Content */}
       <div className="relative h-full container mx-auto px-4 flex flex-col justify-center items-start">
         <div className="max-w-lg">
+          {/* Logo above the title */}
+          <div className="mb-6 flex justify-center w-full">
+            <img 
+              src="/lovable-uploads/2aa3e52f-35ac-42ea-ac84-51ff86ec9177.png" 
+              alt="Charged Up Nutrition" 
+              className="h-28 md:h-32 w-auto"
+            />
+          </div>
+          
           <h1 className="text-4xl md:text-5xl lg:text-6xl text-white mb-4 drop-shadow-md">
             {title}
           </h1>
