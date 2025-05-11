@@ -25,15 +25,6 @@ const HeroSection = ({
         style={{ backgroundImage: `url(public/lovable-uploads/27dac938-26b9-4202-8a44-8954f41f8604.png)` }}
       ></div>
       
-      {/* Bolt overlay */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-10">
-        <div className="w-full h-full max-w-md max-h-md">
-          <svg viewBox="0 0 24 24" fill="white" className="w-full h-full">
-            <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        </div>
-      </div>
-      
       {/* Content */}
       <div className="relative h-full container mx-auto px-4 flex flex-col justify-center items-start">
         <div className="max-w-lg">
