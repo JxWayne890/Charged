@@ -128,21 +128,22 @@ const DesktopNav = () => {
             
             {activeMenu === menuItem && (
               <div 
-                className="absolute left-0 top-full z-50 w-[800px] bg-white shadow-lg rounded-b-lg border border-gray-100 animate-fade-in"
-                style={{ marginLeft: '-200px' }}
+                className="absolute left-1/2 top-full z-50 w-[1000px] max-h-[600px] overflow-y-auto bg-white shadow-xl rounded-b-lg border border-gray-100 animate-fade-in"
+                style={{ transform: 'translateX(-50%)', maxWidth: 'calc(100vw - 40px)' }}
               >
                 <div className="p-6 grid grid-cols-3 gap-8">
                   <div className="col-span-2 grid grid-cols-2 gap-8">
                     {megaMenuData[menuItem].columns.map((column, idx) => (
-                      <div key={idx}>
-                        <h3 className="font-oswald text-sm uppercase mb-3 tracking-wide text-black">{column.title}</h3>
-                        <ul className="space-y-2">
+                      <div key={idx} className="space-y-4">
+                        <h3 className="font-oswald text-base uppercase mb-3 tracking-wide text-black border-b pb-2 border-gray-200">{column.title}</h3>
+                        <ul className="space-y-3">
                           {column.items.map((item) => (
                             <li key={item.label}>
                               <Link 
                                 to={item.href} 
-                                className="text-gray-600 hover:text-primary transition-colors duration-200"
+                                className="text-gray-700 hover:text-primary transition-colors duration-200 flex items-center"
                               >
+                                <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
                                 {item.label}
                               </Link>
                             </li>
@@ -154,20 +155,21 @@ const DesktopNav = () => {
                   
                   {megaMenuData[menuItem].featured && (
                     <div className="col-span-1">
-                      <div className="space-y-4">
+                      <div className="space-y-6">
+                        <h3 className="font-oswald text-base uppercase mb-3 tracking-wide text-black border-b pb-2 border-gray-200">Featured</h3>
                         {megaMenuData[menuItem].featured?.map((item, i) => (
                           <Link to={item.href} key={i} className="block group">
-                            <div className="aspect-video mb-2 overflow-hidden rounded bg-gray-100">
+                            <div className="aspect-video mb-3 overflow-hidden rounded-lg bg-gray-100 shadow-sm">
                               <div 
                                 className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-300"
                                 style={{ backgroundImage: `url(${item.image})` }}
                               ></div>
                             </div>
-                            <h3 className="font-medium text-sm group-hover:text-primary transition-colors">
+                            <h4 className="font-medium text-sm group-hover:text-primary transition-colors">
                               {item.title}
-                            </h3>
+                            </h4>
                             {item.description && (
-                              <p className="text-xs text-gray-500 mt-1">{item.description}</p>
+                              <p className="text-xs text-gray-600 mt-1">{item.description}</p>
                             )}
                           </Link>
                         ))}
