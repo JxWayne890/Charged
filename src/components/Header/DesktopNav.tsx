@@ -80,20 +80,6 @@ const megaMenuData: MegaMenu = {
         ]
       }
     ]
-  },
-  'Brands': {
-    columns: [
-      {
-        title: 'Our Brands',
-        items: [
-          { label: 'Charged Up', href: '/brands/charged-up' },
-          { label: 'Performance Lab', href: '/brands/performance-lab' },
-          { label: 'Elite Nutrition', href: '/brands/elite-nutrition' },
-          { label: 'Vital Proteins', href: '/brands/vital-proteins' },
-          { label: 'OptiFit', href: '/brands/optifit' },
-        ]
-      }
-    ]
   }
 };
 

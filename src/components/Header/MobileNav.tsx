@@ -33,7 +33,6 @@ const menuItems: MenuItem[] = [
       { label: 'General Health', href: '/goals/general-health' },
     ],
   },
-  { label: 'Brands', href: '/brands' },
   { label: 'Bundles', href: '/bundles' },
   { label: 'Blog', href: '/blog' },
 ];
