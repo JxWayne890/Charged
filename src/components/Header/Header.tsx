@@ -36,7 +36,7 @@ const Header = () => {
             <MobileNav />
           </div>
           
-          <div className="flex items-center py-2"> {/* Added padding to give more vertical space */}
+          <div className="flex items-center py-3"> {/* Increased padding to give more vertical space */}
             <Logo />
           </div>
           

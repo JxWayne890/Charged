@@ -6,9 +6,9 @@ const Logo = () => {
     <Link to="/" className="flex items-center">
       <div className="relative">
         <img 
-          src="/lovable-uploads/181e941c-228a-4955-bfd0-67d6cad65f94.png" 
+          src="/lovable-uploads/c491ed4d-1b3a-4132-8051-e5bf2757ce56.png" 
           alt="Charged Up Nutrition" 
-          className="h-16 w-auto md:h-20" // Increased from h-12 to h-16 on mobile and h-20 on medium screens and up
+          className="h-20 w-auto md:h-24" // Increased from h-16 to h-20 on mobile and h-24 on medium screens and up
         />
       </div>
     </Link>
