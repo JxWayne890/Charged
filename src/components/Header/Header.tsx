@@ -21,13 +21,16 @@ const Header = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
+    // Initial check in case the page is loaded scrolled down
+    handleScroll();
+    
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <header 
       className={`sticky top-0 z-40 w-full transition-all duration-300 ${
-        isScrolled ? 'bg-black/90 backdrop-blur-sm shadow-sm py-1' : 'bg-black/80 backdrop-blur-sm py-2'
+        isScrolled ? 'bg-black/90 backdrop-blur-sm shadow-sm py-1' : 'bg-transparent py-2'
       }`}
     >
       <div className="container mx-auto px-4">
