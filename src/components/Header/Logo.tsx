@@ -8,7 +8,7 @@ const Logo = () => {
         <img 
           src="/lovable-uploads/181e941c-228a-4955-bfd0-67d6cad65f94.png" 
           alt="Charged Up Nutrition" 
-          className="h-12 w-auto"
+          className="h-16 w-auto md:h-20" // Increased from h-12 to h-16 on mobile and h-20 on medium screens and up
         />
       </div>
     </Link>
