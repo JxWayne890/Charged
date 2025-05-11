@@ -3,11 +3,10 @@ import HeroSection from '@/components/HeroSection';
 import QuickCategoryLinks from '@/components/QuickCategoryLinks';
 import ProductCarousel from '@/components/ProductCarousel';
 import BundlePromo from '@/components/BundlePromo';
-import UGCStrip from '@/components/UGCStrip';
 import ValueStrip from '@/components/ValueStrip';
 import { products } from '@/data/products';
 import { blogPosts } from '@/data/blog';
-import { ugcItems, categoryLinks } from '@/data/dummyData';
+import { categoryLinks } from '@/data/dummyData';
 import BlogPostCard from '@/components/BlogPostCard';
 import FeaturedProductCarousel from '@/components/FeaturedProductCarousel';
 
@@ -51,11 +50,6 @@ const Index = () => {
       {/* Bundle Promo */}
       <section className="container mx-auto px-4 py-12">
         <BundlePromo />
-      </section>
-      
-      {/* UGC Strip */}
-      <section className="container mx-auto px-4 py-12">
-        <UGCStrip items={ugcItems} />
       </section>
       
       {/* Content Hub Teaser */}
