@@ -11,6 +11,8 @@ import Footer from "./components/Footer";
 import AnnouncementBar from "./components/AnnouncementBar";
 import CartDrawer from "./components/CartDrawer";
 import NotFound from "./pages/NotFound";
+import AllProductsPage from "./pages/AllProductsPage";
+import BlogPage from "./pages/BlogPage";
 
 // Import category pages
 import ShopPage from "./pages/categories/ShopPage";
@@ -43,13 +45,19 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 
-                {/* Category Pages */}
+                {/* Products Pages */}
                 <Route path="/shop" element={<ShopPage />} />
+                <Route path="/products" element={<AllProductsPage />} />
+                
+                {/* Category Pages */}
                 <Route path="/category/protein" element={<ProteinPage />} />
                 <Route path="/category/pre-workout" element={<PreWorkoutPage />} />
                 <Route path="/category/weight-loss" element={<WeightLossPage />} />
                 <Route path="/category/amino-acids" element={<AminoAcidsPage />} />
                 <Route path="/category/wellness" element={<WellnessPage />} />
+                
+                {/* Blog Page */}
+                <Route path="/blog" element={<BlogPage />} />
                 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

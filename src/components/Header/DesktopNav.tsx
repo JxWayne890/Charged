@@ -50,10 +50,10 @@ const megaMenuData: MegaMenu = {
         description: 'Our top-rated products loved by customers'
       },
       {
-        title: 'New Arrivals',
+        title: 'All Products',
         image: '/products/preworkout-1.jpg',
-        href: '/new-arrivals',
-        description: 'Check out our latest supplements'
+        href: '/products',
+        description: 'Browse our complete collection'
       }
     ]
   },
@@ -109,7 +109,7 @@ const DesktopNav = () => {
   };
 
   return (
-    <nav className="hidden lg:block w-full">
+    <nav className="hidden lg:flex w-full justify-center">
       <ul className="flex items-center justify-center space-x-6">
         {Object.keys(megaMenuData).map((menuItem) => (
           <li 
@@ -187,6 +187,14 @@ const DesktopNav = () => {
             className="font-medium text-white hover:text-primary transition-colors duration-200"
           >
             Bundles
+          </Link>
+        </li>
+        <li>
+          <Link 
+            to="/products" 
+            className="font-medium text-white hover:text-primary transition-colors duration-200"
+          >
+            All Products
           </Link>
         </li>
         <li>
