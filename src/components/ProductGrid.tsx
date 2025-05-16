@@ -38,6 +38,7 @@ const ProductGrid = () => {
         }
 
         const data = await response.json();
+        console.log('Fetched products:', data);
         setProducts(data);
         setLoading(false);
       } catch (err) {

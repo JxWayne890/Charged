@@ -16,34 +16,7 @@ serve(async (req) => {
   }
 
   try {
-    // Create Supabase client to access secrets
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
-    // Get the access token from Supabase secrets
-    const { data: secretData, error: secretError } = await supabaseClient
-      .from("secrets")
-      .select("value")
-      .eq("name", "SQUARE_ACCESS_TOKEN")
-      .single();
-
-    if (secretError || !secretData) {
-      console.error("Error fetching Square access token:", secretError);
-      return new Response(
-        JSON.stringify({ 
-          error: "Failed to retrieve Square access token",
-          details: secretError
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, "Content-Type": "application/json" } 
-        }
-      );
-    }
-
-    // Use Square Sandbox API
+    // Use Square Sandbox API with the provided token
     const response = await axios.post(
       'https://connect.squareupsandbox.com/v2/catalog/list',
       { types: 'ITEM' },
@@ -81,7 +54,7 @@ serve(async (req) => {
         details: err.response?.data || err.message
       }),
       { 
-        status: 404, 
+        status: 500, 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       }
     );
