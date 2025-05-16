@@ -3,9 +3,10 @@ import { useState } from 'react';
 import { Star, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatPrice } from '@/lib/utils';
+import { Product } from '@/types';
 
 interface ProductCardProps {
-  product: {
+  product: Product | {
     id: string;
     name: string;
     description: string;
@@ -24,8 +25,23 @@ const ProductCard = ({ product, className = "" }: ProductCardProps) => {
     console.log('Add to cart:', product);
   };
   
+  // Determine if this is a Square product or our typed Product
+  const isSquareProduct = 'name' in product;
+  
+  // Extract the product name based on the type
+  const productName = isSquareProduct ? product.name : product.title;
+  
+  // Extract the product description
+  const productDescription = isSquareProduct 
+    ? product.description 
+    : product.description || "No description available";
+  
   // Format price (Square stores amounts in cents)
-  const formattedPrice = formatPrice(product.price / 100);
+  const productPrice = isSquareProduct 
+    ? product.price / 100 
+    : product.salePrice || product.price;
+  
+  const formattedPrice = formatPrice(productPrice);
   
   return (
     <div 
@@ -37,19 +53,19 @@ const ProductCard = ({ product, className = "" }: ProductCardProps) => {
         <div className="relative aspect-square overflow-hidden bg-gray-100">
           {/* Placeholder image for products without images */}
           <div className="h-full w-full flex items-center justify-center bg-gray-100">
-            <p className="text-gray-500 text-center p-4">{product.name}</p>
+            <p className="text-gray-500 text-center p-4">{productName}</p>
           </div>
         </div>
         
         <div className="flex flex-col p-4">
           {/* Title */}
           <h3 className="text-md font-medium line-clamp-2">
-            {product.name}
+            {productName}
           </h3>
           
           {/* Description */}
           <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-            {product.description || "No description available"}
+            {productDescription}
           </p>
           
           {/* Price */}
