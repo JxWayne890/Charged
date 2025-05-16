@@ -16,7 +16,6 @@ import AllProductsPage from "./pages/AllProductsPage";
 import BlogPage from "./pages/BlogPage";
 import AuthPage from "./pages/AuthPage";
 import AccountPage from "./pages/AccountPage";
-import BestSellersPage from "./pages/BestSellersPage";
 
 // Import category pages
 import ShopPage from "./pages/categories/ShopPage";
@@ -57,7 +56,6 @@ const App = () => (
                   {/* Products Pages */}
                   <Route path="/shop" element={<ShopPage />} />
                   <Route path="/products" element={<AllProductsPage />} />
-                  <Route path="/best-sellers" element={<BestSellersPage />} />
                   
                   {/* Category Pages */}
                   <Route path="/category/protein" element={<ProteinPage />} />

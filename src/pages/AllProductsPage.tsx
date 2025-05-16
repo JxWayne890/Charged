@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/select';
 import { fetchSquareProducts, mapSquareProductsToAppFormat } from '@/lib/square';
 import { Product } from '@/types';
-import { toast } from '@/components/ui/use-toast';
 
 const AllProductsPage = () => {
   const [sortOption, setSortOption] = useState('featured');
@@ -25,27 +24,11 @@ const AllProductsPage = () => {
       try {
         setLoading(true);
         const squareProducts = await fetchSquareProducts();
-        
-        if (squareProducts.length === 0) {
-          toast({
-            title: "No products found",
-            description: "Unable to fetch products from Square at this time.",
-            variant: "destructive"
-          });
-          setError('No products available from Square. Please try again later.');
-          return;
-        }
-        
         const formattedProducts = mapSquareProductsToAppFormat(squareProducts);
         setProducts(formattedProducts);
         setError(null);
       } catch (err) {
         console.error('Failed to load products:', err);
-        toast({
-          title: "Error loading products",
-          description: "Failed to connect to Square API. Please try again later.",
-          variant: "destructive"
-        });
         setError('Failed to load products. Please try again later.');
       } finally {
         setLoading(false);

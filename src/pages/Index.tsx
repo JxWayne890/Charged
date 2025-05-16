@@ -11,7 +11,6 @@ import BlogPostCard from '@/components/BlogPostCard';
 import FeaturedProductCarousel from '@/components/FeaturedProductCarousel';
 import { fetchSquareProducts, mapSquareProductsToAppFormat } from '@/lib/square';
 import { Product } from '@/types';
-import { toast } from '@/components/ui/use-toast';
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -23,27 +22,11 @@ const Index = () => {
       try {
         setLoading(true);
         const squareProducts = await fetchSquareProducts();
-        
-        if (squareProducts.length === 0) {
-          toast({
-            title: "No products found",
-            description: "Unable to fetch products from Square at this time.",
-            variant: "destructive"
-          });
-          setError('No products available from Square. Please try again later.');
-          return;
-        }
-        
         const formattedProducts = mapSquareProductsToAppFormat(squareProducts);
         setProducts(formattedProducts);
         setError(null);
       } catch (err) {
         console.error('Failed to load products:', err);
-        toast({
-          title: "Error loading products",
-          description: "Failed to connect to Square API. Please try again later.",
-          variant: "destructive"
-        });
         setError('Failed to load products. Please try again later.');
       } finally {
         setLoading(false);
@@ -54,8 +37,9 @@ const Index = () => {
   }, []);
   
   // Mark some products as featured or best sellers for display purposes
-  const featuredProducts = products.filter(p => p.featured);
-  const bestSellerProducts = products.filter(p => p.bestSeller);
+  // In a real app, this would come from Square or be managed in your database
+  const featuredProducts = products.slice(0, 4).map(p => ({ ...p, featured: true }));
+  const bestSellerProducts = products.slice(2, 6).map(p => ({ ...p, bestSeller: true }));
   
   // Get only the first 5 featured products for the auto scroll carousel
   const limitedFeaturedProducts = featuredProducts.slice(0, 5);
