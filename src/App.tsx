@@ -31,56 +31,54 @@ const queryClient = new QueryClient();
 const flashSaleDate = new Date();
 flashSaleDate.setDate(flashSaleDate.getDate() + 7);
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <CartProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            
+            <div className="flex flex-col min-h-screen">
+              <AnnouncementBar targetDate={flashSaleDate.toISOString()} />
+              <Header />
+              <CartDrawer />
               
-              <div className="flex flex-col min-h-screen">
-                <AnnouncementBar targetDate={flashSaleDate.toISOString()} />
-                <Header />
-                <CartDrawer />
-                
-                <main className="flex-1">
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    
-                    {/* Auth & Account Pages */}
-                    <Route path="/auth" element={<AuthPage />} />
-                    <Route path="/account" element={<AccountPage />} />
-                    
-                    {/* Products Pages */}
-                    <Route path="/shop" element={<ShopPage />} />
-                    <Route path="/products" element={<AllProductsPage />} />
-                    
-                    {/* Category Pages */}
-                    <Route path="/category/protein" element={<ProteinPage />} />
-                    <Route path="/category/pre-workout" element={<PreWorkoutPage />} />
-                    <Route path="/category/weight-loss" element={<WeightLossPage />} />
-                    <Route path="/category/amino-acids" element={<AminoAcidsPage />} />
-                    <Route path="/category/wellness" element={<WellnessPage />} />
-                    
-                    {/* Blog Page */}
-                    <Route path="/blog" element={<BlogPage />} />
-                    
-                    {/* Catch all route */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </main>
-                
-                <Footer />
-              </div>
-            </TooltipProvider>
-          </CartProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
-  );
-}
+              <main className="flex-1">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  
+                  {/* Auth & Account Pages */}
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/account" element={<AccountPage />} />
+                  
+                  {/* Products Pages */}
+                  <Route path="/shop" element={<ShopPage />} />
+                  <Route path="/products" element={<AllProductsPage />} />
+                  
+                  {/* Category Pages */}
+                  <Route path="/category/protein" element={<ProteinPage />} />
+                  <Route path="/category/pre-workout" element={<PreWorkoutPage />} />
+                  <Route path="/category/weight-loss" element={<WeightLossPage />} />
+                  <Route path="/category/amino-acids" element={<AminoAcidsPage />} />
+                  <Route path="/category/wellness" element={<WellnessPage />} />
+                  
+                  {/* Blog Page */}
+                  <Route path="/blog" element={<BlogPage />} />
+                  
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+              
+              <Footer />
+            </div>
+          </TooltipProvider>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  </QueryClientProvider>
+);
 
 export default App;

@@ -1,8 +1,8 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { products } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import { Separator } from '@/components/ui/separator';
-import { Loader2 } from 'lucide-react';
 import { 
   Select,
   SelectContent,
@@ -12,48 +12,8 @@ import {
   SelectValue
 } from '@/components/ui/select';
 
-interface SquareProduct {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  currency: string;
-}
-
 const AllProductsPage = () => {
   const [sortOption, setSortOption] = useState('featured');
-  const [products, setProducts] = useState<SquareProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        // Calling our Supabase Edge Function
-        const response = await fetch('https://uabhicleiumptashiarr.supabase.co/functions/v1/catalog', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        setProducts(data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Failed to fetch products:', err);
-        setError('Failed to load products. Please try again later.');
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
   
   // Sort products based on the selected option
   const sortedProducts = [...products].sort((a, b) => {
@@ -63,33 +23,19 @@ const AllProductsPage = () => {
       case 'price-high':
         return b.price - a.price;
       case 'name-asc':
-        return a.name.localeCompare(b.name);
+        return a.title.localeCompare(b.title);
       case 'name-desc':
-        return b.name.localeCompare(a.name);
+        return b.title.localeCompare(a.title);
       case 'featured':
       default:
+        // Featured products first, then best sellers, then the rest
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        if (a.bestSeller && !b.bestSeller) return -1;
+        if (!a.bestSeller && b.bestSeller) return 1;
         return 0;
     }
   });
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-12 pt-32 flex justify-center items-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mr-2" />
-        <span>Loading products...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-12 pt-32">
-        <div className="text-center p-8 bg-red-50 text-red-700 rounded-md">
-          <p>{error}</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto px-4 py-12 pt-32">
