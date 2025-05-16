@@ -1,22 +1,73 @@
 
+import { useState, useEffect } from 'react';
 import HeroSection from '@/components/HeroSection';
 import QuickCategoryLinks from '@/components/QuickCategoryLinks';
 import ProductCarousel from '@/components/ProductCarousel';
 import BundlePromo from '@/components/BundlePromo';
 import ValueStrip from '@/components/ValueStrip';
-import { products } from '@/data/products';
-import { blogPosts } from '@/data/blog';
 import { categoryLinks } from '@/data/dummyData';
+import { blogPosts } from '@/data/blog';
 import BlogPostCard from '@/components/BlogPostCard';
 import FeaturedProductCarousel from '@/components/FeaturedProductCarousel';
+import { fetchSquareProducts, mapSquareProductsToAppFormat } from '@/lib/square';
+import { Product } from '@/types';
 
 const Index = () => {
-  // Filter for featured and best seller products
-  const featuredProducts = products.filter(product => product.featured);
-  const bestSellerProducts = products.filter(product => product.bestSeller);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const squareProducts = await fetchSquareProducts();
+        const formattedProducts = mapSquareProductsToAppFormat(squareProducts);
+        setProducts(formattedProducts);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load products:', err);
+        setError('Failed to load products. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadProducts();
+  }, []);
+  
+  // Mark some products as featured or best sellers for display purposes
+  // In a real app, this would come from Square or be managed in your database
+  const featuredProducts = products.slice(0, 4).map(p => ({ ...p, featured: true }));
+  const bestSellerProducts = products.slice(2, 6).map(p => ({ ...p, bestSeller: true }));
   
   // Get only the first 5 featured products for the auto scroll carousel
   const limitedFeaturedProducts = featuredProducts.slice(0, 5);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center p-8 max-w-lg">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <p className="mb-6">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -30,7 +81,9 @@ const Index = () => {
       />
       
       {/* Featured Products Auto Carousel - NEW SECTION */}
-      <FeaturedProductCarousel products={limitedFeaturedProducts} />
+      {limitedFeaturedProducts.length > 0 && (
+        <FeaturedProductCarousel products={limitedFeaturedProducts} />
+      )}
 
       {/* Quick Category Links */}
       <section className="container mx-auto px-4 py-12">
@@ -39,13 +92,15 @@ const Index = () => {
       </section>
       
       {/* Best Sellers */}
-      <section className="container mx-auto px-4 py-12">
-        <ProductCarousel 
-          title="Best Sellers" 
-          products={bestSellerProducts} 
-          viewAllLink="/best-sellers" 
-        />
-      </section>
+      {bestSellerProducts.length > 0 && (
+        <section className="container mx-auto px-4 py-12">
+          <ProductCarousel 
+            title="Best Sellers" 
+            products={bestSellerProducts} 
+            viewAllLink="/best-sellers" 
+          />
+        </section>
+      )}
       
       {/* Bundle Promo */}
       <section className="container mx-auto px-4 py-12">

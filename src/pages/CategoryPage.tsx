@@ -1,22 +1,72 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { products } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Home } from 'lucide-react';
+import { fetchSquareProducts, mapSquareProductsToAppFormat } from '@/lib/square';
+import { Product } from '@/types';
 
 // This is a reusable component for all category pages
 const CategoryPage = () => {
   const { category } = useParams<{ category: string }>();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const categoryFormatted = category ? category.replace(/-/g, ' ') : '';
   const capitalizedCategory = categoryFormatted.replace(/\b\w/g, char => char.toUpperCase());
+  
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const squareProducts = await fetchSquareProducts();
+        const formattedProducts = mapSquareProductsToAppFormat(squareProducts);
+        setProducts(formattedProducts);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load products:', err);
+        setError('Failed to load products. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadProducts();
+  }, [category]);
   
   // Filter products by the current category
   const categoryProducts = products.filter(
     product => product.category.toLowerCase() === categoryFormatted.toLowerCase()
   );
+  
+  if (loading) {
+    return (
+      <div className="pt-24 pb-12 flex justify-center items-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="pt-24 pb-12">
+        <div className="container mx-auto px-4">
+          <div className="text-center p-8 max-w-lg mx-auto">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+            <p className="mb-6">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="pt-24 pb-12">

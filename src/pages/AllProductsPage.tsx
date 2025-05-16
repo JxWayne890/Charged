@@ -1,6 +1,5 @@
 
-import { useState } from 'react';
-import { products } from '@/data/products';
+import { useState, useEffect } from 'react';
 import ProductCard from '@/components/ProductCard';
 import { Separator } from '@/components/ui/separator';
 import { 
@@ -11,9 +10,33 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { fetchSquareProducts, mapSquareProductsToAppFormat } from '@/lib/square';
+import { Product } from '@/types';
 
 const AllProductsPage = () => {
   const [sortOption, setSortOption] = useState('featured');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const squareProducts = await fetchSquareProducts();
+        const formattedProducts = mapSquareProductsToAppFormat(squareProducts);
+        setProducts(formattedProducts);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load products:', err);
+        setError('Failed to load products. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadProducts();
+  }, []);
   
   // Sort products based on the selected option
   const sortedProducts = [...products].sort((a, b) => {
@@ -36,6 +59,31 @@ const AllProductsPage = () => {
         return 0;
     }
   });
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 pt-32 flex justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-12 pt-32">
+        <div className="text-center p-8 max-w-lg mx-auto">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <p className="mb-6">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-primary text-white px-4 py-2 rounded hover:bg-primary-dark transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 pt-32">
@@ -72,9 +120,15 @@ const AllProductsPage = () => {
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {sortedProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+        {sortedProducts.length > 0 ? (
+          sortedProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12">
+            <p className="text-gray-600">No products found.</p>
+          </div>
+        )}
       </div>
     </div>
   );
