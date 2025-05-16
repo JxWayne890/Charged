@@ -37,11 +37,6 @@ const AuthPage = () => {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const navigate = useNavigate();
   
-  // If user is already logged in, redirect to account page
-  if (user && !isLoading) {
-    return <Navigate to="/account" />;
-  }
-
   // Login form
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -79,6 +74,11 @@ const AuthPage = () => {
       console.error('Signup error:', error);
     }
   };
+
+  // Move the conditional redirect after all hooks have been called
+  if (user && !isLoading) {
+    return <Navigate to="/account" />;
+  }
 
   return (
     <div className="container mx-auto px-4 py-16">
