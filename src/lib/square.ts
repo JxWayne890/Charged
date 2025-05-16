@@ -1,3 +1,4 @@
+
 // Square API integration utilities
 const squareApplicationId = import.meta.env.VITE_SQUARE_APPLICATION_ID || '';
 const squareAccessToken = import.meta.env.VITE_SQUARE_ACCESS_TOKEN || '';
@@ -15,85 +16,19 @@ interface SquareProduct {
   slug: string;
 }
 
-// Mock products to use when Square API can't be reached
-const mockProducts: SquareProduct[] = [
-  {
-    id: 'mock-1',
-    title: 'Premium Whey Protein',
-    description: 'High-quality protein powder for muscle recovery and growth.',
-    price: 49.99,
-    images: ['/placeholder.svg'],
-    category: 'protein',
-    stock: 15,
-    rating: 4.8,
-    reviewCount: 24,
-    slug: 'premium-whey-protein'
-  },
-  {
-    id: 'mock-2',
-    title: 'Pre-Workout Energy Boost',
-    description: 'Powerful pre-workout formula for maximum energy and focus.',
-    price: 39.99,
-    images: ['/placeholder.svg'],
-    category: 'pre-workout',
-    stock: 20,
-    rating: 4.7,
-    reviewCount: 18,
-    slug: 'pre-workout-energy-boost'
-  },
-  {
-    id: 'mock-3',
-    title: 'Daily Multivitamin',
-    description: 'Complete daily vitamin supplement for optimal health.',
-    price: 29.99,
-    images: ['/placeholder.svg'],
-    category: 'wellness',
-    stock: 35,
-    rating: 4.9,
-    reviewCount: 42,
-    slug: 'daily-multivitamin'
-  },
-  {
-    id: 'mock-4',
-    title: 'BCAA Recovery Complex',
-    description: 'Branched-chain amino acids for muscle recovery and endurance.',
-    price: 34.99,
-    images: ['/placeholder.svg'],
-    category: 'amino-acids',
-    stock: 18,
-    rating: 4.6,
-    reviewCount: 15,
-    slug: 'bcaa-recovery-complex'
-  },
-  {
-    id: 'mock-5',
-    title: 'Fat Burner Extreme',
-    description: 'Advanced formula to support weight management and metabolism.',
-    price: 44.99,
-    images: ['/placeholder.svg'],
-    category: 'weight-loss',
-    stock: 12,
-    rating: 4.5,
-    reviewCount: 27,
-    slug: 'fat-burner-extreme'
-  }
-];
-
 export async function fetchSquareProducts(): Promise<SquareProduct[]> {
-  // For browser CORS issues with direct API calls, we're returning mock products
-  // In a production environment, this should be handled through a backend proxy or serverless function
-  console.log('Fetching Square products (using mock data due to CORS restrictions)');
+  console.log('Fetching Square products');
   
   try {
-    // We'll keep this code commented as reference for server-side implementation
-    // Currently, direct browser calls to Square API are blocked by CORS
-    /*
+    // Use the catalog/list endpoint to get products
     const response = await fetch('https://connect.squareup.com/v2/catalog/list', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${squareAccessToken}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': window.location.origin,
+        'Access-Control-Allow-Origin': '*'
       },
       body: JSON.stringify({ types: ['ITEM'] })
     });
@@ -108,7 +43,7 @@ export async function fetchSquareProducts(): Promise<SquareProduct[]> {
     
     if (!data.objects || !Array.isArray(data.objects)) {
       console.warn('No catalog objects returned from Square API');
-      return mockProducts;
+      return [];
     }
     
     // Map Square catalog items to our product format
@@ -148,21 +83,20 @@ export async function fetchSquareProducts(): Promise<SquareProduct[]> {
           description: item.item_data.description || '',
           price: priceInCents / 100, // Convert from cents to dollars
           images: images,
-          category: item.item_data.category_id ? 'General' : 'General', // We'll need to make a separate call to get category names
+          category: item.item_data.category_id ? item.item_data.category_id : 'general',
           stock: variation && variation.item_variation_data ? (variation.item_variation_data.inventory_count || 10) : 10,
-          rating: 5.0, // Default rating
-          reviewCount: 0, // Default review count
+          rating: 4.5, // Default rating
+          reviewCount: 5, // Default review count
           slug: slug
         };
       });
-    */
     
-    // Return mock products for demonstration
-    return Promise.resolve(mockProducts);
+    console.log('Fetched products from Square:', products);
+    return products;
   } catch (error) {
     console.error('Error fetching Square products:', error);
-    // Return mock products as fallback
-    return mockProducts;
+    // Return empty array instead of mock products
+    return [];
   }
 }
 
