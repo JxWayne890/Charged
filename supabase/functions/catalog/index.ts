@@ -1,7 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import axios from "https://esm.sh/axios@1.6.7";
 
 // CORS headers for browser requests
 const corsHeaders = {
@@ -16,22 +15,26 @@ serve(async (req) => {
   }
 
   try {
-    // Use Square Production API with the provided token
-    const response = await axios.post(
-      'https://connect.squareup.com/v2/catalog/list',
-      { types: 'ITEM' },
-      {
-        headers: {
-          Authorization: `Bearer ${Deno.env.get("SQUARE_ACCESS_TOKEN")}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    // Use Square Production API with native fetch instead of axios
+    const response = await fetch('https://connect.squareup.com/v2/catalog/list', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${Deno.env.get("SQUARE_ACCESS_TOKEN")}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ types: 'ITEM' }),
+    });
 
+    if (!response.ok) {
+      throw new Error(`Square API returned ${response.status}: ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    
     // Process the items
-    const items = response.data.objects
-      .filter((obj: any) => obj.type === 'ITEM')
-      .map((item: any) => ({
+    const items = data.objects
+      .filter((obj) => obj.type === 'ITEM')
+      .map((item) => ({
         id: item.id,
         name: item.item_data.name,
         description: item.item_data.description || '',
@@ -47,11 +50,11 @@ serve(async (req) => {
       }
     );
   } catch (err) {
-    console.error("[Square API Error]:", err.response?.data || err);
+    console.error("[Square API Error]:", err);
     return new Response(
       JSON.stringify({ 
         error: "Failed to fetch catalog from Square",
-        details: err.response?.data || err.message
+        details: err.message
       }),
       { 
         status: 500, 
