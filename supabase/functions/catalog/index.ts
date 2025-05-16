@@ -13,14 +13,25 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Calling Square API with access token:', Deno.env.get('SQUARE_ACCESS_TOKEN')?.substring(0, 5) + '...');
+    
     const squareRes = await fetch('https://connect.squareup.com/v2/catalog/list', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${Deno.env.get('SQUARE_ACCESS_TOKEN')}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ types: ['ITEM'] }),
+      body: JSON.stringify({ 
+        types: ['ITEM'],
+        location_id: 'LAP5AV1E9Z15S' // Adding location ID
+      }),
     });
+
+    if (!squareRes.ok) {
+      const errorText = await squareRes.text();
+      console.error(`Square API returned ${squareRes.status}: ${errorText}`);
+      throw new Error(`Square API returned ${squareRes.status}: ${errorText}`);
+    }
 
     const squareData = await squareRes.json();
 
