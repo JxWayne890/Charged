@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,7 +16,6 @@ import AllProductsPage from "./pages/AllProductsPage";
 import BlogPage from "./pages/BlogPage";
 import AuthPage from "./pages/AuthPage";
 import AccountPage from "./pages/AccountPage";
-import SquareProductsPage from '@/pages/SquareProductsPage';
 
 // Import category pages
 import ShopPage from "./pages/categories/ShopPage";
@@ -68,8 +68,7 @@ function App() {
                     {/* Blog Page */}
                     <Route path="/blog" element={<BlogPage />} />
                     
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="/square-products" element={<SquareProductsPage />} />
+                    {/* Catch all route */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>
