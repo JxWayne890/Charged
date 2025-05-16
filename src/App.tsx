@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
+import { AuthProvider } from "@/context/AuthContext";
 import Index from "./pages/Index";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer";
@@ -13,6 +14,8 @@ import CartDrawer from "./components/CartDrawer";
 import NotFound from "./pages/NotFound";
 import AllProductsPage from "./pages/AllProductsPage";
 import BlogPage from "./pages/BlogPage";
+import AuthPage from "./pages/AuthPage";
+import AccountPage from "./pages/AccountPage";
 
 // Import category pages
 import ShopPage from "./pages/categories/ShopPage";
@@ -30,45 +33,51 @@ flashSaleDate.setDate(flashSaleDate.getDate() + 7);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <CartProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        
-        <BrowserRouter>
-          <div className="flex flex-col min-h-screen">
-            <AnnouncementBar targetDate={flashSaleDate.toISOString()} />
-            <Header />
-            <CartDrawer />
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
             
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                
-                {/* Products Pages */}
-                <Route path="/shop" element={<ShopPage />} />
-                <Route path="/products" element={<AllProductsPage />} />
-                
-                {/* Category Pages */}
-                <Route path="/category/protein" element={<ProteinPage />} />
-                <Route path="/category/pre-workout" element={<PreWorkoutPage />} />
-                <Route path="/category/weight-loss" element={<WeightLossPage />} />
-                <Route path="/category/amino-acids" element={<AminoAcidsPage />} />
-                <Route path="/category/wellness" element={<WellnessPage />} />
-                
-                {/* Blog Page */}
-                <Route path="/blog" element={<BlogPage />} />
-                
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            
-            <Footer />
-          </div>
-        </BrowserRouter>
-      </TooltipProvider>
-    </CartProvider>
+            <div className="flex flex-col min-h-screen">
+              <AnnouncementBar targetDate={flashSaleDate.toISOString()} />
+              <Header />
+              <CartDrawer />
+              
+              <main className="flex-1">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  
+                  {/* Auth & Account Pages */}
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/account" element={<AccountPage />} />
+                  
+                  {/* Products Pages */}
+                  <Route path="/shop" element={<ShopPage />} />
+                  <Route path="/products" element={<AllProductsPage />} />
+                  
+                  {/* Category Pages */}
+                  <Route path="/category/protein" element={<ProteinPage />} />
+                  <Route path="/category/pre-workout" element={<PreWorkoutPage />} />
+                  <Route path="/category/weight-loss" element={<WeightLossPage />} />
+                  <Route path="/category/amino-acids" element={<AminoAcidsPage />} />
+                  <Route path="/category/wellness" element={<WellnessPage />} />
+                  
+                  {/* Blog Page */}
+                  <Route path="/blog" element={<BlogPage />} />
+                  
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+              
+              <Footer />
+            </div>
+          </TooltipProvider>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 
