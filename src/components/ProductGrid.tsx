@@ -2,29 +2,24 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatPrice } from '@/lib/utils';
-import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import ProductCard from '@/components/ProductCard';
+import { Loader2, ShoppingCart } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
-interface SquareItem {
+interface SquareProduct {
   id: string;
-  item_data: {
-    name: string;
-    description?: string;
-    variations?: Array<{
-      id: string;
-      item_variation_data: {
-        price_money?: {
-          amount: number;
-          currency: string;
-        }
-      }
-    }>
-  }
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
 }
 
 const ProductGrid = () => {
-  const [products, setProducts] = useState<SquareItem[]>([]);
+  const [products, setProducts] = useState<SquareProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -43,7 +38,7 @@ const ProductGrid = () => {
         }
 
         const data = await response.json();
-        setProducts(data.items);
+        setProducts(data);
         setLoading(false);
       } catch (err) {
         console.error('Failed to fetch products:', err);
@@ -55,17 +50,12 @@ const ProductGrid = () => {
     fetchProducts();
   }, []);
 
-  // Helper function to get the price of a product
-  const getProductPrice = (product: SquareItem): string => {
-    if (product.item_data.variations && product.item_data.variations.length > 0) {
-      const variation = product.item_data.variations[0];
-      if (variation.item_variation_data.price_money) {
-        const { amount, currency } = variation.item_variation_data.price_money;
-        // Square stores prices in cents, so divide by 100 to get dollars
-        return formatPrice(amount / 100);
-      }
-    }
-    return 'Price not available';
+  const handleAddToCart = (product: SquareProduct) => {
+    console.log('Add to cart:', product);
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    });
   };
 
   if (loading) {
@@ -96,19 +86,7 @@ const ProductGrid = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {products.map((product) => (
-        <Card key={product.id} className="h-full flex flex-col">
-          <CardHeader>
-            <CardTitle className="text-lg">{product.item_data.name}</CardTitle>
-          </CardHeader>
-          <CardContent className="flex-grow">
-            <CardDescription>
-              {product.item_data.description || 'No description available'}
-            </CardDescription>
-          </CardContent>
-          <CardFooter className="pt-2 border-t">
-            <p className="font-semibold">{getProductPrice(product)}</p>
-          </CardFooter>
-        </Card>
+        <ProductCard key={product.id} product={product} />
       ))}
     </div>
   );
