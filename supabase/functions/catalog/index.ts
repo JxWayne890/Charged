@@ -16,9 +16,9 @@ serve(async (req) => {
   }
 
   try {
-    // Use Square Sandbox API with the provided token
+    // Use Square Production API with the provided token
     const response = await axios.post(
-      'https://connect.squareupsandbox.com/v2/catalog/list',
+      'https://connect.squareup.com/v2/catalog/list',
       { types: 'ITEM' },
       {
         headers: {
@@ -47,7 +47,7 @@ serve(async (req) => {
       }
     );
   } catch (err) {
-    console.error("Square API error:", err.response?.data || err);
+    console.error("[Square API Error]:", err.response?.data || err);
     return new Response(
       JSON.stringify({ 
         error: "Failed to fetch catalog from Square",
