@@ -10,8 +10,9 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { fetchSquareProducts, mapSquareProductsToAppFormat } from '@/lib/square';
+import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
+import { toast } from "@/components/ui/use-toast";
 
 const AllProductsPage = () => {
   const [sortOption, setSortOption] = useState('featured');
@@ -23,13 +24,26 @@ const AllProductsPage = () => {
     const loadProducts = async () => {
       try {
         setLoading(true);
-        const squareProducts = await fetchSquareProducts();
-        const formattedProducts = mapSquareProductsToAppFormat(squareProducts);
-        setProducts(formattedProducts);
+        const fetchedProducts = await fetchSquareProducts();
+        setProducts(fetchedProducts);
         setError(null);
+        
+        if (fetchedProducts.length === 0) {
+          console.warn('No products found');
+          toast({
+            title: "No products found",
+            description: "Your catalog appears to be empty. Please check your Square account.",
+            variant: "default",
+          });
+        }
       } catch (err) {
         console.error('Failed to load products:', err);
         setError('Failed to load products. Please try again later.');
+        toast({
+          title: "Error",
+          description: "Failed to load products. Please try again later.",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
@@ -95,41 +109,46 @@ const AllProductsPage = () => {
         <Separator className="w-24 bg-primary my-4" />
       </div>
       
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-        <div className="mb-4 md:mb-0">
-          <p className="text-gray-600">{sortedProducts.length} products</p>
-        </div>
-        
-        <div className="flex items-center">
-          <span className="mr-2 text-gray-700">Sort by:</span>
-          <Select value={sortOption} onValueChange={setSortOption}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="featured">Featured</SelectItem>
-                <SelectItem value="price-low">Price: Low to High</SelectItem>
-                <SelectItem value="price-high">Price: High to Low</SelectItem>
-                <SelectItem value="name-asc">Name: A to Z</SelectItem>
-                <SelectItem value="name-desc">Name: Z to A</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {sortedProducts.length > 0 ? (
-          sortedProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))
-        ) : (
-          <div className="col-span-full text-center py-12">
-            <p className="text-gray-600">No products found.</p>
+      {products.length > 0 ? (
+        <>
+          <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+            <div className="mb-4 md:mb-0">
+              <p className="text-gray-600">{products.length} products</p>
+            </div>
+            
+            <div className="flex items-center">
+              <span className="mr-2 text-gray-700">Sort by:</span>
+              <Select value={sortOption} onValueChange={setSortOption}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="featured">Featured</SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                    <SelectItem value="name-asc">Name: A to Z</SelectItem>
+                    <SelectItem value="name-desc">Name: Z to A</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        )}
-      </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {sortedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="text-center py-12">
+          <h3 className="text-xl font-medium mb-4">No Products Available</h3>
+          <p className="text-gray-600 mb-6">
+            We couldn't find any products in our catalog. Please check back later!
+          </p>
+        </div>
+      )}
     </div>
   );
 };

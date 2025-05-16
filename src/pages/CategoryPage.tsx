@@ -4,8 +4,9 @@ import { useParams } from 'react-router-dom';
 import ProductCard from '@/components/ProductCard';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Home } from 'lucide-react';
-import { fetchSquareProducts, mapSquareProductsToAppFormat } from '@/lib/square';
+import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
+import { toast } from "@/components/ui/use-toast";
 
 // This is a reusable component for all category pages
 const CategoryPage = () => {
@@ -21,13 +22,17 @@ const CategoryPage = () => {
     const loadProducts = async () => {
       try {
         setLoading(true);
-        const squareProducts = await fetchSquareProducts();
-        const formattedProducts = mapSquareProductsToAppFormat(squareProducts);
-        setProducts(formattedProducts);
+        const fetchedProducts = await fetchSquareProducts();
+        setProducts(fetchedProducts);
         setError(null);
       } catch (err) {
         console.error('Failed to load products:', err);
         setError('Failed to load products. Please try again later.');
+        toast({
+          title: "Error",
+          description: "Failed to load products. Please try again later.",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
@@ -102,20 +107,27 @@ const CategoryPage = () => {
       
       {/* Products Grid */}
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {categoryProducts.length > 0 ? (
-            categoryProducts.map(product => (
+        {products.length === 0 ? (
+          <div className="text-center py-12">
+            <h3 className="text-xl font-medium mb-2">No products available</h3>
+            <p className="text-gray-600">
+              We couldn't find any products in our catalog. Please check back later!
+            </p>
+          </div>
+        ) : categoryProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <h3 className="text-xl font-medium mb-2">No products found in this category</h3>
+            <p className="text-gray-600">
+              We currently don't have any products in the {categoryFormatted} category. Please check back later!
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {categoryProducts.map(product => (
               <ProductCard key={product.id} product={product} />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <h3 className="text-xl font-medium mb-2">No products found</h3>
-              <p className="text-gray-600">
-                We currently don't have any products in this category. Please check back later!
-              </p>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

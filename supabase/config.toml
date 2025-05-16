@@ -1,1 +1,5 @@
+
 project_id = "uabhicleiumptashiarr"
+
+[functions.catalog]
+verify_jwt = false

@@ -9,8 +9,9 @@ import { categoryLinks } from '@/data/dummyData';
 import { blogPosts } from '@/data/blog';
 import BlogPostCard from '@/components/BlogPostCard';
 import FeaturedProductCarousel from '@/components/FeaturedProductCarousel';
-import { fetchSquareProducts, mapSquareProductsToAppFormat } from '@/lib/square';
+import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
+import { toast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -21,10 +22,18 @@ const Index = () => {
     const loadProducts = async () => {
       try {
         setLoading(true);
-        const squareProducts = await fetchSquareProducts();
-        const formattedProducts = mapSquareProductsToAppFormat(squareProducts);
-        setProducts(formattedProducts);
+        const fetchedProducts = await fetchSquareProducts();
+        setProducts(fetchedProducts);
         setError(null);
+        
+        if (fetchedProducts.length === 0) {
+          console.warn('No products found');
+          toast({
+            title: "No products found",
+            description: "Your catalog appears to be empty. Please check your Square account.",
+            variant: "default",
+          });
+        }
       } catch (err) {
         console.error('Failed to load products:', err);
         setError('Failed to load products. Please try again later.');
@@ -36,10 +45,9 @@ const Index = () => {
     loadProducts();
   }, []);
   
-  // Mark some products as featured or best sellers for display purposes
-  // In a real app, this would come from Square or be managed in your database
-  const featuredProducts = products.slice(0, 4).map(p => ({ ...p, featured: true }));
-  const bestSellerProducts = products.slice(2, 6).map(p => ({ ...p, bestSeller: true }));
+  // Filter products for featured and best sellers
+  const featuredProducts = products.filter(p => p.featured);
+  const bestSellerProducts = products.filter(p => p.bestSeller);
   
   // Get only the first 5 featured products for the auto scroll carousel
   const limitedFeaturedProducts = featuredProducts.slice(0, 5);
@@ -80,7 +88,7 @@ const Index = () => {
         backgroundImage="/lovable-uploads/2938ee41-0bf0-46aa-9344-11afa927721b.png"
       />
       
-      {/* Featured Products Auto Carousel - NEW SECTION */}
+      {/* Featured Products Auto Carousel - Show only if we have featured products */}
       {limitedFeaturedProducts.length > 0 && (
         <FeaturedProductCarousel products={limitedFeaturedProducts} />
       )}
@@ -91,14 +99,19 @@ const Index = () => {
         <QuickCategoryLinks categories={categoryLinks} />
       </section>
       
-      {/* Best Sellers */}
-      {bestSellerProducts.length > 0 && (
+      {/* Best Sellers - Show only if we have best seller products */}
+      {bestSellerProducts.length > 0 ? (
         <section className="container mx-auto px-4 py-12">
           <ProductCarousel 
             title="Best Sellers" 
             products={bestSellerProducts} 
             viewAllLink="/best-sellers" 
           />
+        </section>
+      ) : (
+        <section className="container mx-auto px-4 py-12">
+          <h2 className="text-2xl font-bold mb-6">Best Sellers</h2>
+          <p className="text-center text-gray-600">No best sellers available at the moment. Check back soon!</p>
         </section>
       )}
       
