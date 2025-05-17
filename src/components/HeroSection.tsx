@@ -27,7 +27,7 @@ const HeroSection = ({
         className="absolute inset-0 bg-cover bg-center opacity-70" 
         style={{
           backgroundImage: `url(${backgroundImage || '/lovable-uploads/2938ee41-0bf0-46aa-9344-11afa927721b.png'})`,
-          backgroundPosition: isMobile ? 'right center' : 'center'
+          backgroundPosition: isMobile ? 'right center' : 'center bottom'
         }}
       ></div>
       
