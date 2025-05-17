@@ -15,6 +15,7 @@ serve(async (req) => {
   try {
     console.log('Calling Square API with access token:', Deno.env.get('SQUARE_ACCESS_TOKEN')?.substring(0, 5) + '...');
     
+    // First fetch products and images
     const squareRes = await fetch(
       'https://connect.squareup.com/v2/catalog/list?types=ITEM,IMAGE&location_id=LAP5AV1E9Z15S',
       {
@@ -33,6 +34,35 @@ serve(async (req) => {
     }
 
     const squareData = await squareRes.json();
+
+    // Fetch categories in a separate call
+    const categoryRes = await fetch(
+      'https://connect.squareup.com/v2/catalog/list?types=CATEGORY',
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${Deno.env.get('SQUARE_ACCESS_TOKEN')}`,
+          Accept: 'application/json'
+        }
+      }
+    );
+
+    if (!categoryRes.ok) {
+      const errorText = await categoryRes.text();
+      console.error(`Square Categories API returned ${categoryRes.status}: ${errorText}`);
+      // Continue with products but log the error - don't throw
+      console.error('Will use fallback category names');
+    }
+
+    // Create a map of category IDs to names
+    const categoryData = await categoryRes.json();
+    const categoryMap = new Map(
+      categoryData.objects?.map((obj: any) => [obj.id, obj.category_data.name]) || []
+    );
+    
+    if (categoryMap.size > 0) {
+      console.log(`Fetched ${categoryMap.size} categories from Square`);
+    }
 
     if (!squareData.objects || !Array.isArray(squareData.objects)) {
       console.error('No catalog objects returned from Square API:', squareData);
@@ -84,13 +114,20 @@ serve(async (req) => {
           .replace(/[^\w\s-]/g, '')
           .replace(/\s+/g, '-');
         
+        // Get proper category name from category map
+        const categoryName = categoryMap.get(
+          item.item_data.category_id || 
+          item.item_data.reporting_category?.id ||
+          item.item_data.categories?.[0]?.id
+        ) || 'Uncategorized';
+        
         return {
           id: item.id,
           title: item.item_data.name,
           description: item.item_data.description || '',
           price: priceInCents / 100, // Convert from cents to dollars
           images: images,
-          category: item.item_data.category || 'General', // Default category
+          category: categoryName, // Use mapped category name
           stock: variation && variation.item_variation_data ? (variation.item_variation_data.inventory_count || 10) : 10,
           rating: 5.0, // Default rating
           reviewCount: 0, // Default review count
@@ -101,7 +138,7 @@ serve(async (req) => {
           ingredients: 'Natural ingredients',
           directions: 'Follow package instructions',
           faqs: [],
-          tags: [item.item_data.category || 'General'],
+          tags: [categoryName], // Use the same category name for tags
         };
       });
 
