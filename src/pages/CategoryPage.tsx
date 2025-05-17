@@ -15,6 +15,7 @@ const CategoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  // Format category from URL parameter (e.g., "pre-workout" -> "Pre Workout")
   const categoryFormatted = category ? category.replace(/-/g, ' ') : '';
   const capitalizedCategory = categoryFormatted.replace(/\b\w/g, char => char.toUpperCase());
   
@@ -41,10 +42,24 @@ const CategoryPage = () => {
     loadProducts();
   }, [category]);
   
-  // Filter products by the current category
-  const categoryProducts = products.filter(
-    product => product.category.toLowerCase() === categoryFormatted.toLowerCase()
-  );
+  // Improved filter to match category names more accurately
+  const categoryProducts = products.filter(product => {
+    // Normalize both strings for comparison
+    const productCategory = product.category.toLowerCase().trim();
+    const urlCategory = categoryFormatted.toLowerCase().trim();
+    
+    // Handle special cases for common formatting differences
+    if (urlCategory === 'pre workout' && productCategory === 'pre-workout') {
+      return true;
+    }
+    
+    if (urlCategory === 'amino acids' && productCategory === 'aminos') {
+      return true;
+    }
+    
+    // Direct comparison with normalized strings
+    return productCategory === urlCategory;
+  });
   
   if (loading) {
     return (
