@@ -22,19 +22,8 @@ const HeroSection = ({
   
   return (
     <div className="relative bg-black h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
-      {/* Background Image with Overlay */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center opacity-70" 
-        style={{
-          backgroundImage: `url(${backgroundImage || '/lovable-uploads/2938ee41-0bf0-46aa-9344-11afa927721b.png'})`,
-          backgroundPosition: isMobile ? 'right center' : 'center center',
-          backgroundSize: 'contain',
-          backgroundRepeat: 'no-repeat'
-        }}
-      ></div>
-      
       {/* Content */}
-      <div className="relative h-full container mx-auto px-4 flex flex-col justify-center items-start">
+      <div className="relative h-full container mx-auto px-4 flex flex-col justify-center">
         <div className="max-w-lg">
           <h1 className="text-4xl md:text-5xl lg:text-6xl text-white mb-4 drop-shadow-md">
             {title}
@@ -49,6 +38,17 @@ const HeroSection = ({
           </Button>
         </div>
       </div>
+
+      {/* Background Image with Overlay - positioned to the right */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-70" 
+        style={{
+          backgroundImage: `url(${backgroundImage || '/lovable-uploads/2938ee41-0bf0-46aa-9344-11afa927721b.png'})`,
+          backgroundPosition: isMobile ? 'right center' : 'right center',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat'
+        }}
+      ></div>
     </div>
   );
 };
