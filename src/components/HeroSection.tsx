@@ -19,11 +19,12 @@ const HeroSection = ({
 }: HeroSectionProps) => {
   return (
     <div className="relative bg-black h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
-      {/* Background Image with Overlay */}
+      {/* Background Image with Overlay - positioned more to the left */}
       <div 
-        className="absolute inset-0 bg-cover bg-center opacity-70" 
+        className="absolute inset-0 bg-cover opacity-70" 
         style={{
-          backgroundImage: `url(${backgroundImage || '/lovable-uploads/2938ee41-0bf0-46aa-9344-11afa927721b.png'})`
+          backgroundImage: `url(${backgroundImage || '/lovable-uploads/2938ee41-0bf0-46aa-9344-11afa927721b.png'})`,
+          backgroundPosition: 'left center' // Changed from center to left center
         }}
       ></div>
       
