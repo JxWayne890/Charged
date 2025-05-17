@@ -6,6 +6,43 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Function to standardize category names
+const standardizeCategory = (categoryName: string): string => {
+  // Convert to lowercase for case-insensitive matching
+  const lowercaseName = (categoryName || '').toLowerCase().trim();
+  
+  // Standard categories mapping
+  if (lowercaseName.includes('protein') || lowercaseName.includes('whey') || 
+      lowercaseName === 'protein powder') {
+    return 'Protein';
+  }
+  
+  if (lowercaseName.includes('pre workout') || lowercaseName.includes('pre-workout') || 
+      lowercaseName === 'pre workout extreme villain') {
+    return 'Pre-Workout';
+  }
+  
+  if (lowercaseName.includes('weight') || lowercaseName.includes('fat') || 
+      lowercaseName.includes('burn') || lowercaseName.includes('thermogenic')) {
+    return 'Weight Loss';
+  }
+  
+  if (lowercaseName.includes('amino') || lowercaseName === 'aminos' || 
+      lowercaseName === 'bcaa') {
+    return 'Amino Acids';
+  }
+  
+  if (lowercaseName.includes('vitamin') || lowercaseName.includes('health') || 
+      lowercaseName.includes('essential') || lowercaseName.includes('multivitamin') || 
+      lowercaseName.includes('anti-aging')) {
+    return 'Wellness';
+  }
+  
+  // Default fallback - for now, uncategorized items will use original name
+  console.log(`Uncategorized product with category: ${categoryName}`);
+  return categoryName || 'Uncategorized';
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -145,12 +182,21 @@ serve(async (req) => {
           })
         );
         
-        // Apply some manual mapping for standard supplement categories if needed
-        if (item.item_data.name.toLowerCase().includes('protein') && !categoryName.toLowerCase().includes('protein')) {
-          categoryName = 'Protein';
-        } else if (item.item_data.name.toLowerCase().includes('pre workout') && !categoryName.toLowerCase().includes('pre')) {
-          categoryName = 'Pre-Workout';
+        // Infer category from product name if needed
+        const productName = item.item_data.name.toLowerCase();
+        if (categoryName === 'Uncategorized') {
+          if (productName.includes('protein') || productName.includes('whey')) {
+            categoryName = 'Protein';
+          } else if (productName.includes('pre workout') || productName.includes('pre-workout')) {
+            categoryName = 'Pre-Workout';
+          } else if (productName.includes('amino') || productName.includes('bcaa')) {
+            categoryName = 'Amino Acids';
+          }
         }
+        
+        // STANDARDIZE CATEGORY NAMES - this is the key change
+        const standardizedCategory = standardizeCategory(categoryName);
+        console.log(`Standardized category: "${categoryName}" -> "${standardizedCategory}"`);
         
         return {
           id: item.id,
@@ -158,7 +204,7 @@ serve(async (req) => {
           description: item.item_data.description || '',
           price: priceInCents / 100, // Convert from cents to dollars
           images: images,
-          category: categoryName, // Use mapped category name
+          category: standardizedCategory, // Use standardized category name
           stock: variation && variation.item_variation_data ? (variation.item_variation_data.inventory_count || 10) : 10,
           rating: 5.0, // Default rating
           reviewCount: 0, // Default review count
@@ -169,11 +215,15 @@ serve(async (req) => {
           ingredients: 'Natural ingredients',
           directions: 'Follow package instructions',
           faqs: [],
-          tags: [categoryName], // Use the same category name for tags
+          tags: [standardizedCategory], // Use the same standardized category name for tags
         };
       });
 
     console.log(`Successfully fetched ${products.length} products from Square`);
+    
+    // Log the standardized categories for verification
+    const categories = [...new Set(products.map(p => p.category))];
+    console.log(`Standardized categories: ${JSON.stringify(categories)}`);
 
     return new Response(
       JSON.stringify(products),

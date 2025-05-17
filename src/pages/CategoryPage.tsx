@@ -8,6 +8,21 @@ import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
 import { toast } from "@/components/ui/use-toast";
 
+// Function to standardize category names for URL parameters
+const standardizeUrlCategory = (urlCategory: string): string => {
+  const normalized = urlCategory.toLowerCase().trim().replace(/-/g, ' ');
+  
+  // Map to standard category names
+  if (normalized === 'protein') return 'Protein';
+  if (normalized === 'pre workout' || normalized === 'preworkout') return 'Pre-Workout';
+  if (normalized === 'weight loss') return 'Weight Loss';
+  if (normalized === 'amino acids' || normalized === 'aminos') return 'Amino Acids';
+  if (normalized === 'wellness') return 'Wellness';
+  
+  // If no match, capitalize each word
+  return normalized.replace(/\b\w/g, char => char.toUpperCase());
+};
+
 // This is a reusable component for all category pages
 const CategoryPage = () => {
   const { category } = useParams<{ category: string }>();
@@ -15,9 +30,9 @@ const CategoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Format category from URL parameter (e.g., "pre-workout" -> "Pre Workout")
+  // Format and standardize category from URL parameter
   const categoryFormatted = category ? category.replace(/-/g, ' ') : '';
-  const capitalizedCategory = categoryFormatted.replace(/\b\w/g, char => char.toUpperCase());
+  const standardCategory = standardizeUrlCategory(categoryFormatted);
   
   useEffect(() => {
     const loadProducts = async () => {
@@ -42,75 +57,24 @@ const CategoryPage = () => {
     loadProducts();
   }, [category]);
   
-  // Debug logs to help identify the issue
+  // Debug logs
   console.log('Current URL category:', category);
   console.log('Formatted category:', categoryFormatted);
+  console.log('Standardized category:', standardCategory);
   console.log('All products:', products);
   console.log('Product categories:', products.map(p => p.category));
   
-  // Enhanced matching logic for category names
+  // Simple matching logic using standardized categories
   const categoryProducts = products.filter(product => {
+    // Skip products with no category
     if (!product.category) return false;
     
-    // Normalize both strings for comparison (lowercase and trim whitespace)
-    const productCategory = product.category.toLowerCase().trim();
-    const urlCategory = categoryFormatted.toLowerCase().trim();
+    // Compare the product's category with our standardized URL category
+    // Since we've already standardized both at the source, this should be a simple equals check
+    const match = product.category === standardCategory;
     
-    console.log(`Comparing: "${urlCategory}" with "${productCategory}"`);
-
-    // Direct match case
-    if (productCategory === urlCategory) {
-      return true;
-    }
-    
-    // Handle hyphenation differences
-    if (urlCategory === 'pre workout' && productCategory === 'pre-workout') {
-      return true;
-    }
-    
-    if (urlCategory === 'amino acids' && 
-        (productCategory === 'aminos' || productCategory === 'amino acids' || productCategory.includes('amino'))) {
-      return true;
-    }
-    
-    // Special case for Protein category
-    if (urlCategory === 'protein' && 
-        (productCategory === 'protein' || 
-         productCategory.includes('protein') ||
-         productCategory === 'whey' ||
-         productCategory.includes('whey') ||
-         productCategory === 'protein powder')) {
-      return true;
-    }
-    
-    // Special case for Weight Loss
-    if (urlCategory === 'weight loss' && 
-        (productCategory === 'weight loss' ||
-         productCategory.includes('weight') ||
-         productCategory.includes('fat') ||
-         productCategory.includes('burn') ||
-         productCategory.includes('thermogenic'))) {
-      return true;
-    }
-    
-    // Special case for Pre-Workout
-    if (urlCategory === 'pre-workout' && 
-        (productCategory === 'pre workout' ||
-         productCategory.toLowerCase().includes('pre workout') ||
-         productCategory.toLowerCase().includes('pre-workout'))) {
-      return true;
-    }
-
-    // Special case for Wellness
-    if (urlCategory === 'wellness' && 
-        (productCategory === 'wellness' ||
-         productCategory.includes('vitamin') ||
-         productCategory.includes('health') ||
-         productCategory.includes('essential'))) {
-      return true;
-    }
-    
-    return false;
+    console.log(`Comparing: "${standardCategory}" with "${product.category}" = ${match}`);
+    return match;
   });
   
   console.log('Filtered products:', categoryProducts);
@@ -161,12 +125,12 @@ const CategoryPage = () => {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbLink>{capitalizedCategory}</BreadcrumbLink>
+                <BreadcrumbLink>{standardCategory}</BreadcrumbLink>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
           
-          <h1 className="text-4xl font-bold text-white mb-2">{capitalizedCategory}</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">{standardCategory}</h1>
           <p className="text-gray-300 max-w-2xl">
             Shop our selection of premium quality {categoryFormatted} products designed 
             to help you achieve your fitness goals.
@@ -187,7 +151,7 @@ const CategoryPage = () => {
           <div className="text-center py-12">
             <h3 className="text-xl font-medium mb-2">No products found in this category</h3>
             <p className="text-gray-600">
-              We currently don't have any products in the {categoryFormatted} category. Please check back later!
+              We currently don't have any products in the {standardCategory} category. Please check back later!
             </p>
           </div>
         ) : (
