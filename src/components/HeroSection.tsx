@@ -24,7 +24,7 @@ const HeroSection = ({
     <div className="relative bg-black h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
       {/* Content */}
       <div className="relative h-full container mx-auto px-4 flex flex-col justify-center">
-        <div className="max-w-lg bg-black bg-opacity-60 p-6 rounded-lg">
+        <div className="max-w-lg">
           <h1 className="text-4xl md:text-5xl lg:text-6xl text-white mb-4 drop-shadow-md">
             {title}
           </h1>
