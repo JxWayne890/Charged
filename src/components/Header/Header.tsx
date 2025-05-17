@@ -37,7 +37,7 @@ const Header = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center lg:hidden">
+          <div className="flex items-center">
             <MobileNav />
           </div>
           
