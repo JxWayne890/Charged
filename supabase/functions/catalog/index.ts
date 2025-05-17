@@ -78,6 +78,15 @@ serve(async (req) => {
       );
     }
 
+    // Debug log all categories
+    if (categoryData.objects && Array.isArray(categoryData.objects)) {
+      console.log('Available Square categories:', 
+        categoryData.objects.map((cat: any) => 
+          `${cat.id}: ${cat.category_data.name}`
+        )
+      );
+    }
+
     const products = squareData.objects
       .filter(
         (item: any) =>
@@ -114,12 +123,34 @@ serve(async (req) => {
           .replace(/[^\w\s-]/g, '')
           .replace(/\s+/g, '-');
         
+        // Get all possible category IDs from the item
+        const categoryId = item.item_data.category_id || 
+                         item.item_data.reporting_category?.id ||
+                         (item.item_data.categories && item.item_data.categories.length > 0 
+                          ? item.item_data.categories[0].id : null);
+                         
         // Get proper category name from category map
-        const categoryName = categoryMap.get(
-          item.item_data.category_id || 
-          item.item_data.reporting_category?.id ||
-          item.item_data.categories?.[0]?.id
-        ) || 'Uncategorized';
+        let categoryName = categoryMap.get(categoryId) || 'Uncategorized';
+        
+        // Log item category information for debugging
+        console.log(`Item "${item.item_data.name}" - category ID: ${categoryId}, mapped name: ${categoryName}`);
+        
+        // For debugging: Print all properties of item.item_data related to categories
+        console.log(`Item "${item.item_data.name}" category details:`, 
+          JSON.stringify({
+            category_id: item.item_data.category_id,
+            reporting_category: item.item_data.reporting_category,
+            categories: item.item_data.categories,
+            resolved_category: categoryName
+          })
+        );
+        
+        // Apply some manual mapping for standard supplement categories if needed
+        if (item.item_data.name.toLowerCase().includes('protein') && !categoryName.toLowerCase().includes('protein')) {
+          categoryName = 'Protein';
+        } else if (item.item_data.name.toLowerCase().includes('pre workout') && !categoryName.toLowerCase().includes('pre')) {
+          categoryName = 'Pre-Workout';
+        }
         
         return {
           id: item.id,

@@ -42,11 +42,21 @@ const CategoryPage = () => {
     loadProducts();
   }, [category]);
   
-  // Improved filter to match category names more accurately
+  // Debug logs to help identify the issue
+  console.log('Current URL category:', category);
+  console.log('Formatted category:', categoryFormatted);
+  console.log('All products:', products);
+  console.log('Product categories:', products.map(p => p.category));
+  
+  // Even more flexible matching for category names
   const categoryProducts = products.filter(product => {
-    // Normalize both strings for comparison
+    if (!product.category) return false;
+    
+    // Normalize both strings for comparison (lowercase and trim whitespace)
     const productCategory = product.category.toLowerCase().trim();
     const urlCategory = categoryFormatted.toLowerCase().trim();
+    
+    console.log(`Comparing: "${urlCategory}" with "${productCategory}"`);
     
     // Handle special cases for common formatting differences
     if (urlCategory === 'pre workout' && productCategory === 'pre-workout') {
@@ -57,9 +67,31 @@ const CategoryPage = () => {
       return true;
     }
     
+    // Special case for Protein category
+    if (urlCategory === 'protein' && (
+      productCategory === 'protein' || 
+      productCategory.includes('protein') ||
+      productCategory === 'whey' ||
+      productCategory.includes('whey')
+    )) {
+      return true;
+    }
+    
+    // Special case for Weight Loss
+    if (urlCategory === 'weight loss' && (
+      productCategory === 'weight loss' ||
+      productCategory.includes('weight') ||
+      productCategory.includes('fat burn') ||
+      productCategory.includes('thermogenic')
+    )) {
+      return true;
+    }
+    
     // Direct comparison with normalized strings
     return productCategory === urlCategory;
   });
+  
+  console.log('Filtered products:', categoryProducts);
   
   if (loading) {
     return (
