@@ -21,7 +21,7 @@ const HeroSection = ({
   const isMobile = useIsMobile();
   
   return (
-    <div className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
+    <div className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden bg-black">
       {/* Content */}
       <div className="relative h-full container mx-auto px-4 flex flex-col justify-center z-10">
         <div className="max-w-lg">
@@ -39,14 +39,15 @@ const HeroSection = ({
         </div>
       </div>
 
-      {/* Background Image - no overlay */}
+      {/* Background Image - with black background */}
       <div 
-        className="absolute inset-0 bg-cover bg-center" 
+        className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: `url(${backgroundImage || '/lovable-uploads/2938ee41-0bf0-46aa-9344-11afa927721b.png'})`,
           backgroundPosition: isMobile ? 'right center' : 'right center',
           backgroundSize: 'contain',
-          backgroundRepeat: 'no-repeat'
+          backgroundRepeat: 'no-repeat',
+          backgroundColor: '#000000'
         }}
       ></div>
     </div>
