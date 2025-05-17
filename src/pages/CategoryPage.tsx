@@ -48,7 +48,7 @@ const CategoryPage = () => {
   console.log('All products:', products);
   console.log('Product categories:', products.map(p => p.category));
   
-  // Even more flexible matching for category names
+  // Enhanced matching logic for category names
   const categoryProducts = products.filter(product => {
     if (!product.category) return false;
     
@@ -57,38 +57,60 @@ const CategoryPage = () => {
     const urlCategory = categoryFormatted.toLowerCase().trim();
     
     console.log(`Comparing: "${urlCategory}" with "${productCategory}"`);
+
+    // Direct match case
+    if (productCategory === urlCategory) {
+      return true;
+    }
     
-    // Handle special cases for common formatting differences
+    // Handle hyphenation differences
     if (urlCategory === 'pre workout' && productCategory === 'pre-workout') {
       return true;
     }
     
-    if (urlCategory === 'amino acids' && productCategory === 'aminos') {
+    if (urlCategory === 'amino acids' && 
+        (productCategory === 'aminos' || productCategory === 'amino acids' || productCategory.includes('amino'))) {
       return true;
     }
     
     // Special case for Protein category
-    if (urlCategory === 'protein' && (
-      productCategory === 'protein' || 
-      productCategory.includes('protein') ||
-      productCategory === 'whey' ||
-      productCategory.includes('whey')
-    )) {
+    if (urlCategory === 'protein' && 
+        (productCategory === 'protein' || 
+         productCategory.includes('protein') ||
+         productCategory === 'whey' ||
+         productCategory.includes('whey') ||
+         productCategory === 'protein powder')) {
       return true;
     }
     
     // Special case for Weight Loss
-    if (urlCategory === 'weight loss' && (
-      productCategory === 'weight loss' ||
-      productCategory.includes('weight') ||
-      productCategory.includes('fat burn') ||
-      productCategory.includes('thermogenic')
-    )) {
+    if (urlCategory === 'weight loss' && 
+        (productCategory === 'weight loss' ||
+         productCategory.includes('weight') ||
+         productCategory.includes('fat') ||
+         productCategory.includes('burn') ||
+         productCategory.includes('thermogenic'))) {
       return true;
     }
     
-    // Direct comparison with normalized strings
-    return productCategory === urlCategory;
+    // Special case for Pre-Workout
+    if (urlCategory === 'pre-workout' && 
+        (productCategory === 'pre workout' ||
+         productCategory.toLowerCase().includes('pre workout') ||
+         productCategory.toLowerCase().includes('pre-workout'))) {
+      return true;
+    }
+
+    // Special case for Wellness
+    if (urlCategory === 'wellness' && 
+        (productCategory === 'wellness' ||
+         productCategory.includes('vitamin') ||
+         productCategory.includes('health') ||
+         productCategory.includes('essential'))) {
+      return true;
+    }
+    
+    return false;
   });
   
   console.log('Filtered products:', categoryProducts);
