@@ -49,7 +49,13 @@ serve(async (req) => {
     }
 
     const products = squareData.objects
-      .filter((item: any) => item.type === 'ITEM' && item.item_data)
+      .filter(
+        (item: any) =>
+          item.type === 'ITEM' &&
+          item.item_data &&
+          item.item_data.product_type !== 'APPOINTMENTS_SERVICE' &&
+          item.item_data.name !== 'Training session (example service)'
+      )
       .map((item: any) => {
         // Get the first variation price if available
         const variation = item.item_data.variations && item.item_data.variations.length > 0 
