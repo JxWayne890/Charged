@@ -32,13 +32,17 @@ const CategoryPage = () => {
   
   // Format and standardize category from URL parameter
   const categoryFormatted = category ? category.replace(/-/g, ' ') : '';
-  const standardCategory = standardizeUrlCategory(categoryFormatted);
+  const standardCategory = standardizeUrlCategory(category || '');
   
   useEffect(() => {
     const loadProducts = async () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
+        
+        // Log all categories found in products to help debug
+        console.log('Product categories:', fetchedProducts.map(p => p.category));
+        
         setProducts(fetchedProducts);
         setError(null);
       } catch (err) {
@@ -61,23 +65,39 @@ const CategoryPage = () => {
   console.log('Current URL category:', category);
   console.log('Formatted category:', categoryFormatted);
   console.log('Standardized category:', standardCategory);
-  console.log('All products:', products);
-  console.log('Product categories:', products.map(p => p.category));
   
-  // Simple matching logic using standardized categories
+  // More robust filtering logic - handles various category format differences
   const categoryProducts = products.filter(product => {
-    // Skip products with no category
     if (!product.category) return false;
     
-    // Compare the product's category with our standardized URL category
-    // Since we've already standardized both at the source, this should be a simple equals check
-    const match = product.category === standardCategory;
+    // Match regardless of case or dashes
+    const productCategoryNormalized = product.category.toLowerCase().trim();
+    const urlCategoryNormalized = (standardCategory || '').toLowerCase().trim();
     
-    console.log(`Comparing: "${standardCategory}" with "${product.category}" = ${match}`);
-    return match;
+    // Direct match with standardized categories
+    if (productCategoryNormalized === urlCategoryNormalized) {
+      return true;
+    }
+    
+    // Handle specific mappings that might not be caught by standard logic
+    if (urlCategoryNormalized === 'pre-workout' || urlCategoryNormalized === 'preworkout') {
+      return productCategoryNormalized === 'pre-workout';
+    }
+    
+    if (urlCategoryNormalized === 'amino acids') {
+      return productCategoryNormalized === 'amino acids' || productCategoryNormalized === 'aminos';
+    }
+    
+    if (urlCategoryNormalized === 'weight loss') {
+      return productCategoryNormalized === 'weight loss' || 
+             productCategoryNormalized.includes('weight') ||
+             productCategoryNormalized.includes('fat burn');
+    }
+    
+    return false;
   });
   
-  console.log('Filtered products:', categoryProducts);
+  console.log('Filtered products for category:', standardCategory, categoryProducts.length);
   
   if (loading) {
     return (
