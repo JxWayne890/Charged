@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchSquareProducts } from '@/lib/square';
@@ -66,7 +65,6 @@ const ProductDetailPage = () => {
       toast({
         title: "Added to cart",
         description: `${product.title} has been added to your cart.`,
-        variant: "default", // Fix: Added the missing variant parameter
       });
     }
   };
