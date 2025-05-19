@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchSquareProducts } from '@/lib/square';
@@ -11,7 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/context/CartContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 const ProductDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -65,6 +66,7 @@ const ProductDetailPage = () => {
       toast({
         title: "Added to cart",
         description: `${product.title} has been added to your cart.`,
+        variant: "default"
       });
     }
   };
