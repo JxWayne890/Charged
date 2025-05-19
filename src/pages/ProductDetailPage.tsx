@@ -66,6 +66,7 @@ const ProductDetailPage = () => {
       toast({
         title: "Added to cart",
         description: `${product.title} has been added to your cart.`,
+        variant: "default",
       });
     }
   };
