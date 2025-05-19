@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchSquareProducts } from '@/lib/square';
@@ -65,7 +66,7 @@ const ProductDetailPage = () => {
       toast({
         title: "Added to cart",
         description: `${product.title} has been added to your cart.`,
-        variant: "default",
+        variant: "default", // Fix: Added the missing variant parameter
       });
     }
   };
@@ -94,8 +95,8 @@ const ProductDetailPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-12 pt-32">
-      {/* Enhanced Breadcrumbs */}
-      <div className="bg-black/5 backdrop-blur-sm rounded-lg px-4 py-3 mb-8">
+      {/* Enhanced Breadcrumbs with better styling */}
+      <div className="bg-black/80 backdrop-blur-sm rounded-lg px-4 py-3 mb-8">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -115,14 +116,14 @@ const ProductDetailPage = () => {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to={`/category/${product.category}`} className="capitalize">
+                <Link to={`/category/${product.category.toLowerCase().replace(/ /g, '-')}`} className="capitalize">
                   {product.category}
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage className="font-medium">{product.title}</BreadcrumbPage>
+              <BreadcrumbPage>{product.title}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

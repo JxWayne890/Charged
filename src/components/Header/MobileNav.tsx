@@ -20,6 +20,8 @@ const menuItems: MenuItem[] = [
       { label: 'Protein', href: '/category/protein' },
       { label: 'Pre-Workout', href: '/category/pre-workout' },
       { label: 'Weight Loss', href: '/category/weight-loss' },
+      { label: 'Amino Acids', href: '/category/amino-acids' },
+      { label: 'Wellness', href: '/category/wellness' },
       { label: 'Daily Essentials', href: '/category/daily-essentials' },
     ],
   },
@@ -44,19 +46,19 @@ const MobileNav = () => {
       <SheetTrigger className="lg:hidden p-2 text-white">
         <Menu size={24} />
       </SheetTrigger>
-      <SheetContent side="right" className="w-3/4 sm:max-w-md bg-black/90 backdrop-blur-sm border-gray-800 text-white">
+      <SheetContent side="right" className="w-3/4 sm:max-w-md bg-black/90 backdrop-blur-sm border-gray-800 text-white p-0">
         <div className="flex flex-col h-full">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center p-4 border-b border-gray-800">
             <Logo />
-            <SheetTrigger className="p-2 text-white">
+            <SheetTrigger className="p-2 text-white hover:text-primary transition-colors">
               <X size={24} />
             </SheetTrigger>
           </div>
           
-          <nav className="flex-grow">
+          <nav className="flex-grow overflow-y-auto p-4">
             <ul className="space-y-1">
               {menuItems.map((item) => (
-                <li key={item.label} className="border-b border-gray-800">
+                <li key={item.label} className="border-b border-gray-800/50">
                   {item.submenu ? (
                     <div>
                       <button
@@ -65,20 +67,21 @@ const MobileNav = () => {
                       >
                         <span className="font-medium text-white">{item.label}</span>
                         {expandedItems.includes(item.label) ? (
-                          <ChevronDown size={18} />
+                          <ChevronDown size={18} className="text-primary" />
                         ) : (
-                          <ChevronRight size={18} />
+                          <ChevronRight size={18} className="text-primary" />
                         )}
                       </button>
                       
                       {expandedItems.includes(item.label) && (
-                        <ul className="pl-4 space-y-1 py-2 bg-gray-900/50">
+                        <ul className="pl-4 space-y-1 py-2 bg-gray-900/50 rounded-md my-1">
                           {item.submenu.map((subItem) => (
                             <li key={subItem.label}>
                               <Link
                                 to={subItem.href}
-                                className="block py-2 px-3 hover:text-primary transition"
+                                className="block py-2 px-3 hover:text-primary transition rounded-md hover:bg-black/30"
                               >
+                                <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2 inline-block"></span>
                                 {subItem.label}
                               </Link>
                             </li>
@@ -99,15 +102,18 @@ const MobileNav = () => {
             </ul>
           </nav>
           
-          <div className="mt-auto pt-4 border-t border-gray-800">
-            <div className="flex flex-col space-y-2">
-              <Link to="/account" className="text-sm text-gray-300 hover:text-primary">
+          <div className="mt-auto p-4 border-t border-gray-800 bg-black/50">
+            <div className="flex flex-col space-y-3">
+              <Link to="/account" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center">
+                <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
                 My Account
               </Link>
-              <Link to="/track-order" className="text-sm text-gray-300 hover:text-primary">
+              <Link to="/track-order" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center">
+                <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
                 Track Order
               </Link>
-              <Link to="/contact" className="text-sm text-gray-300 hover:text-primary">
+              <Link to="/contact" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center">
+                <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
                 Contact Us
               </Link>
             </div>

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import ProductCard from '@/components/ProductCard';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Home } from 'lucide-react';
@@ -18,6 +18,7 @@ const standardizeUrlCategory = (urlCategory: string): string => {
   if (normalized === 'weight loss') return 'Weight Loss';
   if (normalized === 'amino acids' || normalized === 'aminos') return 'Amino Acids';
   if (normalized === 'wellness') return 'Wellness';
+  if (normalized === 'daily essentials') return 'Daily Essentials';
   
   // If no match, capitalize each word
   return normalized.replace(/\b\w/g, char => char.toUpperCase());
@@ -94,6 +95,12 @@ const CategoryPage = () => {
              productCategoryNormalized.includes('fat burn');
     }
     
+    if (urlCategoryNormalized === 'daily essentials') {
+      return productCategoryNormalized === 'daily essentials' || 
+             productCategoryNormalized === 'essentials' ||
+             productCategoryNormalized.includes('daily');
+    }
+    
     return false;
   });
   
@@ -129,19 +136,23 @@ const CategoryPage = () => {
   return (
     <div className="pt-24 pb-12">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-gray-900 to-gray-700 py-16 mb-8">
+      <div className="bg-gradient-to-r from-gray-900 to-gray-800 py-16 mb-8">
         <div className="container mx-auto px-4">
-          <Breadcrumb className="mb-4 text-gray-300">
+          <Breadcrumb className="mb-4">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/">
-                  <Home className="h-4 w-4 mr-1" />
-                  Home
+                <BreadcrumbLink asChild>
+                  <Link to="/" className="flex items-center">
+                    <Home className="h-4 w-4 mr-1" />
+                    <span>Home</span>
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbLink href="/shop">Shop</BreadcrumbLink>
+                <BreadcrumbLink asChild>
+                  <Link to="/shop">Shop</Link>
+                </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
