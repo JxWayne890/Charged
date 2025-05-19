@@ -14,14 +14,16 @@ const ShopPage = () => {
           <Breadcrumb className="mb-4 text-gray-300">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/">
-                  <Home className="h-4 w-4 mr-1" />
-                  Home
+                <BreadcrumbLink asChild>
+                  <Link to="/" className="flex items-center text-gray-300 hover:text-white">
+                    <Home className="h-4 w-4 mr-1" />
+                    Home
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator />
+              <BreadcrumbSeparator className="text-gray-400" />
               <BreadcrumbItem>
-                <BreadcrumbLink>Shop</BreadcrumbLink>
+                <BreadcrumbLink className="text-white">Shop</BreadcrumbLink>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
