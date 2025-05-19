@@ -11,7 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/context/CartContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const ProductDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -23,6 +23,7 @@ const ProductDetailPage = () => {
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [isSubscription, setIsSubscription] = useState<boolean>(false);
   const { addToCart } = useCart();
+  const { toast } = useToast();
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -55,12 +56,12 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     if (product) {
-      addToCart({
+      addToCart(
         product,
         quantity,
-        flavor: selectedFlavor,
-        subscription: isSubscription
-      });
+        selectedFlavor,
+        isSubscription
+      );
       
       toast({
         title: "Added to cart",
