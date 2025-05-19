@@ -105,7 +105,7 @@ const Index = () => {
           <ProductCarousel 
             title="Best Sellers" 
             products={bestSellerProducts} 
-            viewAllLink="/best-sellers" 
+            viewAllLink="/products" 
           />
         </section>
       ) : (
