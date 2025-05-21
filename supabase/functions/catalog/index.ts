@@ -1,4 +1,3 @@
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 
 const corsHeaders = {
@@ -6,54 +5,73 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Function to standardize category names
+// Function to standardize category names - UPDATED for case consistency
 const standardizeCategory = (categoryName: string): string => {
+  if (!categoryName) return 'Uncategorized';
+  
   // Convert to lowercase for case-insensitive matching
-  const lowercaseName = (categoryName || '').toLowerCase().trim();
+  const lowercaseName = categoryName.toLowerCase().trim();
   
   // Log raw category name for debugging
   console.log(`Standardizing category raw name: "${categoryName}"`);
   
-  // More detailed category mappings with additional terms
-  if (lowercaseName.includes('protein') || lowercaseName.includes('whey') || 
-      lowercaseName === 'protein powder' || lowercaseName === 'whey protein') {
-    return 'Protein';
+  // Use a consistent mapping object for all category standardization
+  const categoryMap: Record<string, string> = {
+    // Protein categories
+    'protein': 'Protein',
+    'protein powder': 'Protein',
+    'whey': 'Protein',
+    'whey protein': 'Protein',
+    
+    // Pre-workout categories - Note consistent dash usage
+    'pre workout': 'Pre-Workout',
+    'pre-workout': 'Pre-Workout',
+    'preworkout': 'Pre-Workout',
+    'pre workout extreme villain': 'Pre-Workout',
+    'nootropic pre workout': 'Pre-Workout',
+    
+    // Weight loss categories
+    'weight loss': 'Weight Loss',
+    'fat burner': 'Weight Loss',
+    'thermogenic': 'Weight Loss',
+    'nighttime fat burner': 'Weight Loss',
+    
+    // Amino acid categories
+    'amino': 'Amino Acids',
+    'aminos': 'Amino Acids',
+    'amino acids': 'Amino Acids',
+    'bcaa': 'Amino Acids',
+    
+    // Wellness categories
+    'vitamin': 'Wellness',
+    'vitamins': 'Wellness',
+    'health': 'Wellness',
+    'wellness': 'Wellness',
+    'essential': 'Wellness',
+    'multivitamin': 'Wellness',
+    'anti-aging': 'Wellness',
+    
+    // Others
+    'daily essentials': 'Daily Essentials',
+    'creatine': 'Creatine',
+  };
+  
+  // Direct lookup in map
+  if (categoryMap[lowercaseName]) {
+    console.log(`Found direct match for '${lowercaseName}': '${categoryMap[lowercaseName]}'`);
+    return categoryMap[lowercaseName];
   }
   
-  if (lowercaseName.includes('pre workout') || lowercaseName.includes('pre-workout') || 
-      lowercaseName === 'pre workout extreme villain' || lowercaseName === 'preworkout' ||
-      lowercaseName === 'nootropic pre workout') {
-    return 'Pre-Workout';
+  // Try partial matching if no direct match
+  for (const [key, value] of Object.entries(categoryMap)) {
+    if (lowercaseName.includes(key)) {
+      console.log(`Found partial match for '${lowercaseName}' with key '${key}': '${value}'`);
+      return value;
+    }
   }
   
-  if (lowercaseName.includes('weight') || lowercaseName.includes('fat') || 
-      lowercaseName.includes('burn') || lowercaseName.includes('thermogenic') ||
-      lowercaseName === 'weight loss' || lowercaseName === 'fat burner' ||
-      lowercaseName === 'nighttime fat burner') {
-    return 'Weight Loss';
-  }
-  
-  if (lowercaseName.includes('amino') || lowercaseName === 'aminos' || 
-      lowercaseName === 'bcaa' || lowercaseName === 'amino acids') {
-    return 'Amino Acids';
-  }
-  
-  if (lowercaseName.includes('vitamin') || lowercaseName.includes('health') || 
-      lowercaseName.includes('essential') || lowercaseName.includes('multivitamin') || 
-      lowercaseName.includes('anti-aging') || lowercaseName === 'wellness') {
-    return 'Wellness';
-  }
-  
-  if (lowercaseName.includes('daily') || lowercaseName.includes('essentials')) {
-    return 'Daily Essentials';
-  }
-  
-  if (lowercaseName.includes('creatine')) {
-    return 'Creatine';
-  }
-  
-  // Default fallback - for now, uncategorized items will use original name
-  console.log(`Uncategorized product with category: ${categoryName}`);
+  // If no match found, capitalize first letter of each word as fallback
+  console.log(`No match found for category: "${categoryName}"`);
   return categoryName || 'Uncategorized';
 };
 

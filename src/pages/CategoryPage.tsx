@@ -11,38 +11,44 @@ import FilterSidebar from '@/components/FilterSidebar';
 import { Product } from '@/types';
 import { toast } from "@/components/ui/use-toast";
 
-// Function to standardize category names for URL parameters
+// Function to standardize category names for URL parameters - UPDATED for exact matching
 const standardizeUrlCategory = (urlCategory: string): string => {
   if (!urlCategory) return '';
   
-  // Convert to lowercase, trim spaces and replace dashes with spaces for standardized comparison
-  const normalized = urlCategory.toLowerCase().trim().replace(/-/g, ' ');
+  // Convert to lowercase, trim spaces for standardized comparison
+  const normalized = urlCategory.toLowerCase().trim();
   
-  console.log(`Standardizing category: '${urlCategory}' -> normalized: '${normalized}'`);
+  console.log(`CategoryPage: Standardizing URL category: '${urlCategory}' -> normalized: '${normalized}'`);
   
-  // Map to standard category names (with more variations to catch edge cases)
+  // Use the same standardization map as the edge function
   const categoryMap: Record<string, string> = {
+    // Protein categories
     'protein': 'Protein',
+    'protein-powder': 'Protein',
     'whey': 'Protein',
-    'protein powder': 'Protein',
-    'whey protein': 'Protein',
+    'whey-protein': 'Protein',
     
-    'pre workout': 'Pre-Workout',
-    'preworkout': 'Pre-Workout',
+    // Pre-workout categories - Note consistent dash usage
     'pre-workout': 'Pre-Workout',
-    'pre workout extreme villain': 'Pre-Workout',
+    'preworkout': 'Pre-Workout',
+    'pre workout': 'Pre-Workout',
+    'pre-workout-extreme-villain': 'Pre-Workout',
+    'nootropic-pre-workout': 'Pre-Workout',
     
-    'weight loss': 'Weight Loss',
+    // Weight loss categories
+    'weight-loss': 'Weight Loss',
     'weightloss': 'Weight Loss',
-    'fat burn': 'Weight Loss',
-    'fat burner': 'Weight Loss',
+    'fat-burner': 'Weight Loss',
+    'fat-burn': 'Weight Loss',
     'thermogenic': 'Weight Loss',
     
-    'amino acids': 'Amino Acids',
-    'aminos': 'Amino Acids',
+    // Amino acid categories
+    'amino-acids': 'Amino Acids',
     'amino': 'Amino Acids',
+    'aminos': 'Amino Acids',
     'bcaa': 'Amino Acids',
     
+    // Wellness categories
     'wellness': 'Wellness',
     'health': 'Wellness',
     'vitamin': 'Wellness',
@@ -51,28 +57,38 @@ const standardizeUrlCategory = (urlCategory: string): string => {
     'multivitamin': 'Wellness',
     'anti-aging': 'Wellness',
     
-    'daily essentials': 'Daily Essentials',
-    
+    // Others
+    'daily-essentials': 'Daily Essentials',
     'creatine': 'Creatine',
   };
   
-  // Check if the normalized category has a direct match in our map
+  // Check for direct match first (handles slug format like "pre-workout")
   if (categoryMap[normalized]) {
-    console.log(`Found direct match for '${normalized}': '${categoryMap[normalized]}'`);
+    console.log(`CategoryPage: Found direct URL match for '${normalized}': '${categoryMap[normalized]}'`);
     return categoryMap[normalized];
   }
   
-  // If no direct match, try to find partial matches
+  // Handle dash to space conversion for URL parameters
+  const normalizedWithSpaces = normalized.replace(/-/g, ' ');
+  if (categoryMap[normalizedWithSpaces]) {
+    console.log(`CategoryPage: Found match after dash conversion for '${normalizedWithSpaces}': '${categoryMap[normalizedWithSpaces]}'`);
+    return categoryMap[normalizedWithSpaces];
+  }
+  
+  // Try partial matches as fallback
   for (const [key, value] of Object.entries(categoryMap)) {
-    if (normalized.includes(key)) {
-      console.log(`Found partial match for '${normalized}' with key '${key}': '${value}'`);
+    // Convert dashes in URL keys to spaces for better matching
+    const keyWithSpaces = key.replace(/-/g, ' ');
+    
+    if (normalizedWithSpaces.includes(keyWithSpaces)) {
+      console.log(`CategoryPage: Found partial match for '${normalizedWithSpaces}' with key '${keyWithSpaces}': '${value}'`);
       return value;
     }
   }
   
-  // If no match, capitalize each word
-  const capitalized = normalized.replace(/\b\w/g, char => char.toUpperCase());
-  console.log(`No match found for '${normalized}', capitalizing: '${capitalized}'`);
+  // If no match, capitalize as fallback
+  const capitalized = normalized.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+  console.log(`CategoryPage: No match found for '${normalized}', capitalizing: '${capitalized}'`);
   return capitalized;
 };
 
@@ -105,8 +121,8 @@ const CategoryPage = () => {
         const fetchedProducts = await fetchSquareProducts();
         
         // Debug logging to see all categories
-        console.log('All product categories:', [...new Set(fetchedProducts.map(p => p.category))]);
-        console.log(`Total products fetched: ${fetchedProducts.length}`);
+        console.log('CategoryPage: All product categories:', [...new Set(fetchedProducts.map(p => p.category))]);
+        console.log(`CategoryPage: Total products fetched: ${fetchedProducts.length}`);
         
         setProducts(fetchedProducts);
         setError(null);
@@ -126,46 +142,51 @@ const CategoryPage = () => {
     loadProducts();
   }, [category]);
   
-  // Filter products by category with enhanced debugging - UPDATED FOR STRICT MATCHING
+  // Filter products by category with enhanced debugging
   useEffect(() => {
     if (!products.length) return;
     
     console.log(`CategoryPage: Filtering products for category '${category}'`);
-    console.log(`Formatted category: '${categoryFormatted}'`);
-    console.log(`Standardized category: '${standardCategory}'`);
+    console.log(`CategoryPage: URL parameter: '${category}'`);
+    console.log(`CategoryPage: Formatted category: '${categoryFormatted}'`);
+    console.log(`CategoryPage: Standardized category: '${standardCategory}'`);
     
-    // UPDATED: Use strict exact matching for category filtering
+    // Debug output of all products and their categories before filtering
+    console.log("CategoryPage: All products before filtering:");
+    products.forEach(p => console.log(`- ${p.title} (category: ${p.category})`));
+    
+    // Use case-insensitive exact matching for category filtering
     const filtered = products.filter(product => {
       if (!product.category) {
-        console.log(`Product has no category: ${product.title}`);
+        console.log(`CategoryPage: Product has no category: ${product.title}`);
         return false;
       }
       
       const productCategory = product.category;
       
       // Log each product category comparison attempt
-      console.log(`Comparing product '${product.title}': product category '${productCategory}' with standard category '${standardCategory}'`);
+      console.log(`CategoryPage: Comparing product '${product.title}': product category '${productCategory}' with standard category '${standardCategory}'`);
       
-      // ✅ UPDATED: Only allow exact matches (case insensitive) - this is the key change
+      // Case-insensitive exact match
       const isMatch = productCategory.toLowerCase() === standardCategory.toLowerCase();
       
       if (isMatch) {
-        console.log(`✓ Exact match for product '${product.title}'`);
+        console.log(`CategoryPage: ✓ Match for product '${product.title}' with category '${productCategory}'`);
         return true;
       } else {
-        console.log(`✗ No match for product '${product.title}' with category '${productCategory}'`);
+        console.log(`CategoryPage: ✗ No match for product '${product.title}' with category '${productCategory}'`);
         return false;
       }
     });
     
-    console.log(`Filtered products for category '${standardCategory}': ${filtered.length} of ${products.length} total`);
+    console.log(`CategoryPage: Filtered products for category '${standardCategory}': ${filtered.length} of ${products.length} total`);
     
     // Debug output of which products were included in this category
     if (filtered.length > 0) {
-      console.log("Products included in this category:");
+      console.log("CategoryPage: Products included in this category:");
       filtered.forEach(p => console.log(`- ${p.title} (category: ${p.category})`));
     } else {
-      console.log("No products matched this category exactly.");
+      console.log("CategoryPage: No products matched this category exactly.");
     }
     
     setCategoryProducts(filtered);
