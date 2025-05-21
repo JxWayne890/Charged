@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
@@ -41,7 +42,6 @@ function App() {
           <CartDrawer isOpen={isCartOpen} onClose={toggleCart} />
 
           <Routes>
-            {/* Modify the routes to add the new page */}
             <Route path="/" element={<Index />} />
             <Route path="/shop" element={<ShopPage />} />
             <Route path="/product/:slug" element={<ProductDetailPage />} />
