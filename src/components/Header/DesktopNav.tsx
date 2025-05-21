@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
@@ -158,6 +157,14 @@ const DesktopNav = () => {
             className="font-medium text-white hover:text-primary transition-colors duration-200"
           >
             Blog
+          </Link>
+        </li>
+        <li>
+          <Link 
+            to="/square-categories" 
+            className="font-medium text-white hover:text-primary transition-colors duration-200"
+          >
+            Square Categories
           </Link>
         </li>
       </ul>
