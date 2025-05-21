@@ -21,13 +21,15 @@ const standardizeCategory = (categoryName: string): string => {
   }
   
   if (lowercaseName.includes('pre workout') || lowercaseName.includes('pre-workout') || 
-      lowercaseName === 'pre workout extreme villain' || lowercaseName === 'preworkout') {
+      lowercaseName === 'pre workout extreme villain' || lowercaseName === 'preworkout' ||
+      lowercaseName === 'nootropic pre workout') {
     return 'Pre-Workout';
   }
   
   if (lowercaseName.includes('weight') || lowercaseName.includes('fat') || 
       lowercaseName.includes('burn') || lowercaseName.includes('thermogenic') ||
-      lowercaseName === 'weight loss' || lowercaseName === 'fat burner') {
+      lowercaseName === 'weight loss' || lowercaseName === 'fat burner' ||
+      lowercaseName === 'nighttime fat burner') {
     return 'Weight Loss';
   }
   
@@ -44,6 +46,10 @@ const standardizeCategory = (categoryName: string): string => {
   
   if (lowercaseName.includes('daily') || lowercaseName.includes('essentials')) {
     return 'Daily Essentials';
+  }
+  
+  if (lowercaseName.includes('creatine')) {
+    return 'Creatine';
   }
   
   // Default fallback - for now, uncategorized items will use original name

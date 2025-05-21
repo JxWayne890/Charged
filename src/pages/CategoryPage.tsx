@@ -52,6 +52,8 @@ const standardizeUrlCategory = (urlCategory: string): string => {
     'anti-aging': 'Wellness',
     
     'daily essentials': 'Daily Essentials',
+    
+    'creatine': 'Creatine',
   };
   
   // Check if the normalized category has a direct match in our map
@@ -124,7 +126,7 @@ const CategoryPage = () => {
     loadProducts();
   }, [category]);
   
-  // Filter products by category with enhanced debugging
+  // Filter products by category with enhanced debugging - UPDATED FOR STRICT MATCHING
   useEffect(() => {
     if (!products.length) return;
     
@@ -132,7 +134,7 @@ const CategoryPage = () => {
     console.log(`Formatted category: '${categoryFormatted}'`);
     console.log(`Standardized category: '${standardCategory}'`);
     
-    // More robust filtering logic
+    // UPDATED: Use strict exact matching for category filtering
     const filtered = products.filter(product => {
       if (!product.category) {
         console.log(`Product has no category: ${product.title}`);
@@ -140,52 +142,32 @@ const CategoryPage = () => {
       }
       
       const productCategory = product.category;
-      const productCategoryLower = productCategory.toLowerCase().trim();
-      const standardCategoryLower = standardCategory.toLowerCase().trim();
       
       // Log each product category comparison attempt
       console.log(`Comparing product '${product.title}': product category '${productCategory}' with standard category '${standardCategory}'`);
       
-      // Check for exact match (case insensitive)
-      const exactMatch = productCategoryLower === standardCategoryLower;
-      if (exactMatch) {
+      // ✅ UPDATED: Only allow exact matches (case insensitive) - this is the key change
+      const isMatch = productCategory.toLowerCase() === standardCategory.toLowerCase();
+      
+      if (isMatch) {
         console.log(`✓ Exact match for product '${product.title}'`);
         return true;
+      } else {
+        console.log(`✗ No match for product '${product.title}' with category '${productCategory}'`);
+        return false;
       }
-      
-      // Check if product category contains the standard category or vice versa
-      const containsMatch = 
-        productCategoryLower.includes(standardCategoryLower) || 
-        standardCategoryLower.includes(productCategoryLower);
-      
-      if (containsMatch) {
-        console.log(`✓ Contains match for product '${product.title}'`);
-        return true;
-      }
-      
-      // Check for special cases
-      const specialCases = {
-        'pre-workout': ['preworkout', 'pre workout'],
-        'amino acids': ['aminos', 'bcaa'],
-        'weight loss': ['fat burn', 'fat burner', 'thermogenic'],
-        'wellness': ['vitamin', 'health', 'multivitamin']
-      };
-      
-      for (const [key, values] of Object.entries(specialCases)) {
-        if (key.toLowerCase() === standardCategoryLower) {
-          if (values.some(value => productCategoryLower.includes(value))) {
-            console.log(`✓ Special case match for product '${product.title}': ${key}`);
-            return true;
-          }
-        }
-      }
-      
-      // No match
-      console.log(`✗ No match for product '${product.title}' with category '${productCategory}'`);
-      return false;
     });
     
     console.log(`Filtered products for category '${standardCategory}': ${filtered.length} of ${products.length} total`);
+    
+    // Debug output of which products were included in this category
+    if (filtered.length > 0) {
+      console.log("Products included in this category:");
+      filtered.forEach(p => console.log(`- ${p.title} (category: ${p.category})`));
+    } else {
+      console.log("No products matched this category exactly.");
+    }
+    
     setCategoryProducts(filtered);
     setFilteredProducts(filtered);
   }, [products, category, standardCategory, categoryFormatted]);
