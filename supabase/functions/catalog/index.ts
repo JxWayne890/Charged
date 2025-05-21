@@ -11,31 +11,39 @@ const standardizeCategory = (categoryName: string): string => {
   // Convert to lowercase for case-insensitive matching
   const lowercaseName = (categoryName || '').toLowerCase().trim();
   
-  // Standard categories mapping
+  // Log raw category name for debugging
+  console.log(`Standardizing category raw name: "${categoryName}"`);
+  
+  // More detailed category mappings with additional terms
   if (lowercaseName.includes('protein') || lowercaseName.includes('whey') || 
-      lowercaseName === 'protein powder') {
+      lowercaseName === 'protein powder' || lowercaseName === 'whey protein') {
     return 'Protein';
   }
   
   if (lowercaseName.includes('pre workout') || lowercaseName.includes('pre-workout') || 
-      lowercaseName === 'pre workout extreme villain') {
+      lowercaseName === 'pre workout extreme villain' || lowercaseName === 'preworkout') {
     return 'Pre-Workout';
   }
   
   if (lowercaseName.includes('weight') || lowercaseName.includes('fat') || 
-      lowercaseName.includes('burn') || lowercaseName.includes('thermogenic')) {
+      lowercaseName.includes('burn') || lowercaseName.includes('thermogenic') ||
+      lowercaseName === 'weight loss' || lowercaseName === 'fat burner') {
     return 'Weight Loss';
   }
   
   if (lowercaseName.includes('amino') || lowercaseName === 'aminos' || 
-      lowercaseName === 'bcaa') {
+      lowercaseName === 'bcaa' || lowercaseName === 'amino acids') {
     return 'Amino Acids';
   }
   
   if (lowercaseName.includes('vitamin') || lowercaseName.includes('health') || 
       lowercaseName.includes('essential') || lowercaseName.includes('multivitamin') || 
-      lowercaseName.includes('anti-aging')) {
+      lowercaseName.includes('anti-aging') || lowercaseName === 'wellness') {
     return 'Wellness';
+  }
+  
+  if (lowercaseName.includes('daily') || lowercaseName.includes('essentials')) {
+    return 'Daily Essentials';
   }
   
   // Default fallback - for now, uncategorized items will use original name
@@ -191,6 +199,10 @@ serve(async (req) => {
             categoryName = 'Pre-Workout';
           } else if (productName.includes('amino') || productName.includes('bcaa')) {
             categoryName = 'Amino Acids';
+          } else if (productName.includes('fat burn') || productName.includes('weight loss')) {
+            categoryName = 'Weight Loss';
+          } else if (productName.includes('vitamin') || productName.includes('wellness')) {
+            categoryName = 'Wellness';
           }
         }
         

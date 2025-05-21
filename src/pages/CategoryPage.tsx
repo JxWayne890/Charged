@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ProductCard from '@/components/ProductCard';
@@ -14,18 +13,65 @@ import { toast } from "@/components/ui/use-toast";
 
 // Function to standardize category names for URL parameters
 const standardizeUrlCategory = (urlCategory: string): string => {
+  if (!urlCategory) return '';
+  
+  // Convert to lowercase, trim spaces and replace dashes with spaces for standardized comparison
   const normalized = urlCategory.toLowerCase().trim().replace(/-/g, ' ');
   
-  // Map to standard category names
-  if (normalized === 'protein') return 'Protein';
-  if (normalized === 'pre workout' || normalized === 'preworkout') return 'Pre-Workout';
-  if (normalized === 'weight loss') return 'Weight Loss';
-  if (normalized === 'amino acids' || normalized === 'aminos') return 'Amino Acids';
-  if (normalized === 'wellness') return 'Wellness';
-  if (normalized === 'daily essentials') return 'Daily Essentials';
+  console.log(`Standardizing category: '${urlCategory}' -> normalized: '${normalized}'`);
+  
+  // Map to standard category names (with more variations to catch edge cases)
+  const categoryMap: Record<string, string> = {
+    'protein': 'Protein',
+    'whey': 'Protein',
+    'protein powder': 'Protein',
+    'whey protein': 'Protein',
+    
+    'pre workout': 'Pre-Workout',
+    'preworkout': 'Pre-Workout',
+    'pre-workout': 'Pre-Workout',
+    'pre workout extreme villain': 'Pre-Workout',
+    
+    'weight loss': 'Weight Loss',
+    'weightloss': 'Weight Loss',
+    'fat burn': 'Weight Loss',
+    'fat burner': 'Weight Loss',
+    'thermogenic': 'Weight Loss',
+    
+    'amino acids': 'Amino Acids',
+    'aminos': 'Amino Acids',
+    'amino': 'Amino Acids',
+    'bcaa': 'Amino Acids',
+    
+    'wellness': 'Wellness',
+    'health': 'Wellness',
+    'vitamin': 'Wellness',
+    'vitamins': 'Wellness',
+    'essential': 'Wellness',
+    'multivitamin': 'Wellness',
+    'anti-aging': 'Wellness',
+    
+    'daily essentials': 'Daily Essentials',
+  };
+  
+  // Check if the normalized category has a direct match in our map
+  if (categoryMap[normalized]) {
+    console.log(`Found direct match for '${normalized}': '${categoryMap[normalized]}'`);
+    return categoryMap[normalized];
+  }
+  
+  // If no direct match, try to find partial matches
+  for (const [key, value] of Object.entries(categoryMap)) {
+    if (normalized.includes(key)) {
+      console.log(`Found partial match for '${normalized}' with key '${key}': '${value}'`);
+      return value;
+    }
+  }
   
   // If no match, capitalize each word
-  return normalized.replace(/\b\w/g, char => char.toUpperCase());
+  const capitalized = normalized.replace(/\b\w/g, char => char.toUpperCase());
+  console.log(`No match found for '${normalized}', capitalizing: '${capitalized}'`);
+  return capitalized;
 };
 
 // This is a reusable component for all category pages
@@ -56,8 +102,9 @@ const CategoryPage = () => {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
         
-        // Log all categories found in products to help debug
-        console.log('Product categories:', fetchedProducts.map(p => p.category));
+        // Debug logging to see all categories
+        console.log('All product categories:', [...new Set(fetchedProducts.map(p => p.category))]);
+        console.log(`Total products fetched: ${fetchedProducts.length}`);
         
         setProducts(fetchedProducts);
         setError(null);
@@ -77,53 +124,68 @@ const CategoryPage = () => {
     loadProducts();
   }, [category]);
   
-  // Filter products by category
+  // Filter products by category with enhanced debugging
   useEffect(() => {
     if (!products.length) return;
     
-    // Debug logs
-    console.log('Current URL category:', category);
-    console.log('Formatted category:', categoryFormatted);
-    console.log('Standardized category:', standardCategory);
+    console.log(`CategoryPage: Filtering products for category '${category}'`);
+    console.log(`Formatted category: '${categoryFormatted}'`);
+    console.log(`Standardized category: '${standardCategory}'`);
     
-    // More robust filtering logic - handles various category format differences
+    // More robust filtering logic
     const filtered = products.filter(product => {
-      if (!product.category) return false;
+      if (!product.category) {
+        console.log(`Product has no category: ${product.title}`);
+        return false;
+      }
       
-      // Match regardless of case or dashes
-      const productCategoryNormalized = product.category.toLowerCase().trim();
-      const urlCategoryNormalized = (standardCategory || '').toLowerCase().trim();
+      const productCategory = product.category;
+      const productCategoryLower = productCategory.toLowerCase().trim();
+      const standardCategoryLower = standardCategory.toLowerCase().trim();
       
-      // Direct match with standardized categories
-      if (productCategoryNormalized === urlCategoryNormalized) {
+      // Log each product category comparison attempt
+      console.log(`Comparing product '${product.title}': product category '${productCategory}' with standard category '${standardCategory}'`);
+      
+      // Check for exact match (case insensitive)
+      const exactMatch = productCategoryLower === standardCategoryLower;
+      if (exactMatch) {
+        console.log(`✓ Exact match for product '${product.title}'`);
         return true;
       }
       
-      // Handle specific mappings that might not be caught by standard logic
-      if (urlCategoryNormalized === 'pre-workout' || urlCategoryNormalized === 'preworkout') {
-        return productCategoryNormalized === 'pre-workout';
+      // Check if product category contains the standard category or vice versa
+      const containsMatch = 
+        productCategoryLower.includes(standardCategoryLower) || 
+        standardCategoryLower.includes(productCategoryLower);
+      
+      if (containsMatch) {
+        console.log(`✓ Contains match for product '${product.title}'`);
+        return true;
       }
       
-      if (urlCategoryNormalized === 'amino acids') {
-        return productCategoryNormalized === 'amino acids' || productCategoryNormalized === 'aminos';
+      // Check for special cases
+      const specialCases = {
+        'pre-workout': ['preworkout', 'pre workout'],
+        'amino acids': ['aminos', 'bcaa'],
+        'weight loss': ['fat burn', 'fat burner', 'thermogenic'],
+        'wellness': ['vitamin', 'health', 'multivitamin']
+      };
+      
+      for (const [key, values] of Object.entries(specialCases)) {
+        if (key.toLowerCase() === standardCategoryLower) {
+          if (values.some(value => productCategoryLower.includes(value))) {
+            console.log(`✓ Special case match for product '${product.title}': ${key}`);
+            return true;
+          }
+        }
       }
       
-      if (urlCategoryNormalized === 'weight loss') {
-        return productCategoryNormalized === 'weight loss' || 
-              productCategoryNormalized.includes('weight') ||
-              productCategoryNormalized.includes('fat burn');
-      }
-      
-      if (urlCategoryNormalized === 'daily essentials') {
-        return productCategoryNormalized === 'daily essentials' || 
-              productCategoryNormalized === 'essentials' ||
-              productCategoryNormalized.includes('daily');
-      }
-      
+      // No match
+      console.log(`✗ No match for product '${product.title}' with category '${productCategory}'`);
       return false;
     });
     
-    console.log('Filtered products for category:', standardCategory, filtered.length);
+    console.log(`Filtered products for category '${standardCategory}': ${filtered.length} of ${products.length} total`);
     setCategoryProducts(filtered);
     setFilteredProducts(filtered);
   }, [products, category, standardCategory, categoryFormatted]);
