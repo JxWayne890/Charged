@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -29,10 +28,6 @@ import CategoryPage from "./pages/CategoryPage";
 
 const queryClient = new QueryClient();
 
-// Set a date 7 days in the future for the flash sale
-const flashSaleDate = new Date();
-flashSaleDate.setDate(flashSaleDate.getDate() + 7);
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
@@ -43,7 +38,7 @@ const App = () => (
             <Sonner />
             
             <div className="flex flex-col min-h-screen">
-              <AnnouncementBar targetDate={flashSaleDate.toISOString()} />
+              <AnnouncementBar />
               <Header />
               <CartDrawer />
               
