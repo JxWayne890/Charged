@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import HeroSection from '@/components/HeroSection';
 import QuickCategoryLinks from '@/components/QuickCategoryLinks';
@@ -96,7 +95,7 @@ const Index = () => {
       {/* Quick Category Links */}
       <section className="container mx-auto px-4 py-12">
         <h2 className="text-2xl font-bold mb-6">Shop by Category</h2>
-        <QuickCategoryLinks categories={categoryLinks} />
+        <QuickCategoryLinks />
       </section>
       
       {/* Best Sellers - Show only if we have best seller products */}

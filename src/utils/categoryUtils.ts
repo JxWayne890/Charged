@@ -56,3 +56,37 @@ export const formatCategoryName = (category: string): string => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
+
+/**
+ * Returns the list of main categories to display on the homepage and shop page
+ */
+export const getMainCategories = (): {name: string, slug: string}[] => {
+  return [
+    { name: 'Protein', slug: 'protein' },
+    { name: 'Pre Workout', slug: 'pre-workout' },
+    { name: 'Fat Burners', slug: 'fat-burners' },
+    { name: 'Daily Essentials', slug: 'daily-essentials' }
+  ];
+};
+
+/**
+ * Returns the complete list of all supported categories
+ */
+export const getAllCategories = (): {name: string, slug: string}[] => {
+  return [
+    { name: 'Aminos', slug: 'aminos' },
+    { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
+    { name: 'BCAA', slug: 'bcaa' },
+    { name: 'Creatine', slug: 'creatine' },
+    { name: 'Daily Essentials', slug: 'daily-essentials' },
+    { name: 'Dry Spell', slug: 'dry-spell' },
+    { name: 'Fat Burners', slug: 'fat-burners' },
+    { name: 'Multivitamin', slug: 'multivitamin' },
+    { name: 'Pre Workout', slug: 'pre-workout' },
+    { name: 'Protein', slug: 'protein' },
+    { name: 'Protein Powder', slug: 'protein-powder' },
+    { name: 'Pump Supplement', slug: 'pump-supplement' },
+    { name: 'Testosterone', slug: 'testosterone' },
+    { name: 'Vitamins', slug: 'vitamins' }
+  ];
+};
