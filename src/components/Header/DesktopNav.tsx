@@ -1,174 +1,141 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
-
-interface MegaMenu {
-  [key: string]: {
-    columns: Array<{
-      title: string;
-      items: Array<{ label: string; href: string }>;
-    }>;
-    featured?: Array<{
-      title: string;
-      image: string;
-      href: string;
-      description?: string;
-    }>;
-  };
-}
-
-const megaMenuData: MegaMenu = {
-  'Shop': {
-    columns: [
-      {
-        title: 'Categories',
-        items: [
-          { label: 'Protein', href: '/category/protein' },
-          { label: 'Pre-Workout', href: '/category/pre-workout' },
-          { label: 'Weight Loss', href: '/category/weight-loss' },
-          { label: 'Amino Acids', href: '/category/amino-acids' },
-          { label: 'Wellness', href: '/category/wellness' },
-          { label: 'Daily Essentials', href: '/category/daily-essentials' },
-        ]
-      },
-      {
-        title: 'Shop By Goal',
-        items: [
-          { label: 'Build Muscle', href: '/goals/build-muscle' },
-          { label: 'Increase Energy', href: '/goals/increase-energy' },
-          { label: 'Weight Management', href: '/goals/weight-management' },
-          { label: 'Improve Recovery', href: '/goals/improve-recovery' },
-          { label: 'Overall Wellness', href: '/goals/overall-wellness' },
-        ]
-      }
-    ],
-    featured: [
-      {
-        title: 'Best Sellers',
-        image: '/products/protein-1.jpg',
-        href: '/best-sellers',
-        description: 'Our top-rated products loved by customers'
-      },
-      {
-        title: 'All Products',
-        image: '/products/preworkout-1.jpg',
-        href: '/products',
-        description: 'Browse our complete collection'
-      }
-    ]
-  }
-};
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu"
+import { Link } from "react-router-dom";
 
 const DesktopNav = () => {
-  const [activeMenu, setActiveMenu] = useState<string | null>(null);
-
-  const handleMouseEnter = (menu: string) => {
-    setActiveMenu(menu);
-  };
-
-  const handleMouseLeave = () => {
-    setActiveMenu(null);
-  };
-
   return (
-    <nav className="hidden lg:flex w-full justify-center">
-      <ul className="flex items-center justify-center space-x-6">
-        {Object.keys(megaMenuData).map((menuItem) => (
-          <li 
-            key={menuItem} 
-            className="relative" 
-            onMouseEnter={() => handleMouseEnter(menuItem)}
-            onMouseLeave={handleMouseLeave}
-          >
-            <Link 
-              to={`/${menuItem.toLowerCase()}`} 
-              className="flex items-center font-medium text-white hover:text-primary transition-colors duration-200"
-            >
-              {menuItem}
-              <ChevronDown size={16} className="ml-1" />
+    <NavigationMenu className="hidden lg:block">
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger className="text-white hover:text-primary">Shop</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              <li>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/category/protein"
+                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  >
+                    <div className="text-sm font-medium leading-none">Protein</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      Fuel your muscles with our premium protein supplements.
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/category/pre-workout"
+                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  >
+                    <div className="text-sm font-medium leading-none">Pre-Workout</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      Elevate your energy and focus for peak performance.
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/category/weight-loss"
+                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  >
+                    <div className="text-sm font-medium leading-none">Weight Loss</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      Support your weight management goals with our effective supplements.
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/category/amino-acids"
+                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  >
+                    <div className="text-sm font-medium leading-none">Amino Acids</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      Enhance recovery and muscle growth with essential amino acids.
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/category/wellness"
+                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  >
+                    <div className="text-sm font-medium leading-none">Wellness</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      Support your overall health and well-being with our wellness products.
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/category/daily-essentials"
+                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  >
+                    <div className="text-sm font-medium leading-none">Daily Essentials</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      Everything you need for your daily health.
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+              
+              <li>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/all-products"
+                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  >
+                    <div className="text-sm font-medium leading-none">All Products</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      View our complete catalog
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+              
+              <li>
+                <NavigationMenuLink asChild>
+                  <Link
+                    to="/square-products"
+                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  >
+                    <div className="text-sm font-medium leading-none">Products by Category</div>
+                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      Browse products organized by Square categories
+                    </p>
+                  </Link>
+                </NavigationMenuLink>
+              </li>
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild>
+            <Link to="/blog" className="text-white hover:text-primary">
+              Blog
             </Link>
-            
-            {activeMenu === menuItem && (
-              <div 
-                className="absolute left-1/2 top-full z-50 w-[1000px] max-h-[600px] overflow-y-auto bg-black/90 backdrop-blur-sm text-white shadow-xl rounded-b-lg border border-primary/20 animate-fade-in"
-                style={{ transform: 'translateX(-50%)', maxWidth: 'calc(100vw - 40px)' }}
-              >
-                <div className="p-6 grid grid-cols-3 gap-8">
-                  <div className="col-span-2 grid grid-cols-2 gap-8">
-                    {megaMenuData[menuItem].columns.map((column, idx) => (
-                      <div key={idx} className="space-y-4">
-                        <h3 className="font-oswald text-base uppercase mb-3 tracking-wide text-primary border-b pb-2 border-gray-700">{column.title}</h3>
-                        <ul className="space-y-3">
-                          {column.items.map((item) => (
-                            <li key={item.label}>
-                              <Link 
-                                to={item.href} 
-                                className="text-gray-300 hover:text-primary transition-colors duration-200 flex items-center"
-                              >
-                                <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
-                                {item.label}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {megaMenuData[menuItem].featured && (
-                    <div className="col-span-1">
-                      <div className="space-y-6">
-                        <h3 className="font-oswald text-base uppercase mb-3 tracking-wide text-primary border-b pb-2 border-gray-700">Featured</h3>
-                        {megaMenuData[menuItem].featured?.map((item, i) => (
-                          <Link to={item.href} key={i} className="block group">
-                            <div className="aspect-video mb-3 overflow-hidden rounded-lg bg-gray-800 shadow-sm">
-                              <div 
-                                className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-300"
-                                style={{ backgroundImage: `url(${item.image})` }}
-                              ></div>
-                            </div>
-                            <h4 className="font-medium text-sm group-hover:text-primary transition-colors">
-                              {item.title}
-                            </h4>
-                            {item.description && (
-                              <p className="text-xs text-gray-400 mt-1">{item.description}</p>
-                            )}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </li>
-        ))}
-        <li>
-          <Link 
-            to="/products" 
-            className="font-medium text-white hover:text-primary transition-colors duration-200"
-          >
-            All Products
-          </Link>
-        </li>
-        <li>
-          <Link 
-            to="/blog" 
-            className="font-medium text-white hover:text-primary transition-colors duration-200"
-          >
-            Blog
-          </Link>
-        </li>
-        <li>
-          <Link 
-            to="/square-categories" 
-            className="font-medium text-white hover:text-primary transition-colors duration-200"
-          >
-            Square Categories
-          </Link>
-        </li>
-      </ul>
-    </nav>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+    </NavigationMenu>
   );
 };
 
