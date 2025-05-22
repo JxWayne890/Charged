@@ -36,16 +36,34 @@ const AllProductsPage = () => {
   
   // Filter products when the category parameter or products list changes
   useEffect(() => {
-    if (categoryParam) {
+    if (categoryParam && products.length > 0) {
       console.log(`Filtering by category: ${categoryParam}`);
+      
+      // Log all available categories for debugging
+      const availableCategories = [...new Set(products.map(p => p.category))];
+      console.log('Available categories:', availableCategories);
+      
+      // Count how many products should be in the selected category
+      const categoryCount = products.filter(p => p.category === categoryParam).length;
+      console.log(`Total products in category "${categoryParam}": ${categoryCount}`);
+      
       const filtered = products.filter(product => {
         // Exact match for category slug
         const matches = product.category === categoryParam;
-        console.log(`Product ${product.title}: Category ${product.category}, Match: ${matches}`);
         return matches;
       });
+      
       setFilteredProducts(filtered);
       console.log(`Found ${filtered.length} products matching category ${categoryParam}`);
+      
+      // If we didn't find any products but we should have, show a warning
+      if (filtered.length === 0 && categoryCount > 0) {
+        toast({
+          title: "Filtering Issue",
+          description: `There should be ${categoryCount} products in this category, but filtering returned none.`,
+          variant: "destructive"
+        });
+      }
     } else {
       setFilteredProducts(products);
     }

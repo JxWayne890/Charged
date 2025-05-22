@@ -25,18 +25,22 @@ const definedCategories = [
 
 // Create a mapping for category detection based on more precise keywords
 const categoryMapping = {
-  'aminos': ['amino acid', 'recovery amino'],
-  'anti-aging-supplement': ['anti-aging', 'collagen', 'nad daily'],
-  'bcaa': ['bcaa', 'branch chain amino acid'],
-  'creatine': ['creatine monohydrate', 'creatine hcl'],
+  'aminos': ['amino acid', 'recovery amino', ' amino ', 'amino-'],
+  'anti-aging-supplement': ['anti-aging', 'nad daily', 'collagen peptides'],
+  'bcaa': ['bcaa', 'branch chain amino acid', 'r1 bcaa', 'branched chain amino'],
+  'creatine': ['creatine monohydrate', 'creatine hcl', 'creatine (', ' creatine'],
   'dry-spell': ['dry-spell', 'off-cycle', 'natural gains'],
-  'fat-burners': ['fat burn', 'caloriburn', 'night burn', 'thermogenic'],
+  'fat-burners': ['fat burn', 'caloriburn', 'night burn', 'thermogenic', 'weight loss'],
   'multivitamin': ['multivitamin', 'multi vitamin', 'vitamin pack'],
-  'pre-workout': ['pre-workout', 'preworkout', 'loaded pre', 'essential pre', 'stim daddy', 'bamf', 'woke af'],
-  'protein': ['protein', 'whey', 'isolate', 'casein'],
-  'pump-supplement': ['pump', 'pump squared', 'pumpkin spice'],
+  'pre-workout': [
+    'pre-workout', 'preworkout', 'loaded pre', 'essential pre', 
+    'stim daddy', 'bamf', 'woke af', 'superhuman pre', 'thavage', 
+    'bzrk', 'pre stim', 'mother bucker', 'babe'
+  ],
+  'protein': ['protein', 'whey', 'isolate', 'casein', 'plant based protein'],
+  'pump-supplement': ['pump squared', 'pump non-stim', 'pump matrix', 'vascularity'],
   'testosterone': ['testosterone', 'rut', 'test booster', 'maximum strength'],
-  'vitamins': ['vitamin d', 'vitamin c', 'minerals']
+  'vitamins': ['vitamin d', 'vitamin c', 'minerals', 'vitamin']
 };
 
 // Product-specific overrides for products that we know are being incorrectly categorized
@@ -44,8 +48,50 @@ const productOverrides = {
   'Bucked Up Babe Sparkling Orchard': 'pre-workout',
   'Bucked Up Babe Watermelon Splash': 'pre-workout',
   'Black Magic Supplements BZRK': 'pre-workout',
-  'Axe & Sledge Supplements Multi': 'multivitamin'
+  'Black Magic Supplements BZRK Peach Rings': 'pre-workout',
+  'Black Magic Supplements BZRK Haterade': 'pre-workout',
+  'Black Magic Supplements BZRK Vice': 'pre-workout',
+  'Black Magic Supplements BZRK Cali Sunset': 'pre-workout',
+  'Black Magic Supplements Pumpkin Spice Muffin': 'pre-workout',
+  'Axe & Sledge Supplements Multi': 'multivitamin',
+  'Rule One Proteins R1 BCAA Fruit Punch (30 srv)': 'bcaa',
+  'Rule One Proteins R1 BCAA Orange (30 srv)': 'bcaa',
+  'Fresh Supplements Amino – Shark Gummies Flavor (30 srv)': 'aminos',
+  'Fresh Supps Amino Lemon Italian Ice (30 srv)': 'aminos',
+  'Bucked Up x BKFC Pre-Workout - Bare Knuckle Punch': 'pre-workout',
+  'Bucked Up Grape Gainz': 'pre-workout',
+  'Bucked Up - Killa OJ': 'pre-workout',
+  'Bucked Up BAMF POG (Pear Orange Guava)': 'pre-workout',
+  'Bucked Up BAMF Pump N\' Grind (Grape & Green Apple)': 'pre-workout',
+  'Bucked Up High Stimulant Mother Bucker – Gym-Junkie Juice': 'pre-workout',
+  'Bucked Up High Stimulant Mother Bucker – Musclehead Mango': 'pre-workout',
+  'Bucked Up High Stimulant Woke AF – Aussie Fruit': 'pre-workout',
+  'Bucked Up High Stimulant Woke AF – Cherry Candy': 'pre-workout',
+  'Bucked Up High Stimulant Woke AF – Miami': 'pre-workout',
+  'Chemix Blue Razz': 'pre-workout',
+  'Chemix Strawberry Watermelon': 'pre-workout',
+  'Black Magic Supplements Honey Grahams': 'protein',
+  'Black Magic Supplements Cookies & Cream': 'protein',
+  'Black Magic Supplements Campfire Smores': 'protein',
+  'Black Magic Supplements Frosty Blue': 'pre-workout',
+  'Black Magic Supplements Bombsicle': 'pre-workout',
+  'Black Magic Supplements Mad Melon': 'pre-workout',
+  'Ryse Supplements Loaded Pre Jell-O Pineapple (30 srv)': 'pre-workout',
+  'Ryse Supplements Loaded Pre Kool-Aid Tropical Punch (30 srv)': 'pre-workout',
+  'Ryse Supplements Loaded Pre Bazooka Grape (30 srv)': 'pre-workout',
+  'Ryse Supplements Loaded Pre Pink Splash (30 srv)': 'pre-workout',
+  'Ryse Supplements Stim Daddy Blue Raspberry (40 srv)': 'pre-workout',
+  'Ryse Supplements Stim Daddy Candy Watermelon (40 srv)': 'pre-workout',
+  'Ryse Supplements Loaded Protein Little Debbie Cosmic Brownie (2lb)': 'protein',
+  'Ryse Supplements Loaded Protein Little Debbie Strawberry Shortcake (2lb)': 'protein',
+  'Alpha Lion Superhuman Pre Stim Miami Vice (21 srv)': 'pre-workout',
+  'Alpha Lion Superhuman Pre Stim Hulk Juice (21 srv)': 'pre-workout',
+  'Alpha Lion Superhuman Extreme Grapezilla (21 srv)': 'pre-workout',
+  'Alpha Lion Superhuman Extreme Hulk Juice (21 srv)': 'pre-workout'
 };
+
+// Map of Square category IDs to our category slugs
+let squareCategoryIdMap = {};
 
 /**
  * Fetches product data from Square API
@@ -98,6 +144,17 @@ async function fetchSquareCategories() {
   const categoryNames = rawCategoryData.objects?.map(obj => obj.category_data.name) || [];
   console.log('Raw Square categories:', JSON.stringify(categoryNames));
   
+  // Populate our squareCategoryIdMap for faster lookups
+  squareCategoryIdMap = {};
+  rawCategoryData.objects?.forEach(obj => {
+    const squareCategoryName = obj.category_data.name;
+    const mappedSlug = mapSquareCategoryToSlug(squareCategoryName);
+    if (mappedSlug) {
+      squareCategoryIdMap[obj.id] = mappedSlug;
+      console.log(`Mapped Square category ID ${obj.id} (${squareCategoryName}) to ${mappedSlug}`);
+    }
+  });
+  
   return {
     categoryMap: new Map(
       rawCategoryData.objects?.map((obj) => [obj.id, obj.category_data.name]) || []
@@ -125,30 +182,36 @@ function mapSquareCategoryToSlug(squareCategoryName) {
     return exactMatch.slug;
   }
   
-  // Try finding a close match
-  for (const category of definedCategories) {
-    if (normalizedName.includes(category.name.toLowerCase()) || 
-        category.name.toLowerCase().includes(normalizedName)) {
-      console.log(`Square category "${squareCategoryName}" partial match: ${category.slug}`);
-      return category.slug;
-    }
-  }
-  
-  // Map some common variations
-  const commonVariations = {
+  // Direct mappings for common Square category names
+  const directMappings = {
     'pre workout': 'pre-workout',
-    'preworkout': 'pre-workout',
-    'protein': 'protein',
-    'amino': 'aminos',
+    'pre-workout': 'pre-workout', 
     'bcaa': 'bcaa',
+    'protein': 'protein',
+    'creatine': 'creatine',
+    'aminos': 'aminos',
+    'amino': 'aminos',
+    'anti aging': 'anti-aging-supplement',
+    'anti-aging': 'anti-aging-supplement',
+    'vitamins': 'vitamins',
     'vitamin': 'vitamins',
-    'test booster': 'testosterone',
     'fat burner': 'fat-burners',
+    'fat burners': 'fat-burners',
+    'testosterone': 'testosterone',
+    'multivitamin': 'multivitamin',
+    'pump': 'pump-supplement'
   };
   
-  for (const [variation, slug] of Object.entries(commonVariations)) {
-    if (normalizedName.includes(variation)) {
-      console.log(`Square category "${squareCategoryName}" variation match: ${slug}`);
+  // Check direct mappings first
+  if (directMappings[normalizedName]) {
+    console.log(`Square category "${squareCategoryName}" direct mapping: ${directMappings[normalizedName]}`);
+    return directMappings[normalizedName];
+  }
+  
+  // Check for contains relationships with common keywords
+  for (const [key, slug] of Object.entries(directMappings)) {
+    if (normalizedName.includes(key)) {
+      console.log(`Square category "${squareCategoryName}" keyword match: ${slug}`);
       return slug;
     }
   }
@@ -164,6 +227,7 @@ function contentMatchesCategory(content, categorySlug) {
   const keywords = categoryMapping[categorySlug];
   if (!keywords) return false;
   
+  content = content.toLowerCase();
   return keywords.some(keyword => content.includes(keyword.toLowerCase()));
 }
 
@@ -180,7 +244,14 @@ function determineProductCategory(item, squareCategoryData) {
     return overrideCategory;
   }
   
-  // 2. Check Square category if available
+  // 2. Check Square category ID mapping first (more reliable than name matching)
+  if (item.item_data.category_id && squareCategoryIdMap[item.item_data.category_id]) {
+    const mappedCategory = squareCategoryIdMap[item.item_data.category_id];
+    console.log(`Category ID mapping for "${productName}": ${mappedCategory} (ID: ${item.item_data.category_id})`);
+    return mappedCategory;
+  }
+  
+  // 3. Check Square category if available using name
   if (item.item_data.category_id) {
     const squareCategoryName = squareCategoryData.categoryMap.get(item.item_data.category_id);
     
@@ -196,10 +267,17 @@ function determineProductCategory(item, squareCategoryData) {
     }
   }
   
-  // 3. Try content-based matching with more specific keywords
+  // 4. Try content-based matching with more specific keywords
   const itemName = item.item_data.name.toLowerCase();
   const itemDesc = (item.item_data.description || '').toLowerCase();
   const contentToCheck = `${itemName} ${itemDesc}`;
+  
+  // Check for BCAA first since it's a common missing category
+  if (contentToCheck.includes('bcaa') || contentToCheck.includes('branch chain amino') || 
+      contentToCheck.includes('branched chain amino') || contentToCheck.includes('r1 bcaa')) {
+    console.log(`BCAA keyword match for "${productName}": bcaa`);
+    return 'bcaa';
+  }
   
   // Check against our keyword mapping
   for (const [categorySlug, keywords] of Object.entries(categoryMapping)) {
@@ -210,7 +288,7 @@ function determineProductCategory(item, squareCategoryData) {
     }
   }
   
-  // 4. Use basic name pattern matching for common categories
+  // 5. Use basic name pattern matching for common categories
   if (contentToCheck.includes('protein')) {
     console.log(`Basic match for "${productName}": protein`);
     return 'protein';
@@ -225,13 +303,13 @@ function determineProductCategory(item, squareCategoryData) {
     return 'vitamins';
   }
   
-  // 5. If no match found, analyze name for brand-specific patterns
+  // 6. If no match found, analyze name for brand-specific patterns
   if (itemName.includes('bucked up') && (itemName.includes('babe') || itemName.includes('bamf'))) {
     console.log(`Brand pattern match for "${productName}": pre-workout`);
     return 'pre-workout';
   }
   
-  // 6. Default fallback as last resort
+  // 7. Default fallback as last resort
   console.log(`No category match for "${productName}", using default: supplements`);
   return 'supplements';
 }
@@ -308,6 +386,13 @@ function logCategoryDistribution(products) {
     categoryDistribution[p.category] = (categoryDistribution[p.category] || 0) + 1;
   });
   console.log('Category distribution:', JSON.stringify(categoryDistribution));
+  
+  // Log specific categories that are problematic
+  const bcaaProducts = products.filter(p => p.category === 'bcaa');
+  console.log(`BCAA products count: ${bcaaProducts.length}`);
+  if (bcaaProducts.length > 0) {
+    console.log('BCAA products:', JSON.stringify(bcaaProducts.map(p => p.title)));
+  }
 }
 
 /**
