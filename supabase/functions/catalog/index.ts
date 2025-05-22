@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Define the correct categories based on the image
+// Define the correct categories based on the provided list
 const definedCategories = [
   { name: 'Aminos', slug: 'aminos' },
   { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
@@ -87,6 +87,8 @@ serve(async (req) => {
     );
 
     const rawCategoryData = await categoryRes.json();
+    console.log('Raw Square categories:', JSON.stringify(rawCategoryData.objects?.map(obj => obj.category_data.name) || []));
+    
     const rawCategoryMap = new Map(
       rawCategoryData.objects?.map((obj) => [obj.id, obj.category_data.name]) || []
     );
@@ -135,11 +137,27 @@ serve(async (req) => {
         if (item.item_data.category_id) {
           const squareCategoryName = rawCategoryMap.get(item.item_data.category_id);
           if (squareCategoryName) {
-            const matchedCategory = definedCategories.find(c => 
-              squareCategoryName.toLowerCase().includes(c.name.toLowerCase())
+            console.log(`Product: ${item.item_data.name}, Square category: ${squareCategoryName}`);
+            
+            // First, try exact name match with our defined categories
+            const exactMatch = definedCategories.find(c => 
+              squareCategoryName.toLowerCase() === c.name.toLowerCase()
             );
-            if (matchedCategory) {
-              category = matchedCategory.slug;
+            
+            if (exactMatch) {
+              category = exactMatch.slug;
+              console.log(`Exact category match: ${category}`);
+            } else {
+              // If no exact match, look for partial matches
+              const matchedCategory = definedCategories.find(c => 
+                squareCategoryName.toLowerCase().includes(c.name.toLowerCase()) ||
+                c.name.toLowerCase().includes(squareCategoryName.toLowerCase())
+              );
+              
+              if (matchedCategory) {
+                category = matchedCategory.slug;
+                console.log(`Partial category match: ${category}`);
+              }
             }
           }
         }
@@ -149,6 +167,7 @@ serve(async (req) => {
           for (const [cat, keywords] of Object.entries(categoryMapping)) {
             if (keywords.some(keyword => contentToCheck.includes(keyword))) {
               category = cat;
+              console.log(`Keyword match for ${item.item_data.name}: ${category}`);
               break;
             }
           }
@@ -158,9 +177,12 @@ serve(async (req) => {
         if (!category) {
           // Try to assign based on some common product naming patterns
           if (contentToCheck.includes('protein')) category = 'protein';
-          else if (contentToCheck.includes('pre')) category = 'pre-workout';
+          else if (contentToCheck.includes('pre-workout') || contentToCheck.includes('preworkout')) category = 'pre-workout';
           else if (contentToCheck.includes('vitamin')) category = 'vitamins';
-          else category = 'supplements'; // Default fallback
+          else {
+            category = 'supplements'; // Default fallback
+            console.log(`No category match for ${item.item_data.name}, using default`);
+          }
         }
 
         return {
@@ -183,6 +205,13 @@ serve(async (req) => {
           tags: [category],
         };
       });
+
+    // Add debug info for categories distribution
+    const categoryDistribution = {};
+    products.forEach(p => {
+      categoryDistribution[p.category] = (categoryDistribution[p.category] || 0) + 1;
+    });
+    console.log('Category distribution:', JSON.stringify(categoryDistribution));
 
     return new Response(JSON.stringify(products), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -18,7 +18,8 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
   
   // Format category name for display
   const formatCategoryName = (category: string): string => {
-    // Replace hyphens with spaces and capitalize each word
+    // Some categories already have spaces and proper capitalization,
+    // but others use hyphens. Handle both cases.
     return category
       .split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))

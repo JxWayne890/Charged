@@ -4,26 +4,25 @@ import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger
 } from '@/components/ui/navigation-menu';
 
 const DesktopNav = () => {
-  // Updated categories based on the provided list
+  // Updated categories based on the exact provided list
   const categories = [
-    { name: 'Protein', slug: 'protein' },
-    { name: 'Pre-Workout', slug: 'pre-workout' },
-    { name: 'Vitamins', slug: 'vitamins' },
-    { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
-    { name: 'Multivitamin', slug: 'multivitamin' },
-    { name: 'Fat Burners', slug: 'fat-burners' },
-    { name: 'Creatine', slug: 'creatine' },
-    { name: 'BCAA', slug: 'bcaa' },
     { name: 'Aminos', slug: 'aminos' },
+    { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
+    { name: 'BCAA', slug: 'bcaa' },
+    { name: 'Creatine', slug: 'creatine' },
     { name: 'Dry Spell', slug: 'dry-spell' },
+    { name: 'Fat Burners', slug: 'fat-burners' },
+    { name: 'Multivitamin', slug: 'multivitamin' },
+    { name: 'Pre-Workout', slug: 'pre-workout' },
+    { name: 'Protein', slug: 'protein' },
+    { name: 'Pump Supplement', slug: 'pump-supplement' },
     { name: 'Testosterone', slug: 'testosterone' },
-    { name: 'Pump Supplement', slug: 'pump-supplement' }
+    { name: 'Vitamins', slug: 'vitamins' }
   ];
   
   return (
