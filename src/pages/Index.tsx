@@ -1,10 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import HeroSection from '@/components/HeroSection';
-import QuickCategoryLinks from '@/components/QuickCategoryLinks';
 import ProductCarousel from '@/components/ProductCarousel';
 import BundlePromo from '@/components/BundlePromo';
 import ValueStrip from '@/components/ValueStrip';
-import { categoryLinks } from '@/data/dummyData';
 import { blogPosts } from '@/data/blog';
 import BlogPostCard from '@/components/BlogPostCard';
 import FeaturedProductCarousel from '@/components/FeaturedProductCarousel';
@@ -91,12 +90,6 @@ const Index = () => {
       {limitedFeaturedProducts.length > 0 && (
         <FeaturedProductCarousel products={limitedFeaturedProducts} />
       )}
-
-      {/* Quick Category Links */}
-      <section className="container mx-auto px-4 py-12">
-        <h2 className="text-2xl font-bold mb-6">Shop by Category</h2>
-        <QuickCategoryLinks />
-      </section>
       
       {/* Best Sellers - Show only if we have best seller products */}
       {bestSellerProducts.length > 0 ? (
