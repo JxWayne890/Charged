@@ -74,7 +74,7 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
         <div className="flex flex-col p-4">
           {/* Category */}
           <span className="text-xs text-gray-500 uppercase mb-1">
-            {product.category}
+            {product.category || "Supplement"}
           </span>
           
           {/* Title */}

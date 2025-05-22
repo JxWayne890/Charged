@@ -10,6 +10,7 @@ import FeaturedProductCarousel from '@/components/FeaturedProductCarousel';
 import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
 import { toast } from "@/components/ui/use-toast";
+import QuickCategoryLinks from '@/components/QuickCategoryLinks';
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -90,6 +91,12 @@ const Index = () => {
       {limitedFeaturedProducts.length > 0 && (
         <FeaturedProductCarousel products={limitedFeaturedProducts} />
       )}
+      
+      {/* Quick Category Links */}
+      <section className="container mx-auto px-4 py-12">
+        <h2 className="text-2xl font-bold mb-6">Shop by Category</h2>
+        <QuickCategoryLinks />
+      </section>
       
       {/* Best Sellers - Show only if we have best seller products */}
       {bestSellerProducts.length > 0 ? (

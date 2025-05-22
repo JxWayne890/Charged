@@ -59,6 +59,23 @@ serve(async (req) => {
       rawCategoryData.objects?.map((obj) => [obj.id, obj.category_data.name]) || []
     );
 
+    // Define mappings for common supplement categories
+    const categoryMapping = {
+      'protein': ['protein', 'whey', 'isolate', 'casein', 'blend'],
+      'pre-workout': ['pre-workout', 'preworkout', 'energy', 'pump', 'focus'],
+      'weight-loss': ['weight-loss', 'fat burner', 'thermogenic', 'diet', 'slim'],
+      'daily-essentials': ['vitamin', 'mineral', 'multivitamin', 'omega', 'fish oil', 'daily'],
+      'amino-acids': ['bcaa', 'eaa', 'amino', 'recovery', 'glutamine'],
+      'creatine': ['creatine', 'monohydrate', 'hcl', 'strength'],
+      'wellness': ['health', 'wellness', 'immunity', 'joint', 'digestive'],
+      'protein-bars': ['bar', 'snack', 'protein bar', 'food'],
+      'testosterone': ['test', 'testosterone', 'hormone', 'booster'],
+      'post-workout': ['post-workout', 'recovery', 'rebuild'],
+      'collagen': ['collagen', 'beauty', 'skin', 'hair', 'joint'],
+      'greens': ['greens', 'superfoods', 'detox', 'alkalizing'],
+      'dry-spell': ['dry-spell', 'supplement breaks', 'cycle-off']
+    };
+
     const products = squareData.objects
       .filter(
         (item) =>
@@ -93,6 +110,49 @@ serve(async (req) => {
           .replace(/[^\w\s-]/g, '')
           .replace(/\s+/g, '-');
 
+        // Try to determine the product category
+        let category = '';
+        const itemName = item.item_data.name.toLowerCase();
+        const itemDesc = (item.item_data.description || '').toLowerCase();
+        const contentToCheck = `${itemName} ${itemDesc}`;
+        
+        // Check if the item belongs to any category
+        for (const [cat, keywords] of Object.entries(categoryMapping)) {
+          if (keywords.some(keyword => contentToCheck.includes(keyword))) {
+            category = cat;
+            break;
+          }
+        }
+
+        // If no category was identified through keywords, try to use Square category
+        if (!category && item.item_data.category_id) {
+          const squareCategoryName = rawCategoryMap.get(item.item_data.category_id);
+          if (squareCategoryName) {
+            const lcName = squareCategoryName.toLowerCase();
+            
+            // Try to map Square category to our defined categories
+            for (const [cat, keywords] of Object.entries(categoryMapping)) {
+              if (keywords.some(keyword => lcName.includes(keyword))) {
+                category = cat;
+                break;
+              }
+            }
+            
+            // If still no match, just use the Square category name as slug
+            if (!category) {
+              category = squareCategoryName
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-');
+            }
+          }
+        }
+        
+        // Default category if still not determined
+        if (!category) {
+          category = 'supplements';
+        }
+
         return {
           id: item.id,
           title: item.item_data.name,
@@ -103,13 +163,14 @@ serve(async (req) => {
           rating: 5.0,
           reviewCount: 0,
           slug,
+          category,
           bestSeller: Math.random() > 0.7,
           featured: Math.random() > 0.8,
           benefits: [item.item_data.description || ''],
           ingredients: 'Natural ingredients',
           directions: 'Follow package instructions',
           faqs: [],
-          tags: [],
+          tags: [category],
         };
       });
 
