@@ -1,5 +1,12 @@
 
 import { Link } from 'react-router-dom';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 
 // Define the mapping of category slugs to their display images
 const categoryImages = {
@@ -33,39 +40,43 @@ const categories = [
   { name: 'Vitamins', slug: 'vitamins' }
 ];
 
-// Select just the categories we want to display on the homepage
-const featuredCategories = [
-  'protein',
-  'pre-workout',
-  'creatine',
-  'fat-burners'
-];
-
 const QuickCategoryLinks = () => {
-  // Filter to show just the featured categories
-  const displayCategories = categories.filter(cat => 
-    featuredCategories.includes(cat.slug)
-  );
-  
+  // Show all categories
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {displayCategories.map((category) => (
-        <Link 
-          key={category.slug} 
-          to={`/products?category=${category.slug}`}
-          className="group relative overflow-hidden rounded-lg shadow-md aspect-square"
-        >
-          <div 
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-            style={{ backgroundImage: `url(${categoryImages[category.slug] || '/placeholder.svg'})` }}
-          ></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
-            <span className="text-white font-oswald text-xl tracking-wide group-hover:text-primary transition-colors duration-300">
-              {category.name}
-            </span>
-          </div>
-        </Link>
-      ))}
+    <div className="w-full">
+      <Carousel
+        opts={{
+          align: "start",
+          loop: true,
+        }}
+        className="w-full"
+      >
+        <CarouselContent>
+          {categories.map((category) => (
+            <CarouselItem key={category.slug} className="md:basis-1/3 lg:basis-1/4">
+              <Link 
+                to={`/products?category=${category.slug}`}
+                className="group relative overflow-hidden rounded-lg shadow-md aspect-square block"
+              >
+                <div 
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                  style={{ backgroundImage: `url(${categoryImages[category.slug] || '/placeholder.svg'})` }}
+                ></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
+                  <span className="text-white font-oswald text-xl tracking-wide group-hover:text-primary transition-colors duration-300">
+                    {category.name}
+                  </span>
+                </div>
+              </Link>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        
+        <div className="flex items-center justify-end space-x-2 mt-4">
+          <CarouselPrevious className="relative static transform-none" />
+          <CarouselNext className="relative static transform-none" />
+        </div>
+      </Carousel>
     </div>
   );
 };
