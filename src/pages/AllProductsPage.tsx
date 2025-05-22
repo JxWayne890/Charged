@@ -2,17 +2,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { Home, RefreshCcw } from 'lucide-react';
+import { Home } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
-import { fetchSquareProducts, syncCategoriesFromSquare } from '@/lib/square';
+import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
-import { Button } from '@/components/ui/button';
 import { toast } from "@/components/ui/use-toast";
 
 const AllProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
@@ -32,38 +30,6 @@ const AllProductsPage = () => {
     
     loadProducts();
   }, []);
-  
-  const handleSyncCategories = async () => {
-    setSyncing(true);
-    try {
-      const success = await syncCategoriesFromSquare();
-      
-      if (success) {
-        // Reload products to get updated categories
-        const fetchedProducts = await fetchSquareProducts();
-        setProducts(fetchedProducts);
-        toast({
-          title: "Categories Updated",
-          description: "Categories have been synchronized successfully. Products categorization has been updated.",
-          duration: 5000,
-        });
-        
-        // Force reload the page to refresh all components
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-      }
-    } catch (error) {
-      console.error("Error syncing categories:", error);
-      toast({
-        title: "Sync Failed",
-        description: "Failed to sync categories. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setSyncing(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -113,22 +79,8 @@ const AllProductsPage = () => {
           
           <div className="flex items-center justify-between">
             <h1 className="text-4xl font-bold text-white">All Products</h1>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleSyncCategories} 
-              disabled={syncing}
-              className="text-white border-white hover:bg-white/10"
-            >
-              <RefreshCcw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
-              {syncing ? 'Syncing...' : 'Sync Categories'}
-            </Button>
           </div>
           <p className="text-gray-300 max-w-2xl mb-4">Browse our complete range of premium supplements to find exactly what you need.</p>
-          
-          <div className="mt-4 p-4 bg-yellow-500/20 rounded-md border border-yellow-500/30">
-            <p className="text-yellow-100 font-medium">⚠️ To fix categorization issues, click "Sync Categories" and wait for the page to refresh automatically.</p>
-          </div>
         </div>
       </div>
       

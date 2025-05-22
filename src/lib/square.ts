@@ -31,34 +31,3 @@ export async function fetchSquareProducts(): Promise<Product[]> {
     return [];
   }
 }
-
-// Function to manually trigger category synchronization
-export async function syncCategoriesFromSquare(): Promise<boolean> {
-  try {
-    const { data, error } = await supabase.functions.invoke('sync-categories');
-    
-    if (error) {
-      console.error('Error syncing categories:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to sync categories. Please try again later.',
-        variant: 'destructive',
-      });
-      return false;
-    }
-    
-    toast({
-      title: 'Success',
-      description: data.message || 'Categories synchronized successfully.',
-    });
-    return true;
-  } catch (error) {
-    console.error('Error synchronizing categories:', error);
-    toast({
-      title: 'Error',
-      description: 'Failed to sync categories. Please try again later.',
-      variant: 'destructive',
-    });
-    return false;
-  }
-}

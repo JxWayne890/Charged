@@ -13,18 +13,6 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  {
-    label: 'Shop',
-    href: '/shop',
-    submenu: [
-      { label: 'Protein', href: '/category/protein' },
-      { label: 'Pre-Workout', href: '/category/pre-workout' },
-      { label: 'Weight Loss', href: '/category/weight-loss' },
-      { label: 'Amino Acids', href: '/category/amino-acids' },
-      { label: 'Wellness', href: '/category/wellness' },
-      { label: 'Daily Essentials', href: '/category/daily-essentials' },
-    ],
-  },
   { label: 'All Products', href: '/products' },
   { label: 'Blog', href: '/blog' },
 ];

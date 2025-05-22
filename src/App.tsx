@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,15 +17,6 @@ import BlogPage from "./pages/BlogPage";
 import AuthPage from "./pages/AuthPage";
 import AccountPage from "./pages/AccountPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
-
-// Import category pages
-import ShopPage from "./pages/categories/ShopPage";
-import ProteinPage from "./pages/categories/ProteinPage";
-import PreWorkoutPage from "./pages/categories/PreWorkoutPage";
-import WeightLossPage from "./pages/categories/WeightLossPage";
-import AminoAcidsPage from "./pages/categories/AminoAcidsPage";
-import WellnessPage from "./pages/categories/WellnessPage";
-import CategoryPage from "./pages/CategoryPage";
 
 const queryClient = new QueryClient();
 
@@ -51,19 +43,8 @@ const App = () => (
                   <Route path="/account" element={<AccountPage />} />
                   
                   {/* Products Pages */}
-                  <Route path="/shop" element={<ShopPage />} />
                   <Route path="/products" element={<AllProductsPage />} />
                   <Route path="/product/:slug" element={<ProductDetailPage />} />
-                  
-                  {/* Category Pages - with direct category parameter */}
-                  <Route path="/category/:category" element={<CategoryPage />} />
-                  
-                  {/* Also keep the specific category pages for direct links */}
-                  <Route path="/category/protein" element={<ProteinPage />} />
-                  <Route path="/category/pre-workout" element={<PreWorkoutPage />} />
-                  <Route path="/category/weight-loss" element={<WeightLossPage />} />
-                  <Route path="/category/amino-acids" element={<AminoAcidsPage />} />
-                  <Route path="/category/wellness" element={<WellnessPage />} />
                   
                   {/* Blog Page */}
                   <Route path="/blog" element={<BlogPage />} />
