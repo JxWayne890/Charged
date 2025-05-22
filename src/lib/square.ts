@@ -38,6 +38,12 @@ export async function fetchSquareProducts(): Promise<Product[]> {
     });
     console.log('Category distribution in client:', categoryDistribution);
     
+    // Validate all products have valid categories
+    const invalidCategoryProducts = data.filter(product => !product.category || product.category === 'undefined');
+    if (invalidCategoryProducts.length > 0) {
+      console.error('Products with invalid categories:', invalidCategoryProducts);
+    }
+    
     return data as Product[];
   } catch (error) {
     console.error('Error in fetchSquareProducts:', error);

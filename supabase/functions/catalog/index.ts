@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Define the correct categories based on the provided list
+// Define the correct categories based on the provided list - THESE MUST MATCH exactly throughout the application
 const definedCategories = [
   { name: 'Aminos', slug: 'aminos' },
   { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
@@ -44,6 +44,7 @@ const categoryMapping = {
 };
 
 // Product-specific overrides for products that we know are being incorrectly categorized
+// THESE MUST BE EXACT MATCHES from the Square API
 const productOverrides = {
   'Bucked Up Babe Sparkling Orchard': 'pre-workout',
   'Bucked Up Babe Watermelon Splash': 'pre-workout',
@@ -53,7 +54,8 @@ const productOverrides = {
   'Black Magic Supplements BZRK Vice': 'pre-workout',
   'Black Magic Supplements BZRK Cali Sunset': 'pre-workout',
   'Black Magic Supplements Pumpkin Spice Muffin': 'pre-workout',
-  'Axe & Sledge Supplements Multi': 'multivitamin',
+  'Axe & Sledge Supplements Multi (120 caps)': 'multivitamin',
+  'Axe & Sledge Supplements Multi (90 caps)': 'multivitamin', 
   'Rule One Proteins R1 BCAA Fruit Punch (30 srv)': 'bcaa',
   'Rule One Proteins R1 BCAA Orange (30 srv)': 'bcaa',
   'Fresh Supplements Amino – Shark Gummies Flavor (30 srv)': 'aminos',
@@ -87,7 +89,29 @@ const productOverrides = {
   'Alpha Lion Superhuman Pre Stim Miami Vice (21 srv)': 'pre-workout',
   'Alpha Lion Superhuman Pre Stim Hulk Juice (21 srv)': 'pre-workout',
   'Alpha Lion Superhuman Extreme Grapezilla (21 srv)': 'pre-workout',
-  'Alpha Lion Superhuman Extreme Hulk Juice (21 srv)': 'pre-workout'
+  'Alpha Lion Superhuman Extreme Hulk Juice (21 srv)': 'pre-workout',
+  'Alpha Lion Gains Candy Caloriburn (60 caps)': 'fat-burners',
+  'Alpha Lion Night Burn (60 caps)': 'fat-burners',
+  'Black Magic Supplements Maximum Strength (Natural Testosterone Support, 90 Capsules)': 'testosterone',
+  'Black Magic Supplements Natural Gains (Testosterone Matrix, 30 Day Cycle)': 'dry-spell',
+  'Black Magic Supplements Potent Diuretic (Rapid Water Shed for Men & Women)': 'supplements',
+  'Bucked Up Creatine (50 srv)': 'creatine',
+  'Bucked Up Testosterone Booster – RUT': 'testosterone',
+  'Core Nutritionals Multi (120 caps)': 'multivitamin',
+  'Metabolic Nutrition NAD Daily Anti-Aging (30 caps)': 'anti-aging-supplement',
+  'Metabolic Nutrition Vitamin D3 K2 (90 ct)': 'vitamins',
+  'Raw Nutrition Creatine (100 Serving)': 'creatine',
+  'Raw Nutrition Creatine (30 Serving)': 'creatine',
+  'Raw Nutrition Essential Pre Fruit Burst (30 srv)': 'pre-workout',
+  'Raw Nutrition Essential Pre Orange (30 srv)': 'pre-workout',
+  'Raw Nutrition Essential Pre Peach Mango (30 srv)': 'pre-workout',
+  'Raw Nutrition Essential Pre Red, White, \'N Bum (30 srv)': 'pre-workout',
+  'Raw Nutrition Essential Pre Sour Watermelon (30 srv)': 'pre-workout',
+  'Raw Nutrition Pump Squared Unflavored (20 srv)': 'pump-supplement',
+  'Raw Nutrition Thavage Lemonade (40/20 srv)': 'pre-workout',
+  'Raw Nutrition Thavage Raspberry Lemonade (40/20 srv)': 'pre-workout',
+  'Raw Nutrition Thavage Rocket Candy (40/20 srv)': 'pre-workout',
+  'Raw Nutrition Thavage South Beach Slushie (40/20 srv)': 'pre-workout'
 };
 
 // Map of Square category IDs to our category slugs
@@ -182,7 +206,7 @@ function mapSquareCategoryToSlug(squareCategoryName) {
     return exactMatch.slug;
   }
   
-  // Direct mappings for common Square category names
+  // Direct mappings for common Square category names - CASE INSENSITIVE
   const directMappings = {
     'pre workout': 'pre-workout',
     'pre-workout': 'pre-workout', 
@@ -191,21 +215,27 @@ function mapSquareCategoryToSlug(squareCategoryName) {
     'creatine': 'creatine',
     'aminos': 'aminos',
     'amino': 'aminos',
+    'amino acids': 'aminos',
     'anti aging': 'anti-aging-supplement',
     'anti-aging': 'anti-aging-supplement',
     'vitamins': 'vitamins',
     'vitamin': 'vitamins',
     'fat burner': 'fat-burners',
     'fat burners': 'fat-burners',
+    'weight loss': 'fat-burners',
     'testosterone': 'testosterone',
     'multivitamin': 'multivitamin',
-    'pump': 'pump-supplement'
+    'multi vitamin': 'multivitamin',
+    'pump': 'pump-supplement',
+    'supplements': 'supplements'
   };
   
-  // Check direct mappings first
-  if (directMappings[normalizedName]) {
-    console.log(`Square category "${squareCategoryName}" direct mapping: ${directMappings[normalizedName]}`);
-    return directMappings[normalizedName];
+  // Check direct mappings first - CASE INSENSITIVE
+  for (const [key, slug] of Object.entries(directMappings)) {
+    if (normalizedName === key) {
+      console.log(`Square category "${squareCategoryName}" direct mapping: ${slug}`);
+      return slug;
+    }
   }
   
   // Check for contains relationships with common keywords
@@ -237,21 +267,21 @@ function contentMatchesCategory(content, categorySlug) {
 function determineProductCategory(item, squareCategoryData) {
   const productName = item.item_data.name;
   
-  // 1. Check for product-specific override
+  // 1. Check for product-specific override - HIGHEST PRIORITY
   if (productOverrides[productName]) {
     const overrideCategory = productOverrides[productName];
     console.log(`Product override for "${productName}": ${overrideCategory}`);
     return overrideCategory;
   }
   
-  // 2. Check Square category ID mapping first (more reliable than name matching)
+  // 2. Check Square category ID mapping (more reliable than name matching)
   if (item.item_data.category_id && squareCategoryIdMap[item.item_data.category_id]) {
     const mappedCategory = squareCategoryIdMap[item.item_data.category_id];
     console.log(`Category ID mapping for "${productName}": ${mappedCategory} (ID: ${item.item_data.category_id})`);
     return mappedCategory;
   }
   
-  // 3. Check Square category if available using name
+  // 3. Check Square category using name
   if (item.item_data.category_id) {
     const squareCategoryName = squareCategoryData.categoryMap.get(item.item_data.category_id);
     
@@ -272,9 +302,11 @@ function determineProductCategory(item, squareCategoryData) {
   const itemDesc = (item.item_data.description || '').toLowerCase();
   const contentToCheck = `${itemName} ${itemDesc}`;
   
-  // Check for BCAA first since it's a common missing category
-  if (contentToCheck.includes('bcaa') || contentToCheck.includes('branch chain amino') || 
-      contentToCheck.includes('branched chain amino') || contentToCheck.includes('r1 bcaa')) {
+  // Special case for R1 BCAA products
+  if (itemName.includes('r1 bcaa') || 
+      contentToCheck.includes('bcaa') || 
+      contentToCheck.includes('branch chain amino') || 
+      contentToCheck.includes('branched chain amino')) {
     console.log(`BCAA keyword match for "${productName}": bcaa`);
     return 'bcaa';
   }
@@ -355,6 +387,12 @@ function transformToProducts(squareData, squareCategoryData) {
       // Determine the product category using our improved logic
       const category = determineProductCategory(item, squareCategoryData);
 
+      // Validate the category is in our defined list
+      const isValidCategory = definedCategories.some(c => c.slug === category) || category === 'supplements';
+      if (!isValidCategory) {
+        console.error(`Invalid category "${category}" for product "${item.item_data.name}"`);
+      }
+
       return {
         id: item.id,
         title: item.item_data.name,
@@ -392,6 +430,17 @@ function logCategoryDistribution(products) {
   console.log(`BCAA products count: ${bcaaProducts.length}`);
   if (bcaaProducts.length > 0) {
     console.log('BCAA products:', JSON.stringify(bcaaProducts.map(p => p.title)));
+  }
+  
+  // Validate all products have valid categories from our definedCategories list
+  const invalidProducts = products.filter(p => 
+    !definedCategories.some(c => c.slug === p.category) && p.category !== 'supplements'
+  );
+  
+  if (invalidProducts.length > 0) {
+    console.error(`Found ${invalidProducts.length} products with invalid categories:`, 
+      JSON.stringify(invalidProducts.map(p => ({ title: p.title, category: p.category })))
+    );
   }
 }
 

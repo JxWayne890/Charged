@@ -14,7 +14,7 @@ const AllProductsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
-  const categoryParam = searchParams.get('category');
+  const categoryParam = searchParams.get('category')?.toLowerCase();
   
   useEffect(() => {
     const loadProducts = async () => {
@@ -44,12 +44,22 @@ const AllProductsPage = () => {
       console.log('Available categories:', availableCategories);
       
       // Count how many products should be in the selected category
-      const categoryCount = products.filter(p => p.category === categoryParam).length;
+      const categoryCount = products.filter(p => 
+        p.category.toLowerCase() === categoryParam
+      ).length;
+      
       console.log(`Total products in category "${categoryParam}": ${categoryCount}`);
       
       const filtered = products.filter(product => {
-        // Exact match for category slug
-        const matches = product.category === categoryParam;
+        // Case-insensitive match for category
+        const productCategory = product.category.toLowerCase();
+        const matches = productCategory === categoryParam;
+        
+        // Log mismatches for debugging
+        if (categoryParam === productCategory.replace(/-/g, '')) {
+          console.log(`Near miss: Product "${product.title}" has category "${product.category}" which almost matches "${categoryParam}"`);
+        }
+        
         return matches;
       });
       

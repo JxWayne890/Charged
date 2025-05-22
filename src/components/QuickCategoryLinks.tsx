@@ -24,7 +24,7 @@ const categoryImages = {
   'vitamins': '/placeholder.svg'
 };
 
-// Define our categories based on the provided list
+// Define our categories with EXACT matching slugs as used in the catalog function
 const categories = [
   { name: 'Aminos', slug: 'aminos' },
   { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
@@ -41,7 +41,6 @@ const categories = [
 ];
 
 const QuickCategoryLinks = () => {
-  // Show all categories
   return (
     <div className="w-full">
       <Carousel
