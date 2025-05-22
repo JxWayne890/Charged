@@ -1,4 +1,3 @@
-
 import { Category } from "@/lib/categories";
 
 /**
@@ -6,21 +5,53 @@ import { Category } from "@/lib/categories";
  * Note: This same logic is implemented in the Supabase Edge Function
  */
 export const standardizeCategory = (categoryName: string): string => {
-  const lower = (categoryName || '').toLowerCase();
+  if (!categoryName) return 'Uncategorized';
+  
+  const lower = categoryName.toLowerCase().trim();
 
-  if (lower.includes('amino')) return 'Amino Acids';
-  if (lower.includes('anti-aging')) return 'Wellness';
-  if (lower.includes('bcaa')) return 'Amino Acids';
-  if (lower.includes('creatine')) return 'Creatine';
-  if (lower.includes('dry spell')) return 'Performance';
-  if (lower.includes('fat') || lower.includes('burn')) return 'Weight Loss';
-  if (lower.includes('multivitamin')) return 'Wellness';
-  if (lower.includes('pre') && lower.includes('workout')) return 'Pre-Workout';
-  if (lower.includes('protein powder')) return 'Protein';
-  if (lower.includes('protein')) return 'Protein';
-  if (lower.includes('pump')) return 'Performance';
-  if (lower.includes('testosterone')) return 'Testosterone';
-  if (lower.includes('vitamin')) return 'Wellness';
+  // Protein categories
+  if (lower.includes('protein') || lower.includes('whey')) {
+    return 'Protein';
+  }
+  
+  // Pre-Workout categories
+  if ((lower.includes('pre') && lower.includes('workout')) || 
+      lower === 'preworkout' || 
+      lower === 'pre-workout') {
+    return 'Pre-Workout';
+  }
+  
+  // Weight Loss / Fat Burners
+  if (lower.includes('fat burn') || lower.includes('thermogenic') || 
+      lower.includes('weight loss') || lower === 'burn') {
+    return 'Weight Loss';
+  }
+  
+  // Amino Acids
+  if (lower.includes('amino') || lower.includes('bcaa')) {
+    return 'Amino Acids';
+  }
+  
+  // Wellness / Vitamins
+  if (lower.includes('vitamin') || lower.includes('wellness') || 
+      lower.includes('multivitamin') || lower.includes('anti-aging')) {
+    return 'Wellness';
+  }
+  
+  // Daily Essentials
+  if (lower.includes('daily') || lower.includes('essentials')) {
+    return 'Daily Essentials';
+  }
+  
+  // Creatine
+  if (lower.includes('creatine')) {
+    return 'Creatine';
+  }
+  
+  // Testosterone
+  if (lower.includes('test') || lower.includes('testosterone')) {
+    return 'Testosterone';
+  }
 
   return 'Uncategorized';
 };

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
@@ -34,19 +35,29 @@ const AllProductsPage = () => {
   
   const handleSyncCategories = async () => {
     setSyncing(true);
-    const success = await syncCategoriesFromSquare();
-    
-    if (success) {
-      // Reload products to get updated categories
-      const fetchedProducts = await fetchSquareProducts();
-      setProducts(fetchedProducts);
+    try {
+      const success = await syncCategoriesFromSquare();
+      
+      if (success) {
+        // Reload products to get updated categories
+        const fetchedProducts = await fetchSquareProducts();
+        setProducts(fetchedProducts);
+        toast({
+          title: "Categories Updated",
+          description: "Categories have been synchronized successfully. Please refresh the page to see all changes.",
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error("Error syncing categories:", error);
       toast({
-        title: "Categories Updated",
-        description: "Please reload the page to see updated categories.",
+        title: "Sync Failed",
+        description: "Failed to sync categories. Please try again.",
+        variant: "destructive",
       });
+    } finally {
+      setSyncing(false);
     }
-    
-    setSyncing(false);
   };
 
   if (loading) {
@@ -108,7 +119,11 @@ const AllProductsPage = () => {
               {syncing ? 'Syncing...' : 'Sync Categories'}
             </Button>
           </div>
-          <p className="text-gray-300 max-w-2xl">Browse our complete range of premium supplements to find exactly what you need.</p>
+          <p className="text-gray-300 max-w-2xl mb-4">Browse our complete range of premium supplements to find exactly what you need.</p>
+          
+          <div className="mt-4 p-4 bg-yellow-500/20 rounded-md border border-yellow-500/30">
+            <p className="text-yellow-100 font-medium">⚠️ If products are not showing in their correct categories, click "Sync Categories" and then refresh the page.</p>
+          </div>
         </div>
       </div>
       

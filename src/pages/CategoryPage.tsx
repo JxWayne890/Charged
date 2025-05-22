@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ProductCard from '@/components/ProductCard';
@@ -71,7 +72,7 @@ const CategoryPage = () => {
     console.log(`Formatted category: '${categoryFormatted}'`);
     console.log(`Standardized category: '${standardCategory}'`);
     
-    // More robust filtering logic
+    // Improved filtering logic that is more strict
     const filtered = products.filter(product => {
       if (!product.category) {
         console.log(`Product has no category: ${product.title}`);
@@ -82,41 +83,21 @@ const CategoryPage = () => {
       const productCategoryLower = productCategory.toLowerCase().trim();
       const standardCategoryLower = standardCategory.toLowerCase().trim();
       
-      // Log each product category comparison attempt
-      console.log(`Comparing product '${product.title}': product category '${productCategory}' with standard category '${standardCategory}'`);
+      // Log each comparison for debugging
+      console.log(`Comparing '${product.title}': product category '${productCategory}' with standard category '${standardCategory}'`);
       
-      // Check for exact match (case insensitive)
+      // More strict matching - require exact match (case insensitive)
       const exactMatch = productCategoryLower === standardCategoryLower;
       if (exactMatch) {
         console.log(`✓ Exact match for product '${product.title}'`);
         return true;
       }
       
-      // Check if product category contains the standard category or vice versa
-      const containsMatch = 
-        productCategoryLower.includes(standardCategoryLower) || 
-        standardCategoryLower.includes(productCategoryLower);
-      
-      if (containsMatch) {
-        console.log(`✓ Contains match for product '${product.title}'`);
+      // Check specific special cases for categorical mapping
+      const specialCaseMatches = matchSpecialCases(productCategoryLower, standardCategoryLower);
+      if (specialCaseMatches) {
+        console.log(`✓ Special case match for product '${product.title}': ${standardCategory}`);
         return true;
-      }
-      
-      // Check for special cases
-      const specialCases = {
-        'pre-workout': ['preworkout', 'pre workout'],
-        'amino acids': ['aminos', 'bcaa'],
-        'weight loss': ['fat burn', 'fat burner', 'thermogenic'],
-        'wellness': ['vitamin', 'health', 'multivitamin']
-      };
-      
-      for (const [key, values] of Object.entries(specialCases)) {
-        if (key.toLowerCase() === standardCategoryLower) {
-          if (values.some(value => productCategoryLower.includes(value))) {
-            console.log(`✓ Special case match for product '${product.title}': ${key}`);
-            return true;
-          }
-        }
       }
       
       // No match
@@ -128,6 +109,48 @@ const CategoryPage = () => {
     setCategoryProducts(filtered);
     setFilteredProducts(filtered);
   }, [products, category, standardCategory, categoryFormatted]);
+  
+  // Helper function for special category matching cases
+  const matchSpecialCases = (productCategory: string, standardCategory: string) => {
+    // Pre-Workout special cases
+    if (standardCategory === 'pre-workout' || standardCategory === 'pre workout') {
+      return productCategory === 'pre-workout' || 
+             productCategory === 'pre workout' ||
+             productCategory === 'preworkout';
+    }
+    
+    // Protein special cases
+    if (standardCategory === 'protein') {
+      return productCategory === 'protein' ||
+             productCategory.includes('whey') ||
+             productCategory.includes('protein powder');
+    }
+    
+    // Weight Loss special cases
+    if (standardCategory === 'weight loss' || standardCategory === 'weight-loss') {
+      return productCategory === 'weight loss' ||
+             productCategory === 'weight-loss' ||
+             productCategory.includes('fat burn') ||
+             productCategory.includes('thermogenic');
+    }
+    
+    // Amino Acids special cases
+    if (standardCategory === 'amino acids' || standardCategory === 'amino-acids') {
+      return productCategory === 'amino acids' ||
+             productCategory === 'amino-acids' ||
+             productCategory.includes('bcaa') ||
+             productCategory.includes('aminos');
+    }
+    
+    // Wellness special cases
+    if (standardCategory === 'wellness') {
+      return productCategory === 'wellness' ||
+             productCategory.includes('vitamin') ||
+             productCategory.includes('multivitamin');
+    }
+    
+    return false;
+  };
   
   // Apply filters and sorting
   useEffect(() => {
@@ -380,3 +403,4 @@ const CategoryPage = () => {
 };
 
 export default CategoryPage;
+
