@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import { 
   Accordion, 
@@ -12,6 +11,7 @@ import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { getAllCategories } from '@/utils/categoryUtils';
+import { fetchCategories, Category } from '@/lib/categories';
 
 // Available brands for filtering
 const availableBrands = [
@@ -53,6 +53,23 @@ interface FilterSidebarProps {
 }
 
 const FilterSidebar = ({ filterOptions, onFilterChange, productCount }: FilterSidebarProps) => {
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  
+  // Fetch categories from Supabase
+  useEffect(() => {
+    const loadCategories = async () => {
+      const categories = await fetchCategories();
+      if (categories && categories.length > 0) {
+        setAvailableCategories(categories.map(cat => cat.name));
+      } else {
+        // Fallback to getting hardcoded categories from utility function
+        setAvailableCategories(getAllCategories().map(c => c.name));
+      }
+    };
+    
+    loadCategories();
+  }, []);
+
   // Toggle brand selection
   const toggleBrand = (brand: string) => {
     const updatedBrands = filterOptions.brands.includes(brand)
@@ -104,9 +121,6 @@ const FilterSidebar = ({ filterOptions, onFilterChange, productCount }: FilterSi
       bestSeller: false
     });
   };
-
-  // Get all available categories
-  const availableCategories = getAllCategories().map(c => c.name);
 
   return (
     <div className="w-full lg:w-64 lg:min-w-64 bg-white border rounded-lg p-4">

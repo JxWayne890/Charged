@@ -1,30 +1,10 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-// Function to standardize category names to approved list
-const standardizeCategory = (categoryName: string): string => {
-  const lower = (categoryName || '').toLowerCase();
-
-  if (lower.includes('amino')) return 'Aminos';
-  if (lower.includes('anti-aging')) return 'Anti-Aging Supplement';
-  if (lower.includes('bcaa')) return 'BCAA';
-  if (lower.includes('creatine')) return 'Creatine';
-  if (lower.includes('dry spell')) return 'Dry Spell';
-  if (lower.includes('fat') || lower.includes('burn')) return 'Fat Burners';
-  if (lower.includes('multivitamin')) return 'Multivitamin';
-  if (lower.includes('pre') && lower.includes('workout')) return 'Pre Workout';
-  if (lower.includes('protein powder')) return 'Protein Powder';
-  if (lower.includes('protein')) return 'Protein';
-  if (lower.includes('pump')) return 'Pump Supplement';
-  if (lower.includes('testosterone')) return 'Testosterone';
-  if (lower.includes('vitamin')) return 'Vitamins';
-
-  return 'Uncategorized';
 };
 
 serve(async (req) => {
@@ -33,6 +13,29 @@ serve(async (req) => {
   }
 
   try {
+    // Create Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Get categories from database first
+    const { data: categoryData, error: categoryError } = await supabase
+      .from('categories')
+      .select('name, slug, square_category_id');
+      
+    if (categoryError) {
+      console.error('Error fetching categories from database:', categoryError);
+    }
+    
+    // Create a map of Square category IDs to standardized categories
+    const categoryMap = new Map();
+    if (categoryData && categoryData.length > 0) {
+      categoryData.forEach(cat => {
+        categoryMap.set(cat.square_category_id, cat.name);
+      });
+    }
+
+    // Fetch products from Square
     const squareRes = await fetch(
       'https://connect.squareup.com/v2/catalog/list?types=ITEM,IMAGE&location_id=LAP5AV1E9Z15S',
       {
@@ -46,6 +49,7 @@ serve(async (req) => {
 
     const squareData = await squareRes.json();
 
+    // Get all categories from Square for reference
     const categoryRes = await fetch(
       'https://connect.squareup.com/v2/catalog/list?types=CATEGORY',
       {
@@ -57,9 +61,9 @@ serve(async (req) => {
       }
     );
 
-    const categoryData = await categoryRes.json();
-    const categoryMap = new Map(
-      categoryData.objects?.map((obj: any) => [obj.id, obj.category_data.name]) || []
+    const rawCategoryData = await categoryRes.json();
+    const rawCategoryMap = new Map(
+      rawCategoryData.objects?.map((obj: any) => [obj.id, obj.category_data.name]) || []
     );
 
     const products = squareData.objects
@@ -98,9 +102,17 @@ serve(async (req) => {
           item.item_data.reporting_category?.id ||
           item.item_data.categories?.[0]?.id ||
           null;
-
-        let rawCategory = categoryMap.get(categoryId) || 'Uncategorized';
-        const category = standardizeCategory(rawCategory);
+          
+        // Use standardized category from database if available
+        let category = 'Uncategorized';
+        if (categoryId && categoryMap.has(categoryId)) {
+          category = categoryMap.get(categoryId);
+        } else {
+          // Fallback to raw category name (for debugging/migration)
+          const rawCategory = rawCategoryMap.get(categoryId) || 'Uncategorized';
+          console.log(`Category not found in database: ${rawCategory} (${categoryId})`);
+          category = 'Uncategorized';
+        }
 
         return {
           id: item.id,
