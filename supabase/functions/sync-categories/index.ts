@@ -162,6 +162,7 @@ serve(async (req) => {
     }
     
     // Upsert categories to Supabase
+    // This will now work properly with the unique constraint on name
     const { data, error } = await supabase
       .from('categories')
       .upsert(uniqueCategories, { 
