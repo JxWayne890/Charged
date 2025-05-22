@@ -1,3 +1,4 @@
+
 import { Category } from "@/lib/categories";
 
 /**
@@ -62,11 +63,21 @@ export const standardizeCategory = (categoryName: string): string => {
 export const standardizeUrlCategory = (urlCategory: string): string => {
   if (!urlCategory) return '';
   
-  // Convert URL format (dashes) to readable format
-  const normalized = urlCategory.toLowerCase().replace(/-/g, ' ');
+  // Convert URL format (dashes) to display format
+  const readable = urlCategory.toLowerCase().replace(/-/g, ' ');
   
-  // Use same standardization as the edge function to ensure consistency
-  return standardizeCategory(normalized);
+  // Map specific URL slugs to their standardized categories
+  if (readable === 'protein') return 'Protein';
+  if (readable === 'pre workout' || readable === 'pre-workout') return 'Pre-Workout';
+  if (readable === 'weight loss') return 'Weight Loss';
+  if (readable === 'amino acids') return 'Amino Acids';
+  if (readable === 'daily essentials') return 'Daily Essentials';
+  if (readable === 'wellness') return 'Wellness';
+  if (readable === 'creatine') return 'Creatine';
+  if (readable === 'testosterone') return 'Testosterone';
+  
+  // If no specific mapping, use general standardization
+  return standardizeCategory(readable);
 };
 
 /**

@@ -44,9 +44,14 @@ const AllProductsPage = () => {
         setProducts(fetchedProducts);
         toast({
           title: "Categories Updated",
-          description: "Categories have been synchronized successfully. Please refresh the page to see all changes.",
+          description: "Categories have been synchronized successfully. Products categorization has been updated.",
           duration: 5000,
         });
+        
+        // Force reload the page to refresh all components
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       }
     } catch (error) {
       console.error("Error syncing categories:", error);
@@ -122,7 +127,7 @@ const AllProductsPage = () => {
           <p className="text-gray-300 max-w-2xl mb-4">Browse our complete range of premium supplements to find exactly what you need.</p>
           
           <div className="mt-4 p-4 bg-yellow-500/20 rounded-md border border-yellow-500/30">
-            <p className="text-yellow-100 font-medium">⚠️ If products are not showing in their correct categories, click "Sync Categories" and then refresh the page.</p>
+            <p className="text-yellow-100 font-medium">⚠️ To fix categorization issues, click "Sync Categories" and wait for the page to refresh automatically.</p>
           </div>
         </div>
       </div>

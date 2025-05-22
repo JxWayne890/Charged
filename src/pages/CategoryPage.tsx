@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ProductCard from '@/components/ProductCard';
@@ -72,85 +71,59 @@ const CategoryPage = () => {
     console.log(`Formatted category: '${categoryFormatted}'`);
     console.log(`Standardized category: '${standardCategory}'`);
     
-    // Improved filtering logic that is more strict
+    // Case-insensitive exact matching for categories
     const filtered = products.filter(product => {
       if (!product.category) {
-        console.log(`Product has no category: ${product.title}`);
         return false;
       }
       
-      const productCategory = product.category;
-      const productCategoryLower = productCategory.toLowerCase().trim();
-      const standardCategoryLower = standardCategory.toLowerCase().trim();
+      // Normalize product category for comparison
+      const productCategory = product.category.trim();
+      const productCategoryLower = productCategory.toLowerCase();
+      const standardCategoryLower = standardCategory.toLowerCase();
       
-      // Log each comparison for debugging
-      console.log(`Comparing '${product.title}': product category '${productCategory}' with standard category '${standardCategory}'`);
+      // Log comparison for debugging
+      console.log(`Comparing product '${product.title}' with category '${productCategory}' against '${standardCategory}'`);
       
-      // More strict matching - require exact match (case insensitive)
-      const exactMatch = productCategoryLower === standardCategoryLower;
-      if (exactMatch) {
-        console.log(`✓ Exact match for product '${product.title}'`);
+      // Case-insensitive direct comparison
+      if (productCategoryLower === standardCategoryLower) {
+        console.log(`✓ Match found for '${product.title}'`);
         return true;
       }
       
-      // Check specific special cases for categorical mapping
-      const specialCaseMatches = matchSpecialCases(productCategoryLower, standardCategoryLower);
-      if (specialCaseMatches) {
-        console.log(`✓ Special case match for product '${product.title}': ${standardCategory}`);
+      // Handle specific known category mappings
+      if (standardCategoryLower === 'protein' && 
+          (productCategoryLower === 'protein' || 
+           productCategoryLower.includes('whey') || 
+           productCategoryLower.includes('protein'))) {
+        console.log(`✓ Protein match found for '${product.title}'`);
+        return true;
+      }
+      
+      if (standardCategoryLower === 'pre-workout' && 
+          (productCategoryLower === 'pre-workout' || 
+           productCategoryLower === 'preworkout' ||
+           (productCategoryLower.includes('pre') && productCategoryLower.includes('workout')))) {
+        console.log(`✓ Pre-workout match found for '${product.title}'`);
+        return true;
+      }
+      
+      if (standardCategoryLower === 'amino acids' && 
+          (productCategoryLower === 'amino acids' ||
+           productCategoryLower.includes('bcaa') ||
+           productCategoryLower.includes('amino'))) {
+        console.log(`✓ Amino acids match found for '${product.title}'`);
         return true;
       }
       
       // No match
-      console.log(`✗ No match for product '${product.title}' with category '${productCategory}'`);
       return false;
     });
     
-    console.log(`Filtered products for category '${standardCategory}': ${filtered.length} of ${products.length} total`);
+    console.log(`Found ${filtered.length} products for category '${standardCategory}'`);
     setCategoryProducts(filtered);
     setFilteredProducts(filtered);
   }, [products, category, standardCategory, categoryFormatted]);
-  
-  // Helper function for special category matching cases
-  const matchSpecialCases = (productCategory: string, standardCategory: string) => {
-    // Pre-Workout special cases
-    if (standardCategory === 'pre-workout' || standardCategory === 'pre workout') {
-      return productCategory === 'pre-workout' || 
-             productCategory === 'pre workout' ||
-             productCategory === 'preworkout';
-    }
-    
-    // Protein special cases
-    if (standardCategory === 'protein') {
-      return productCategory === 'protein' ||
-             productCategory.includes('whey') ||
-             productCategory.includes('protein powder');
-    }
-    
-    // Weight Loss special cases
-    if (standardCategory === 'weight loss' || standardCategory === 'weight-loss') {
-      return productCategory === 'weight loss' ||
-             productCategory === 'weight-loss' ||
-             productCategory.includes('fat burn') ||
-             productCategory.includes('thermogenic');
-    }
-    
-    // Amino Acids special cases
-    if (standardCategory === 'amino acids' || standardCategory === 'amino-acids') {
-      return productCategory === 'amino acids' ||
-             productCategory === 'amino-acids' ||
-             productCategory.includes('bcaa') ||
-             productCategory.includes('aminos');
-    }
-    
-    // Wellness special cases
-    if (standardCategory === 'wellness') {
-      return productCategory === 'wellness' ||
-             productCategory.includes('vitamin') ||
-             productCategory.includes('multivitamin');
-    }
-    
-    return false;
-  };
   
   // Apply filters and sorting
   useEffect(() => {
@@ -368,6 +341,11 @@ const CategoryPage = () => {
                 <p className="text-gray-600">
                   We currently don't have any products in the {standardCategory} category. Please check back later!
                 </p>
+                <div className="mt-4 p-4 bg-yellow-50 rounded-md border border-yellow-200 inline-block">
+                  <p className="text-yellow-800">
+                    Try visiting the <Link to="/products" className="text-primary underline">All Products</Link> page and clicking "Sync Categories" to update product categories.
+                  </p>
+                </div>
               </div>
             ) : filteredProducts.length === 0 ? (
               <div className="text-center py-12 border rounded-lg bg-gray-50">
@@ -403,4 +381,3 @@ const CategoryPage = () => {
 };
 
 export default CategoryPage;
-

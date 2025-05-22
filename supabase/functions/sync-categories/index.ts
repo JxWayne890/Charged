@@ -19,7 +19,8 @@ const standardizeCategory = (categoryName: string): string => {
   }
   
   // Pre-Workout categories
-  if ((lower.includes('pre') && lower.includes('workout')) || lower.includes('preworkout')) {
+  if ((lower.includes('pre') && lower.includes('workout')) || 
+      lower.includes('preworkout')) {
     return 'Pre-Workout';
   }
   
@@ -51,7 +52,7 @@ const standardizeCategory = (categoryName: string): string => {
   }
   
   // Testosterone
-  if (lower.includes('testosterone')) {
+  if (lower.includes('test') || lower.includes('testosterone')) {
     return 'Testosterone';
   }
   
@@ -115,6 +116,8 @@ serve(async (req) => {
       const standardizedName = standardizeCategory(originalName);
       const slug = createSlug(standardizedName);
       
+      console.log(`Original: "${originalName}" → Standardized: "${standardizedName}"`);
+      
       return {
         name: standardizedName,
         slug,
@@ -134,11 +137,35 @@ serve(async (req) => {
     
     console.log(`Standardized to ${uniqueCategories.length} unique categories`);
     
+    // Add any missing predefined categories
+    const predefinedCategories = [
+      'Protein', 
+      'Pre-Workout', 
+      'Weight Loss', 
+      'Amino Acids', 
+      'Wellness', 
+      'Daily Essentials', 
+      'Creatine', 
+      'Testosterone'
+    ];
+    
+    for (const name of predefinedCategories) {
+      const exists = uniqueCategories.some((cat: any) => cat.name === name);
+      if (!exists) {
+        console.log(`Adding missing predefined category: ${name}`);
+        uniqueCategories.push({
+          name,
+          slug: createSlug(name),
+          square_category_id: `manual_${name.toLowerCase().replace(/\s+/g, '_')}`
+        });
+      }
+    }
+    
     // Upsert categories to Supabase
     const { data, error } = await supabase
       .from('categories')
       .upsert(uniqueCategories, { 
-        onConflict: 'square_category_id',
+        onConflict: 'name',
         ignoreDuplicates: false
       })
       .select();
