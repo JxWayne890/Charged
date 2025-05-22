@@ -1,4 +1,3 @@
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 
@@ -118,7 +117,23 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // 1. First, fetch categories from Square API
+    // 1. First, check if we already have the categories in the database
+    console.log('Checking existing categories in the database');
+    const { data: existingCategories, error: fetchError } = await supabase
+      .from('categories')
+      .select('name, slug');
+      
+    if (fetchError) {
+      console.error('Error fetching existing categories:', fetchError.message);
+      throw new Error(`Failed to fetch existing categories: ${fetchError.message}`);
+    }
+    
+    const existingCategoryNames = new Set(existingCategories?.map(cat => cat.name) || []);
+    const existingSlugs = new Set(existingCategories?.map(cat => cat.slug) || []);
+    
+    console.log(`Found ${existingCategoryNames.size} existing categories in the database`);
+    
+    // 2. Fetch categories from Square API for mapping
     console.log('Fetching categories from Square API');
     
     const squareRes = await fetch(
@@ -145,7 +160,7 @@ serve(async (req) => {
     
     console.log(`Found ${squareData.objects.length} categories in Square`);
     
-    // 2. Map Square categories to our allowed categories
+    // 3. Map Square categories to our allowed categories
     const mappedCategories = [];
     const squareIdToCategory = new Map(); // Track Square category IDs to our categories
     
@@ -155,57 +170,77 @@ serve(async (req) => {
       
       if (mappedCategory) {
         console.log(`Mapped "${originalName}" → "${mappedCategory}"`);
-        
         squareIdToCategory.set(obj.id, mappedCategory);
-        
-        mappedCategories.push({
-          name: mappedCategory,
-          slug: createSlug(mappedCategory),
-          square_category_id: obj.id
-        });
       } else {
         console.log(`Ignored category "${originalName}" (not in allowed list)`);
       }
     }
     
-    // 3. Make sure we include all allowed categories, even if not found in Square
-    const finalCategories = [...ALLOWED_CATEGORIES.map(name => ({
-      name,
-      slug: createSlug(name),
-      square_category_id: `manual_${createSlug(name)}`
-    }))];
+    // 4. Create the final list of categories to insert
+    const categoriesToUpsert = [];
     
-    // De-duplicate categories (in case multiple Square categories map to the same allowed category)
-    const uniqueCategories = Object.values(
-      finalCategories.reduce((acc: Record<string, any>, category) => {
-        if (!acc[category.name]) {
-          acc[category.name] = category;
+    // Add all allowed categories with proper case and slugs, keep square IDs if we have them
+    for (const categoryName of ALLOWED_CATEGORIES) {
+      const slug = createSlug(categoryName);
+      
+      // Only add categories that don't already exist
+      if (!existingCategoryNames.has(categoryName)) {
+        // Find a matching square ID if available
+        let squareId = null;
+        for (const [id, name] of squareIdToCategory.entries()) {
+          if (name === categoryName) {
+            squareId = id;
+            break;
+          }
         }
-        return acc;
-      }, {})
-    );
-    
-    console.log(`Final list contains ${uniqueCategories.length} unique categories`);
-    
-    // 4. Upsert categories to Supabase
-    const { data, error } = await supabase
-      .from('categories')
-      .upsert(uniqueCategories, { 
-        onConflict: 'name',
-        ignoreDuplicates: false
-      })
-      .select();
-    
-    if (error) {
-      throw new Error(`Supabase error: ${error.message}`);
+        
+        categoriesToUpsert.push({
+          name: categoryName,
+          slug: slug,
+          square_category_id: squareId || `manual_${slug}`
+        });
+      }
     }
     
-    // 5. Return success response
+    console.log(`Preparing to upsert ${categoriesToUpsert.length} new categories`);
+    
+    // 5. Upsert categories to Supabase
+    if (categoriesToUpsert.length > 0) {
+      const { data, error } = await supabase
+        .from('categories')
+        .upsert(categoriesToUpsert, { 
+          onConflict: 'name',
+          ignoreDuplicates: true
+        })
+        .select();
+      
+      if (error) {
+        console.error('Supabase upsert error:', error.message);
+        throw new Error(`Supabase error: ${error.message}`);
+      }
+      
+      console.log(`Successfully upserted ${data?.length || 0} categories`);
+    } else {
+      console.log('No new categories to insert');
+    }
+    
+    // 6. Fetch all categories to return in response
+    const { data: allCategories, error: allCatError } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name');
+      
+    if (allCatError) {
+      console.error('Error fetching all categories:', allCatError.message);
+      throw new Error(`Failed to fetch all categories: ${allCatError.message}`);
+    }
+    
+    // 7. Return success response
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Synchronized ${uniqueCategories.length} categories`,
-        categories: data
+        message: `Synchronized categories successfully. ${categoriesToUpsert.length} new categories added.`,
+        categories: allCategories
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
