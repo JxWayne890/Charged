@@ -12,69 +12,6 @@ import { Product } from '@/types';
 import { toast } from "@/components/ui/use-toast";
 import { standardizeUrlCategory } from '@/utils/categoryUtils';
 
-// Function to standardize category names for URL parameters
-const standardizeUrlCategory = (urlCategory: string): string => {
-  if (!urlCategory) return '';
-  
-  // Convert to lowercase, trim spaces and replace dashes with spaces for standardized comparison
-  const normalized = urlCategory.toLowerCase().trim().replace(/-/g, ' ');
-  
-  console.log(`Standardizing category: '${urlCategory}' -> normalized: '${normalized}'`);
-  
-  // Map to standard category names (with more variations to catch edge cases)
-  const categoryMap: Record<string, string> = {
-    'protein': 'Protein',
-    'whey': 'Protein',
-    'protein powder': 'Protein',
-    'whey protein': 'Protein',
-    
-    'pre workout': 'Pre-Workout',
-    'preworkout': 'Pre-Workout',
-    'pre-workout': 'Pre-Workout',
-    'pre workout extreme villain': 'Pre-Workout',
-    
-    'weight loss': 'Weight Loss',
-    'weightloss': 'Weight Loss',
-    'fat burn': 'Weight Loss',
-    'fat burner': 'Weight Loss',
-    'thermogenic': 'Weight Loss',
-    
-    'amino acids': 'Amino Acids',
-    'aminos': 'Amino Acids',
-    'amino': 'Amino Acids',
-    'bcaa': 'Amino Acids',
-    
-    'wellness': 'Wellness',
-    'health': 'Wellness',
-    'vitamin': 'Wellness',
-    'vitamins': 'Wellness',
-    'essential': 'Wellness',
-    'multivitamin': 'Wellness',
-    'anti-aging': 'Wellness',
-    
-    'daily essentials': 'Daily Essentials',
-  };
-  
-  // Check if the normalized category has a direct match in our map
-  if (categoryMap[normalized]) {
-    console.log(`Found direct match for '${normalized}': '${categoryMap[normalized]}'`);
-    return categoryMap[normalized];
-  }
-  
-  // If no direct match, try to find partial matches
-  for (const [key, value] of Object.entries(categoryMap)) {
-    if (normalized.includes(key)) {
-      console.log(`Found partial match for '${normalized}' with key '${key}': '${value}'`);
-      return value;
-    }
-  }
-  
-  // If no match, capitalize each word
-  const capitalized = normalized.replace(/\b\w/g, char => char.toUpperCase());
-  console.log(`No match found for '${normalized}', capitalizing: '${capitalized}'`);
-  return capitalized;
-};
-
 // This is a reusable component for all category pages
 const CategoryPage = () => {
   const { category } = useParams<{ category: string }>();
