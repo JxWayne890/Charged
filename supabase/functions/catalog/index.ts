@@ -6,6 +6,95 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// The fixed list of allowed categories - must match the ones in sync-categories
+const ALLOWED_CATEGORIES = [
+  'Aminos',
+  'Anti-Aging Supplement',
+  'BCAA',
+  'Creatine',
+  'Dry Spell',
+  'Fat Burners',
+  'Multivitamin',
+  'Pre Workout',
+  'Protein',
+  'Protein Powder',
+  'Pump Supplement',
+  'Testosterone',
+  'Vitamins'
+];
+
+// Function to map category names to our allowed categories
+const mapToAllowedCategory = (categoryName: string): string => {
+  if (!categoryName) return 'Uncategorized';
+  
+  const lower = categoryName.toLowerCase().trim();
+  
+  // Direct matches (case-insensitive)
+  for (const allowedCategory of ALLOWED_CATEGORIES) {
+    if (lower === allowedCategory.toLowerCase()) {
+      return allowedCategory;
+    }
+  }
+  
+  // Partial matches based on keywords
+  if (lower.includes('amino') || lower.includes('aminos')) {
+    return 'Aminos';
+  }
+  
+  if (lower.includes('bcaa')) {
+    return 'BCAA';
+  }
+  
+  if (lower.includes('creatine')) {
+    return 'Creatine';
+  }
+  
+  if (lower.includes('anti-aging') || lower.includes('anti aging')) {
+    return 'Anti-Aging Supplement';
+  }
+  
+  if (lower.includes('dry spell') || lower.includes('diuretic')) {
+    return 'Dry Spell';
+  }
+  
+  if (lower.includes('fat burn') || lower.includes('thermogenic') || 
+      lower.includes('weight loss') || lower === 'burn') {
+    return 'Fat Burners';
+  }
+  
+  if (lower.includes('multivitamin') || 
+      (lower.includes('multi') && lower.includes('vitamin'))) {
+    return 'Multivitamin';
+  }
+  
+  if ((lower.includes('pre') && lower.includes('workout')) || 
+      lower === 'preworkout' || lower === 'pre-workout') {
+    return 'Pre Workout';
+  }
+  
+  if (lower.includes('protein') && lower.includes('powder')) {
+    return 'Protein Powder';
+  }
+  
+  if (lower.includes('protein')) {
+    return 'Protein';
+  }
+  
+  if (lower.includes('pump')) {
+    return 'Pump Supplement';
+  }
+  
+  if (lower.includes('test') || lower.includes('testosterone')) {
+    return 'Testosterone';
+  }
+  
+  if (lower.includes('vitamin')) {
+    return 'Vitamins';
+  }
+  
+  return 'Uncategorized';
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -87,51 +176,6 @@ serve(async (req) => {
       rawCategoryData.objects?.map((obj) => [obj.id, obj.category_data.name]) || []
     );
 
-    // Helper function to convert raw category to standardized name
-    const standardizeCategory = (categoryId) => {
-      // If we have a mapped category from our database, use it
-      if (categoryId && categoryMap.has(categoryId)) {
-        return categoryMap.get(categoryId).name;
-      }
-      
-      // If this is a new category that's not in our database yet
-      const rawCategoryName = rawCategoryMap.get(categoryId) || '';
-      
-      // Standardize the raw category based on our mapping rules
-      const lowerName = rawCategoryName.toLowerCase().trim();
-      
-      if (lowerName.includes('protein') || lowerName.includes('whey')) {
-        return 'Protein';
-      }
-      if (lowerName.includes('pre workout') || lowerName.includes('pre-workout') || 
-          lowerName === 'pre workout' || lowerName === 'preworkout') {
-        return 'Pre-Workout';
-      }
-      if (lowerName.includes('fat burn') || lowerName.includes('thermogenic') || 
-          lowerName.includes('weight loss') || lowerName === 'burn') {
-        return 'Weight Loss';
-      }
-      if (lowerName.includes('amino') || lowerName.includes('bcaa')) {
-        return 'Amino Acids';
-      }
-      if (lowerName.includes('vitamin') || lowerName.includes('wellness') ||
-          lowerName.includes('multivitamin') || lowerName.includes('anti-aging')) {
-        return 'Wellness';
-      }
-      if (lowerName.includes('creatine')) {
-        return 'Creatine';
-      }
-      if (lowerName.includes('testosterone')) {
-        return 'Testosterone';
-      }
-      if (lowerName.includes('daily') || lowerName.includes('essentials')) {
-        return 'Daily Essentials';
-      }
-      
-      console.log(`Cannot determine standardized category for '${rawCategoryName}' (${categoryId})`);
-      return 'Uncategorized';
-    };
-
     const products = squareData.objects
       .filter(
         (item) =>
@@ -179,14 +223,24 @@ serve(async (req) => {
           // Use category from our database if available
           if (categoryMap.has(categoryId)) {
             const mappedCategory = categoryMap.get(categoryId);
-            category = mappedCategory.name;
-            categorySlug = mappedCategory.slug;
-            console.log(`Found mapped category for '${item.item_data.name}': ${category}`);
+            // Only use the category if it's in our allowed list
+            if (ALLOWED_CATEGORIES.includes(mappedCategory.name)) {
+              category = mappedCategory.name;
+              categorySlug = mappedCategory.slug;
+              console.log(`Found mapped category for '${item.item_data.name}': ${category}`);
+            } else {
+              // If not in allowed list, try to map it
+              const rawCategoryName = rawCategoryMap.get(categoryId) || '';
+              category = mapToAllowedCategory(rawCategoryName);
+              categorySlug = category.toLowerCase().replace(/\s+/g, '-');
+              console.log(`Remapped category for '${item.item_data.name}': ${category}`);
+            }
           } else {
-            // Otherwise standardize the raw category
-            category = standardizeCategory(categoryId);
+            // Otherwise map the raw category
+            const rawCategoryName = rawCategoryMap.get(categoryId) || '';
+            category = mapToAllowedCategory(rawCategoryName);
             categorySlug = category.toLowerCase().replace(/\s+/g, '-');
-            console.log(`Using standardized category for '${item.item_data.name}': ${category}`);
+            console.log(`Using mapped category for '${item.item_data.name}': ${category}`);
           }
         } else {
           console.log(`No category ID for product '${item.item_data.name}'`);

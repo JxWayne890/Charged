@@ -7,59 +7,94 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Function to standardize category names
-const standardizeCategory = (categoryName: string): string => {
-  if (!categoryName) return 'Uncategorized';
+// The fixed list of allowed categories
+const ALLOWED_CATEGORIES = [
+  'Aminos',
+  'Anti-Aging Supplement',
+  'BCAA',
+  'Creatine',
+  'Dry Spell',
+  'Fat Burners',
+  'Multivitamin',
+  'Pre Workout',
+  'Protein',
+  'Protein Powder',
+  'Pump Supplement',
+  'Testosterone',
+  'Vitamins'
+];
+
+// Function to map Square category names to our allowed categories
+const mapToAllowedCategory = (categoryName: string): string | null => {
+  if (!categoryName) return null;
   
   const lower = categoryName.toLowerCase().trim();
   
-  // Protein categories
-  if (lower.includes('protein') || lower.includes('whey')) {
-    return 'Protein';
+  // Direct matches (case-insensitive)
+  for (const allowedCategory of ALLOWED_CATEGORIES) {
+    if (lower === allowedCategory.toLowerCase()) {
+      return allowedCategory;
+    }
   }
   
-  // Pre-Workout categories
-  if ((lower.includes('pre') && lower.includes('workout')) || 
-      lower.includes('preworkout')) {
-    return 'Pre-Workout';
+  // Partial matches based on keywords
+  if (lower.includes('amino') || lower.includes('aminos')) {
+    return 'Aminos';
   }
   
-  // Weight Loss / Fat Burners
-  if (lower.includes('fat burn') || lower.includes('thermogenic') || 
-      lower.includes('weight loss') || lower === 'burn') {
-    return 'Weight Loss';
+  if (lower.includes('bcaa')) {
+    return 'BCAA';
   }
   
-  // Amino Acids
-  if (lower.includes('amino') || lower.includes('bcaa')) {
-    return 'Amino Acids';
-  }
-  
-  // Wellness / Vitamins
-  if (lower.includes('vitamin') || lower.includes('wellness') || 
-      lower.includes('multivitamin') || lower.includes('anti-aging')) {
-    return 'Wellness';
-  }
-  
-  // Daily Essentials
-  if (lower.includes('daily') || lower.includes('essentials')) {
-    return 'Daily Essentials';
-  }
-  
-  // Creatine
   if (lower.includes('creatine')) {
     return 'Creatine';
   }
   
-  // Testosterone
+  if (lower.includes('anti-aging') || lower.includes('anti aging')) {
+    return 'Anti-Aging Supplement';
+  }
+  
+  if (lower.includes('dry spell') || lower.includes('diuretic')) {
+    return 'Dry Spell';
+  }
+  
+  if (lower.includes('fat burn') || lower.includes('thermogenic') || 
+      lower.includes('weight loss') || lower === 'burn') {
+    return 'Fat Burners';
+  }
+  
+  if (lower.includes('multivitamin') || 
+      (lower.includes('multi') && lower.includes('vitamin'))) {
+    return 'Multivitamin';
+  }
+  
+  if ((lower.includes('pre') && lower.includes('workout')) || 
+      lower === 'preworkout' || lower === 'pre-workout') {
+    return 'Pre Workout';
+  }
+  
+  if (lower.includes('protein') && lower.includes('powder')) {
+    return 'Protein Powder';
+  }
+  
+  if (lower.includes('protein')) {
+    return 'Protein';
+  }
+  
+  if (lower.includes('pump')) {
+    return 'Pump Supplement';
+  }
+  
   if (lower.includes('test') || lower.includes('testosterone')) {
     return 'Testosterone';
   }
   
-  // If no mapping found, return the original name with first letter capitalized
-  return categoryName.split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+  if (lower.includes('vitamin')) {
+    return 'Vitamins';
+  }
+  
+  // No match found
+  return null;
 };
 
 // Function to create a URL-friendly slug
@@ -83,9 +118,9 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
     const supabase = createClient(supabaseUrl, supabaseKey);
     
+    // 1. First, fetch categories from Square API
     console.log('Fetching categories from Square API');
     
-    // Fetch categories from Square API
     const squareRes = await fetch(
       'https://connect.squareup.com/v2/catalog/list?types=CATEGORY',
       {
@@ -110,24 +145,39 @@ serve(async (req) => {
     
     console.log(`Found ${squareData.objects.length} categories in Square`);
     
-    // Process and standardize categories
-    const categories = squareData.objects.map(obj => {
-      const originalName = obj.category_data.name;
-      const standardizedName = standardizeCategory(originalName);
-      const slug = createSlug(standardizedName);
-      
-      console.log(`Original: "${originalName}" → Standardized: "${standardizedName}"`);
-      
-      return {
-        name: standardizedName,
-        slug,
-        square_category_id: obj.id,
-      };
-    });
+    // 2. Map Square categories to our allowed categories
+    const mappedCategories = [];
+    const squareIdToCategory = new Map(); // Track Square category IDs to our categories
     
-    // Group categories by standardized name to avoid duplicates
+    for (const obj of squareData.objects) {
+      const originalName = obj.category_data.name;
+      const mappedCategory = mapToAllowedCategory(originalName);
+      
+      if (mappedCategory) {
+        console.log(`Mapped "${originalName}" → "${mappedCategory}"`);
+        
+        squareIdToCategory.set(obj.id, mappedCategory);
+        
+        mappedCategories.push({
+          name: mappedCategory,
+          slug: createSlug(mappedCategory),
+          square_category_id: obj.id
+        });
+      } else {
+        console.log(`Ignored category "${originalName}" (not in allowed list)`);
+      }
+    }
+    
+    // 3. Make sure we include all allowed categories, even if not found in Square
+    const finalCategories = [...ALLOWED_CATEGORIES.map(name => ({
+      name,
+      slug: createSlug(name),
+      square_category_id: `manual_${createSlug(name)}`
+    }))];
+    
+    // De-duplicate categories (in case multiple Square categories map to the same allowed category)
     const uniqueCategories = Object.values(
-      categories.reduce((acc: Record<string, any>, category) => {
+      finalCategories.reduce((acc: Record<string, any>, category) => {
         if (!acc[category.name]) {
           acc[category.name] = category;
         }
@@ -135,34 +185,9 @@ serve(async (req) => {
       }, {})
     );
     
-    console.log(`Standardized to ${uniqueCategories.length} unique categories`);
+    console.log(`Final list contains ${uniqueCategories.length} unique categories`);
     
-    // Add any missing predefined categories
-    const predefinedCategories = [
-      'Protein', 
-      'Pre-Workout', 
-      'Weight Loss', 
-      'Amino Acids', 
-      'Wellness', 
-      'Daily Essentials', 
-      'Creatine', 
-      'Testosterone'
-    ];
-    
-    for (const name of predefinedCategories) {
-      const exists = uniqueCategories.some((cat: any) => cat.name === name);
-      if (!exists) {
-        console.log(`Adding missing predefined category: ${name}`);
-        uniqueCategories.push({
-          name,
-          slug: createSlug(name),
-          square_category_id: `manual_${name.toLowerCase().replace(/\s+/g, '_')}`
-        });
-      }
-    }
-    
-    // Upsert categories to Supabase
-    // This will now work properly with the unique constraint on name
+    // 4. Upsert categories to Supabase
     const { data, error } = await supabase
       .from('categories')
       .upsert(uniqueCategories, { 
@@ -175,6 +200,7 @@ serve(async (req) => {
       throw new Error(`Supabase error: ${error.message}`);
     }
     
+    // 5. Return success response
     return new Response(
       JSON.stringify({
         success: true,

@@ -1,64 +1,99 @@
 
 import { Category } from "@/lib/categories";
 
+// The fixed list of allowed categories - must match the ones in sync-categories
+export const ALLOWED_CATEGORIES = [
+  'Aminos',
+  'Anti-Aging Supplement',
+  'BCAA',
+  'Creatine',
+  'Dry Spell',
+  'Fat Burners',
+  'Multivitamin',
+  'Pre Workout',
+  'Protein',
+  'Protein Powder',
+  'Pump Supplement',
+  'Testosterone',
+  'Vitamins'
+];
+
 /**
- * Standardizes a category name to one of our approved categories
- * Note: This same logic is implemented in the Supabase Edge Function
+ * Maps a category name to one of our allowed categories
  */
 export const standardizeCategory = (categoryName: string): string => {
   if (!categoryName) return 'Uncategorized';
   
   const lower = categoryName.toLowerCase().trim();
-
-  // Protein categories
-  if (lower.includes('protein') || lower.includes('whey')) {
-    return 'Protein';
+  
+  // Direct matches (case-insensitive)
+  for (const allowedCategory of ALLOWED_CATEGORIES) {
+    if (lower === allowedCategory.toLowerCase()) {
+      return allowedCategory;
+    }
   }
   
-  // Pre-Workout categories
-  if ((lower.includes('pre') && lower.includes('workout')) || 
-      lower === 'preworkout' || 
-      lower === 'pre-workout') {
-    return 'Pre-Workout';
+  // Partial matches based on keywords
+  if (lower.includes('amino') || lower.includes('aminos')) {
+    return 'Aminos';
   }
   
-  // Weight Loss / Fat Burners
-  if (lower.includes('fat burn') || lower.includes('thermogenic') || 
-      lower.includes('weight loss') || lower === 'burn') {
-    return 'Weight Loss';
+  if (lower.includes('bcaa')) {
+    return 'BCAA';
   }
   
-  // Amino Acids
-  if (lower.includes('amino') || lower.includes('bcaa')) {
-    return 'Amino Acids';
-  }
-  
-  // Wellness / Vitamins
-  if (lower.includes('vitamin') || lower.includes('wellness') || 
-      lower.includes('multivitamin') || lower.includes('anti-aging')) {
-    return 'Wellness';
-  }
-  
-  // Daily Essentials
-  if (lower.includes('daily') || lower.includes('essentials')) {
-    return 'Daily Essentials';
-  }
-  
-  // Creatine
   if (lower.includes('creatine')) {
     return 'Creatine';
   }
   
-  // Testosterone
+  if (lower.includes('anti-aging') || lower.includes('anti aging')) {
+    return 'Anti-Aging Supplement';
+  }
+  
+  if (lower.includes('dry spell') || lower.includes('diuretic')) {
+    return 'Dry Spell';
+  }
+  
+  if (lower.includes('fat burn') || lower.includes('thermogenic') || 
+      lower.includes('weight loss') || lower === 'burn') {
+    return 'Fat Burners';
+  }
+  
+  if (lower.includes('multivitamin') || 
+      (lower.includes('multi') && lower.includes('vitamin'))) {
+    return 'Multivitamin';
+  }
+  
+  if ((lower.includes('pre') && lower.includes('workout')) || 
+      lower === 'preworkout' || lower === 'pre-workout') {
+    return 'Pre Workout';
+  }
+  
+  if (lower.includes('protein') && lower.includes('powder')) {
+    return 'Protein Powder';
+  }
+  
+  if (lower.includes('protein')) {
+    return 'Protein';
+  }
+  
+  if (lower.includes('pump')) {
+    return 'Pump Supplement';
+  }
+  
   if (lower.includes('test') || lower.includes('testosterone')) {
     return 'Testosterone';
+  }
+  
+  if (lower.includes('vitamin')) {
+    return 'Vitamins';
   }
 
   return 'Uncategorized';
 };
 
 /**
- * Standardizes a category from a URL parameter to match our approved categories
+ * Standardizes a category from a URL parameter to match our allowed categories
  */
 export const standardizeUrlCategory = (urlCategory: string): string => {
   if (!urlCategory) return '';
@@ -66,17 +101,6 @@ export const standardizeUrlCategory = (urlCategory: string): string => {
   // Convert URL format (dashes) to display format
   const readable = urlCategory.toLowerCase().replace(/-/g, ' ');
   
-  // Map specific URL slugs to their standardized categories
-  if (readable === 'protein') return 'Protein';
-  if (readable === 'pre workout' || readable === 'pre-workout') return 'Pre-Workout';
-  if (readable === 'weight loss') return 'Weight Loss';
-  if (readable === 'amino acids') return 'Amino Acids';
-  if (readable === 'daily essentials') return 'Daily Essentials';
-  if (readable === 'wellness') return 'Wellness';
-  if (readable === 'creatine') return 'Creatine';
-  if (readable === 'testosterone') return 'Testosterone';
-  
-  // If no specific mapping, use general standardization
   return standardizeCategory(readable);
 };
 
@@ -112,23 +136,24 @@ export const getMainCategories = (): {name: string, slug: string}[] => {
     return cachedMainCategories;
   }
   
-  // Fallback to hardcoded values if cache is empty
-  return [
-    { name: 'Protein', slug: 'protein' },
-    { name: 'Pre-Workout', slug: 'pre-workout' },
-    { name: 'Weight Loss', slug: 'weight-loss' },
-    { name: 'Daily Essentials', slug: 'daily-essentials' }
-  ];
+  // Fallback to allowed categories if cache is empty
+  return ALLOWED_CATEGORIES.slice(0, 4).map(cat => ({
+    name: cat,
+    slug: categoryToSlug(cat)
+  }));
 };
 
 /**
  * Sets the cached main categories from database values
  */
 export const setCachedMainCategories = (categories: Category[]) => {
-  cachedMainCategories = categories.map(cat => ({
-    name: cat.name,
-    slug: cat.slug
-  }));
+  // Only include categories that are in our allowed list
+  cachedMainCategories = categories
+    .filter(cat => ALLOWED_CATEGORIES.includes(cat.name))
+    .map(cat => ({
+      name: cat.name,
+      slug: cat.slug
+    }));
 };
 
 /**
@@ -142,25 +167,22 @@ export const getAllCategories = (): {name: string, slug: string}[] => {
     return cachedAllCategories;
   }
   
-  // Fallback to hardcoded values if cache is empty
-  return [
-    { name: 'Amino Acids', slug: 'amino-acids' },
-    { name: 'Creatine', slug: 'creatine' },
-    { name: 'Daily Essentials', slug: 'daily-essentials' },
-    { name: 'Pre-Workout', slug: 'pre-workout' },
-    { name: 'Protein', slug: 'protein' },
-    { name: 'Wellness', slug: 'wellness' },
-    { name: 'Weight Loss', slug: 'weight-loss' },
-    { name: 'Testosterone', slug: 'testosterone' }
-  ];
+  // Fallback to allowed categories if cache is empty
+  return ALLOWED_CATEGORIES.map(cat => ({
+    name: cat,
+    slug: categoryToSlug(cat)
+  }));
 };
 
 /**
  * Sets the cached all categories from database values
  */
 export const setCachedAllCategories = (categories: Category[]) => {
-  cachedAllCategories = categories.map(cat => ({
-    name: cat.name,
-    slug: cat.slug
-  }));
+  // Only include categories that are in our allowed list
+  cachedAllCategories = categories
+    .filter(cat => ALLOWED_CATEGORIES.includes(cat.name))
+    .map(cat => ({
+      name: cat.name,
+      slug: cat.slug
+    }));
 };
