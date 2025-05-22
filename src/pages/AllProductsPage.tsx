@@ -26,6 +26,7 @@ const AllProductsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [filterOptions, setFilterOptions] = useState({
     brands: [] as string[],
+    categories: [] as string[],
     priceRange: null as string | null,
     inStock: false,
     onSale: false,
@@ -79,6 +80,13 @@ const AllProductsPage = () => {
           product.tags?.includes(brand.toLowerCase()) || 
           product.title.toLowerCase().includes(brand.toLowerCase())
         )
+      );
+    }
+    
+    // Apply category filter
+    if (filterOptions.categories.length > 0) {
+      result = result.filter(product => 
+        filterOptions.categories.includes(product.category)
       );
     }
     
@@ -247,6 +255,7 @@ const AllProductsPage = () => {
               <Button 
                 onClick={() => setFilterOptions({
                   brands: [],
+                  categories: [],
                   priceRange: null,
                   inStock: false,
                   onSale: false,

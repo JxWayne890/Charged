@@ -10,6 +10,7 @@ import { fetchSquareProducts } from '@/lib/square';
 import FilterSidebar from '@/components/FilterSidebar';
 import { Product } from '@/types';
 import { toast } from "@/components/ui/use-toast";
+import { standardizeUrlCategory } from '@/utils/categoryUtils';
 
 // Function to standardize category names for URL parameters
 const standardizeUrlCategory = (urlCategory: string): string => {
@@ -85,6 +86,7 @@ const CategoryPage = () => {
   const [sortOption, setSortOption] = useState('featured');
   const [filterOptions, setFilterOptions] = useState({
     brands: [] as string[],
+    categories: [] as string[],
     priceRange: null as string | null,
     inStock: false,
     onSale: false,
@@ -203,6 +205,13 @@ const CategoryPage = () => {
           product.tags?.includes(brand.toLowerCase()) || 
           product.title.toLowerCase().includes(brand.toLowerCase())
         )
+      );
+    }
+    
+    // Apply category filter (in addition to main category)
+    if (filterOptions.categories.length > 0) {
+      result = result.filter(product => 
+        filterOptions.categories.includes(product.category)
       );
     }
     
@@ -409,6 +418,7 @@ const CategoryPage = () => {
                 <Button 
                   onClick={() => setFilterOptions({
                     brands: [],
+                    categories: [],
                     priceRange: null,
                     inStock: false,
                     onSale: false,

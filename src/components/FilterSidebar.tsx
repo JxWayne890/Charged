@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import { 
@@ -10,6 +11,7 @@ import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import { Separator } from './ui/separator';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { getAllCategories } from '@/utils/categoryUtils';
 
 // Available brands for filtering
 const availableBrands = [
@@ -37,6 +39,7 @@ const priceRanges = [
 
 type FilterOptions = {
   brands: string[];
+  categories: string[];
   priceRange: string | null;
   inStock: boolean;
   onSale: boolean;
@@ -62,6 +65,18 @@ const FilterSidebar = ({ filterOptions, onFilterChange, productCount }: FilterSi
     });
   };
 
+  // Toggle category selection
+  const toggleCategory = (category: string) => {
+    const updatedCategories = filterOptions.categories.includes(category)
+      ? filterOptions.categories.filter(c => c !== category)
+      : [...filterOptions.categories, category];
+    
+    onFilterChange({
+      ...filterOptions,
+      categories: updatedCategories
+    });
+  };
+
   // Set price range
   const setPriceRange = (value: string) => {
     onFilterChange({
@@ -82,6 +97,7 @@ const FilterSidebar = ({ filterOptions, onFilterChange, productCount }: FilterSi
   const clearFilters = () => {
     onFilterChange({
       brands: [],
+      categories: [],
       priceRange: null,
       inStock: false,
       onSale: false,
@@ -89,11 +105,15 @@ const FilterSidebar = ({ filterOptions, onFilterChange, productCount }: FilterSi
     });
   };
 
+  // Get all available categories
+  const availableCategories = getAllCategories().map(c => c.name);
+
   return (
     <div className="w-full lg:w-64 lg:min-w-64 bg-white border rounded-lg p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">Filters</h2>
         {(filterOptions.brands.length > 0 || 
+          filterOptions.categories.length > 0 ||
           filterOptions.priceRange !== null || 
           filterOptions.inStock || 
           filterOptions.onSale ||
@@ -113,7 +133,33 @@ const FilterSidebar = ({ filterOptions, onFilterChange, productCount }: FilterSi
       
       <Separator className="my-4" />
       
-      <Accordion type="multiple" defaultValue={['brands', 'price', 'availability']}>
+      <Accordion type="multiple" defaultValue={['categories', 'brands', 'price', 'availability']}>
+        {/* Category Filter */}
+        <AccordionItem value="categories" className="border-b">
+          <AccordionTrigger className="py-3 hover:no-underline">
+            <span className="text-base font-medium">Category</span>
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="space-y-2 max-h-56 overflow-y-auto pr-2">
+              {availableCategories.map(category => (
+                <div key={category} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={`category-${category}`} 
+                    checked={filterOptions.categories.includes(category)}
+                    onCheckedChange={() => toggleCategory(category)}
+                  />
+                  <Label 
+                    htmlFor={`category-${category}`}
+                    className="text-sm cursor-pointer flex-1"
+                  >
+                    {category}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
         {/* Brand Filter */}
         <AccordionItem value="brands" className="border-b">
           <AccordionTrigger className="py-3 hover:no-underline">
