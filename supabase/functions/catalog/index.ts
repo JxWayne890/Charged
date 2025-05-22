@@ -23,20 +23,28 @@ const definedCategories = [
   { name: 'Vitamins', slug: 'vitamins' }
 ];
 
-// Create a mapping for category detection
+// Create a mapping for category detection based on more precise keywords
 const categoryMapping = {
-  'aminos': ['amino', 'acid', 'recovery'],
-  'anti-aging-supplement': ['anti-aging', 'aging', 'youth', 'collagen'],
-  'bcaa': ['bcaa', 'branch', 'amino acid'],
-  'creatine': ['creatine', 'monohydrate', 'hcl', 'strength'],
-  'dry-spell': ['dry-spell', 'cycle', 'break', 'off-cycle'],
-  'fat-burners': ['fat', 'burn', 'weight', 'loss', 'thermogenic', 'slim'],
-  'multivitamin': ['multivitamin', 'multi-vitamin', 'vitamin pack'],
-  'pre-workout': ['pre-workout', 'preworkout', 'energy', 'focus'],
-  'protein': ['protein', 'whey', 'isolate', 'casein', 'blend'],
-  'pump-supplement': ['pump', 'vasodilator', 'nitric', 'oxide', 'no'],
-  'testosterone': ['test', 'testosterone', 'hormone', 'booster'],
-  'vitamins': ['vitamin', 'mineral', 'health', 'wellness']
+  'aminos': ['amino acid', 'recovery amino'],
+  'anti-aging-supplement': ['anti-aging', 'collagen', 'nad daily'],
+  'bcaa': ['bcaa', 'branch chain amino acid'],
+  'creatine': ['creatine monohydrate', 'creatine hcl'],
+  'dry-spell': ['dry-spell', 'off-cycle', 'natural gains'],
+  'fat-burners': ['fat burn', 'caloriburn', 'night burn', 'thermogenic'],
+  'multivitamin': ['multivitamin', 'multi vitamin', 'vitamin pack'],
+  'pre-workout': ['pre-workout', 'preworkout', 'loaded pre', 'essential pre', 'stim daddy', 'bamf', 'woke af'],
+  'protein': ['protein', 'whey', 'isolate', 'casein'],
+  'pump-supplement': ['pump', 'pump squared', 'pumpkin spice'],
+  'testosterone': ['testosterone', 'rut', 'test booster', 'maximum strength'],
+  'vitamins': ['vitamin d', 'vitamin c', 'minerals']
+};
+
+// Product-specific overrides for products that we know are being incorrectly categorized
+const productOverrides = {
+  'Bucked Up Babe Sparkling Orchard': 'pre-workout',
+  'Bucked Up Babe Watermelon Splash': 'pre-workout',
+  'Black Magic Supplements BZRK': 'pre-workout',
+  'Axe & Sledge Supplements Multi': 'multivitamin'
 };
 
 /**
@@ -85,81 +93,153 @@ async function fetchSquareCategories() {
   );
 
   const rawCategoryData = await categoryRes.json();
-  console.log('Raw Square categories:', JSON.stringify(rawCategoryData.objects?.map(obj => obj.category_data.name) || []));
   
-  return new Map(
-    rawCategoryData.objects?.map((obj) => [obj.id, obj.category_data.name]) || []
+  // Enhanced logging to understand what categories are available in Square
+  const categoryNames = rawCategoryData.objects?.map(obj => obj.category_data.name) || [];
+  console.log('Raw Square categories:', JSON.stringify(categoryNames));
+  
+  return {
+    categoryMap: new Map(
+      rawCategoryData.objects?.map((obj) => [obj.id, obj.category_data.name]) || []
+    ),
+    categoryData: rawCategoryData.objects || []
+  };
+}
+
+/**
+ * Maps Square category names to our defined category slugs
+ */
+function mapSquareCategoryToSlug(squareCategoryName) {
+  if (!squareCategoryName) return null;
+  
+  // Normalize the category name for better matching
+  const normalizedName = squareCategoryName.toLowerCase().trim();
+  
+  // Try exact match with our defined categories first
+  const exactMatch = definedCategories.find(c => 
+    normalizedName === c.name.toLowerCase()
   );
+  
+  if (exactMatch) {
+    console.log(`Square category "${squareCategoryName}" exact match: ${exactMatch.slug}`);
+    return exactMatch.slug;
+  }
+  
+  // Try finding a close match
+  for (const category of definedCategories) {
+    if (normalizedName.includes(category.name.toLowerCase()) || 
+        category.name.toLowerCase().includes(normalizedName)) {
+      console.log(`Square category "${squareCategoryName}" partial match: ${category.slug}`);
+      return category.slug;
+    }
+  }
+  
+  // Map some common variations
+  const commonVariations = {
+    'pre workout': 'pre-workout',
+    'preworkout': 'pre-workout',
+    'protein': 'protein',
+    'amino': 'aminos',
+    'bcaa': 'bcaa',
+    'vitamin': 'vitamins',
+    'test booster': 'testosterone',
+    'fat burner': 'fat-burners',
+  };
+  
+  for (const [variation, slug] of Object.entries(commonVariations)) {
+    if (normalizedName.includes(variation)) {
+      console.log(`Square category "${squareCategoryName}" variation match: ${slug}`);
+      return slug;
+    }
+  }
+  
+  console.log(`No match found for Square category: "${squareCategoryName}"`);
+  return null;
+}
+
+/**
+ * Determines if product content matches a category based on keywords
+ */
+function contentMatchesCategory(content, categorySlug) {
+  const keywords = categoryMapping[categorySlug];
+  if (!keywords) return false;
+  
+  return keywords.some(keyword => content.includes(keyword.toLowerCase()));
 }
 
 /**
  * Determines the category for a product
  */
-function determineProductCategory(item, rawCategoryMap) {
-  let category = '';
+function determineProductCategory(item, squareCategoryData) {
+  const productName = item.item_data.name;
+  
+  // 1. Check for product-specific override
+  if (productOverrides[productName]) {
+    const overrideCategory = productOverrides[productName];
+    console.log(`Product override for "${productName}": ${overrideCategory}`);
+    return overrideCategory;
+  }
+  
+  // 2. Check Square category if available
+  if (item.item_data.category_id) {
+    const squareCategoryName = squareCategoryData.categoryMap.get(item.item_data.category_id);
+    
+    if (squareCategoryName) {
+      console.log(`Product: ${productName}, Square category: ${squareCategoryName}`);
+      
+      // Try to map the Square category to one of our defined categories
+      const mappedCategory = mapSquareCategoryToSlug(squareCategoryName);
+      if (mappedCategory) {
+        console.log(`Mapped Square category for "${productName}": ${mappedCategory}`);
+        return mappedCategory;
+      }
+    }
+  }
+  
+  // 3. Try content-based matching with more specific keywords
   const itemName = item.item_data.name.toLowerCase();
   const itemDesc = (item.item_data.description || '').toLowerCase();
   const contentToCheck = `${itemName} ${itemDesc}`;
   
-  // Check Square category first if available
-  if (item.item_data.category_id) {
-    const squareCategoryName = rawCategoryMap.get(item.item_data.category_id);
-    if (squareCategoryName) {
-      console.log(`Product: ${item.item_data.name}, Square category: ${squareCategoryName}`);
-      
-      // First, try exact name match with our defined categories
-      const exactMatch = definedCategories.find(c => 
-        squareCategoryName.toLowerCase() === c.name.toLowerCase()
-      );
-      
-      if (exactMatch) {
-        category = exactMatch.slug;
-        console.log(`Exact category match: ${category}`);
-      } else {
-        // If no exact match, look for partial matches
-        const matchedCategory = definedCategories.find(c => 
-          squareCategoryName.toLowerCase().includes(c.name.toLowerCase()) ||
-          c.name.toLowerCase().includes(squareCategoryName.toLowerCase())
-        );
-        
-        if (matchedCategory) {
-          category = matchedCategory.slug;
-          console.log(`Partial category match: ${category}`);
-        }
-      }
+  // Check against our keyword mapping
+  for (const [categorySlug, keywords] of Object.entries(categoryMapping)) {
+    // Check for specific keyword matches
+    if (keywords.some(keyword => contentToCheck.includes(keyword.toLowerCase()))) {
+      console.log(`Keyword match for "${productName}": ${categorySlug}`);
+      return categorySlug;
     }
   }
   
-  // If still no category, check content against our keyword mapping
-  if (!category) {
-    for (const [cat, keywords] of Object.entries(categoryMapping)) {
-      if (keywords.some(keyword => contentToCheck.includes(keyword))) {
-        category = cat;
-        console.log(`Keyword match for ${item.item_data.name}: ${category}`);
-        break;
-      }
-    }
+  // 4. Use basic name pattern matching for common categories
+  if (contentToCheck.includes('protein')) {
+    console.log(`Basic match for "${productName}": protein`);
+    return 'protein';
+  } else if (contentToCheck.includes('pre-workout') || contentToCheck.includes('preworkout')) {
+    console.log(`Basic match for "${productName}": pre-workout`);
+    return 'pre-workout';
+  } else if (contentToCheck.includes('creatine')) {
+    console.log(`Basic match for "${productName}": creatine`);
+    return 'creatine';
+  } else if (contentToCheck.includes('vitamin')) {
+    console.log(`Basic match for "${productName}": vitamins`);
+    return 'vitamins';
   }
   
-  // Last resort: assign a default category
-  if (!category) {
-    // Try to assign based on some common product naming patterns
-    if (contentToCheck.includes('protein')) category = 'protein';
-    else if (contentToCheck.includes('pre-workout') || contentToCheck.includes('preworkout')) category = 'pre-workout';
-    else if (contentToCheck.includes('vitamin')) category = 'vitamins';
-    else {
-      category = 'supplements'; // Default fallback
-      console.log(`No category match for ${item.item_data.name}, using default`);
-    }
+  // 5. If no match found, analyze name for brand-specific patterns
+  if (itemName.includes('bucked up') && (itemName.includes('babe') || itemName.includes('bamf'))) {
+    console.log(`Brand pattern match for "${productName}": pre-workout`);
+    return 'pre-workout';
   }
   
-  return category;
+  // 6. Default fallback as last resort
+  console.log(`No category match for "${productName}", using default: supplements`);
+  return 'supplements';
 }
 
 /**
  * Transforms Square API data into product objects
  */
-function transformToProducts(squareData, rawCategoryMap) {
+function transformToProducts(squareData, squareCategoryData) {
   return squareData.objects
     .filter(
       (item) =>
@@ -194,8 +274,8 @@ function transformToProducts(squareData, rawCategoryMap) {
         .replace(/[^\w\s-]/g, '')
         .replace(/\s+/g, '-');
 
-      // Determine the product category using our defined categories
-      const category = determineProductCategory(item, rawCategoryMap);
+      // Determine the product category using our improved logic
+      const category = determineProductCategory(item, squareCategoryData);
 
       return {
         id: item.id,
@@ -248,10 +328,10 @@ serve(async (req) => {
     const squareData = await fetchSquareData();
     
     // Fetch Square categories
-    const rawCategoryMap = await fetchSquareCategories();
+    const squareCategoryData = await fetchSquareCategories();
     
     // Transform to products
-    const products = transformToProducts(squareData, rawCategoryMap);
+    const products = transformToProducts(squareData, squareCategoryData);
     
     // Log category distribution for debugging
     logCategoryDistribution(products);
