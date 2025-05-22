@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Home } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
@@ -10,8 +10,11 @@ import { toast } from "@/components/ui/use-toast";
 
 const AllProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get('category');
   
   useEffect(() => {
     const loadProducts = async () => {
@@ -30,6 +33,31 @@ const AllProductsPage = () => {
     
     loadProducts();
   }, []);
+  
+  // Filter products when the category parameter or products list changes
+  useEffect(() => {
+    if (categoryParam) {
+      console.log(`Filtering by category: ${categoryParam}`);
+      const filtered = products.filter(product => {
+        // Exact match for category slug
+        const matches = product.category === categoryParam;
+        console.log(`Product ${product.title}: Category ${product.category}, Match: ${matches}`);
+        return matches;
+      });
+      setFilteredProducts(filtered);
+      console.log(`Found ${filtered.length} products matching category ${categoryParam}`);
+    } else {
+      setFilteredProducts(products);
+    }
+  }, [categoryParam, products]);
+
+  // Format category name for display (e.g., "pre-workout" to "Pre Workout")
+  const formatCategoryName = (slug: string): string => {
+    return slug
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
   if (loading) {
     return (
@@ -72,27 +100,55 @@ const AllProductsPage = () => {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="text-gray-400" />
               <BreadcrumbItem>
-                <BreadcrumbLink className="text-white">All Products</BreadcrumbLink>
+                <BreadcrumbLink asChild>
+                  <Link to="/products" className="text-gray-300 hover:text-white">
+                    All Products
+                  </Link>
+                </BreadcrumbLink>
               </BreadcrumbItem>
+              {categoryParam && (
+                <>
+                  <BreadcrumbSeparator className="text-gray-400" />
+                  <BreadcrumbItem>
+                    <BreadcrumbLink className="text-white">
+                      {formatCategoryName(categoryParam)}
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                </>
+              )}
             </BreadcrumbList>
           </Breadcrumb>
           
           <div className="flex items-center justify-between">
-            <h1 className="text-4xl font-bold text-white">All Products</h1>
+            <h1 className="text-4xl font-bold text-white">
+              {categoryParam ? formatCategoryName(categoryParam) : "All Products"}
+            </h1>
           </div>
-          <p className="text-gray-300 max-w-2xl mb-4">Browse our complete range of premium supplements to find exactly what you need.</p>
+          <p className="text-gray-300 max-w-2xl mb-4">
+            {categoryParam 
+              ? `Browse our selection of ${formatCategoryName(categoryParam)} supplements.`
+              : "Browse our complete range of premium supplements to find exactly what you need."}
+          </p>
         </div>
       </div>
       
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.length === 0 ? (
+          {filteredProducts.length === 0 ? (
             <div className="text-center col-span-full py-12">
-              <h3 className="text-xl font-medium mb-2">No products available</h3>
-              <p className="text-gray-600">We couldn't find any products in our catalog. Please check back later!</p>
+              <h3 className="text-xl font-medium mb-2">
+                {categoryParam 
+                  ? `No ${formatCategoryName(categoryParam)} products found`
+                  : "No products available"}
+              </h3>
+              <p className="text-gray-600">
+                {categoryParam 
+                  ? `We couldn't find any ${formatCategoryName(categoryParam)} products in our catalog. Please check back later!`
+                  : "We couldn't find any products in our catalog. Please check back later!"}
+              </p>
             </div>
           ) : (
-            products.map(product => (
+            filteredProducts.map(product => (
               <ProductCard key={product.id} product={product} />
             ))
           )}
