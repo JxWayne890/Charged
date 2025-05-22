@@ -36,27 +36,27 @@ const QuickCategoryLinks = ({ links, useCustomLinks = false }: QuickCategoryLink
     }
   }, [useCustomLinks]);
 
-  // Default links as fallback
+  // Updated default category links based on the provided list
   const defaultLinks: ProductLink[] = [
-    {
-      name: 'Pre-Workout',
-      image: '/lovable-uploads/c491ed4d-1b3a-4132-8051-e5bf2757ce56.png',
-      link: '/products'
-    },
     {
       name: 'Protein',
       image: '/lovable-uploads/2aa3e52f-35ac-42ea-ac84-51ff86ec9177.png',
-      link: '/products'
+      link: '/products?category=protein'
     },
     {
-      name: 'Weight Loss',
+      name: 'Pre-Workout',
+      image: '/lovable-uploads/c491ed4d-1b3a-4132-8051-e5bf2757ce56.png',
+      link: '/products?category=pre-workout'
+    },
+    {
+      name: 'Fat Burners',
       image: '/lovable-uploads/bc24b7f2-3784-4277-be96-81767ce6d068.png',
-      link: '/products'
+      link: '/products?category=fat-burners'
     },
     {
-      name: 'Daily Essentials',
+      name: 'Creatine',
       image: '/lovable-uploads/ace13b36-7daf-494c-aad3-9d2470d1b72b.png',
-      link: '/products'
+      link: '/products?category=creatine'
     }
   ];
   

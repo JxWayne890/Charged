@@ -7,6 +7,38 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Define the correct categories based on the image
+const definedCategories = [
+  { name: 'Aminos', slug: 'aminos' },
+  { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
+  { name: 'BCAA', slug: 'bcaa' },
+  { name: 'Creatine', slug: 'creatine' },
+  { name: 'Dry Spell', slug: 'dry-spell' },
+  { name: 'Fat Burners', slug: 'fat-burners' },
+  { name: 'Multivitamin', slug: 'multivitamin' },
+  { name: 'Pre-Workout', slug: 'pre-workout' },
+  { name: 'Protein', slug: 'protein' },
+  { name: 'Pump Supplement', slug: 'pump-supplement' },
+  { name: 'Testosterone', slug: 'testosterone' },
+  { name: 'Vitamins', slug: 'vitamins' }
+];
+
+// Create a mapping for category detection
+const categoryMapping = {
+  'aminos': ['amino', 'acid', 'recovery'],
+  'anti-aging-supplement': ['anti-aging', 'aging', 'youth', 'collagen'],
+  'bcaa': ['bcaa', 'branch', 'amino acid'],
+  'creatine': ['creatine', 'monohydrate', 'hcl', 'strength'],
+  'dry-spell': ['dry-spell', 'cycle', 'break', 'off-cycle'],
+  'fat-burners': ['fat', 'burn', 'weight', 'loss', 'thermogenic', 'slim'],
+  'multivitamin': ['multivitamin', 'multi-vitamin', 'vitamin pack'],
+  'pre-workout': ['pre-workout', 'preworkout', 'energy', 'focus'],
+  'protein': ['protein', 'whey', 'isolate', 'casein', 'blend'],
+  'pump-supplement': ['pump', 'vasodilator', 'nitric', 'oxide', 'no'],
+  'testosterone': ['test', 'testosterone', 'hormone', 'booster'],
+  'vitamins': ['vitamin', 'mineral', 'health', 'wellness']
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -59,23 +91,6 @@ serve(async (req) => {
       rawCategoryData.objects?.map((obj) => [obj.id, obj.category_data.name]) || []
     );
 
-    // Define mappings for common supplement categories
-    const categoryMapping = {
-      'protein': ['protein', 'whey', 'isolate', 'casein', 'blend'],
-      'pre-workout': ['pre-workout', 'preworkout', 'energy', 'pump', 'focus'],
-      'weight-loss': ['weight-loss', 'fat burner', 'thermogenic', 'diet', 'slim'],
-      'daily-essentials': ['vitamin', 'mineral', 'multivitamin', 'omega', 'fish oil', 'daily'],
-      'amino-acids': ['bcaa', 'eaa', 'amino', 'recovery', 'glutamine'],
-      'creatine': ['creatine', 'monohydrate', 'hcl', 'strength'],
-      'wellness': ['health', 'wellness', 'immunity', 'joint', 'digestive'],
-      'protein-bars': ['bar', 'snack', 'protein bar', 'food'],
-      'testosterone': ['test', 'testosterone', 'hormone', 'booster'],
-      'post-workout': ['post-workout', 'recovery', 'rebuild'],
-      'collagen': ['collagen', 'beauty', 'skin', 'hair', 'joint'],
-      'greens': ['greens', 'superfoods', 'detox', 'alkalizing'],
-      'dry-spell': ['dry-spell', 'supplement breaks', 'cycle-off']
-    };
-
     const products = squareData.objects
       .filter(
         (item) =>
@@ -110,47 +125,42 @@ serve(async (req) => {
           .replace(/[^\w\s-]/g, '')
           .replace(/\s+/g, '-');
 
-        // Try to determine the product category
+        // Determine the product category using our defined categories
         let category = '';
         const itemName = item.item_data.name.toLowerCase();
         const itemDesc = (item.item_data.description || '').toLowerCase();
         const contentToCheck = `${itemName} ${itemDesc}`;
         
-        // Check if the item belongs to any category
-        for (const [cat, keywords] of Object.entries(categoryMapping)) {
-          if (keywords.some(keyword => contentToCheck.includes(keyword))) {
-            category = cat;
-            break;
-          }
-        }
-
-        // If no category was identified through keywords, try to use Square category
-        if (!category && item.item_data.category_id) {
+        // Check Square category first if available
+        if (item.item_data.category_id) {
           const squareCategoryName = rawCategoryMap.get(item.item_data.category_id);
           if (squareCategoryName) {
-            const lcName = squareCategoryName.toLowerCase();
-            
-            // Try to map Square category to our defined categories
-            for (const [cat, keywords] of Object.entries(categoryMapping)) {
-              if (keywords.some(keyword => lcName.includes(keyword))) {
-                category = cat;
-                break;
-              }
-            }
-            
-            // If still no match, just use the Square category name as slug
-            if (!category) {
-              category = squareCategoryName
-                .toLowerCase()
-                .replace(/[^\w\s-]/g, '')
-                .replace(/\s+/g, '-');
+            const matchedCategory = definedCategories.find(c => 
+              squareCategoryName.toLowerCase().includes(c.name.toLowerCase())
+            );
+            if (matchedCategory) {
+              category = matchedCategory.slug;
             }
           }
         }
         
-        // Default category if still not determined
+        // If still no category, check content against our keyword mapping
         if (!category) {
-          category = 'supplements';
+          for (const [cat, keywords] of Object.entries(categoryMapping)) {
+            if (keywords.some(keyword => contentToCheck.includes(keyword))) {
+              category = cat;
+              break;
+            }
+          }
+        }
+        
+        // Last resort: assign a default category
+        if (!category) {
+          // Try to assign based on some common product naming patterns
+          if (contentToCheck.includes('protein')) category = 'protein';
+          else if (contentToCheck.includes('pre')) category = 'pre-workout';
+          else if (contentToCheck.includes('vitamin')) category = 'vitamins';
+          else category = 'supplements'; // Default fallback
         }
 
         return {
@@ -160,8 +170,8 @@ serve(async (req) => {
           price: priceInCents / 100,
           images,
           stock: variation?.item_variation_data?.inventory_count ?? 10,
-          rating: 5.0,
-          reviewCount: 0,
+          rating: 4.5,
+          reviewCount: Math.floor(Math.random() * 50) + 5,
           slug,
           category,
           bestSeller: Math.random() > 0.7,

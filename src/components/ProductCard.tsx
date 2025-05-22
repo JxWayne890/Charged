@@ -16,6 +16,15 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const { addToCart } = useCart();
   
+  // Format category name for display
+  const formatCategoryName = (category: string): string => {
+    // Replace hyphens with spaces and capitalize each word
+    return category
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+  
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     addToCart(product, 1);
@@ -74,7 +83,7 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
         <div className="flex flex-col p-4">
           {/* Category */}
           <span className="text-xs text-gray-500 uppercase mb-1">
-            {product.category || "Supplement"}
+            {product.category ? formatCategoryName(product.category) : "Supplement"}
           </span>
           
           {/* Title */}

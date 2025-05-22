@@ -10,11 +10,20 @@ import {
 } from '@/components/ui/navigation-menu';
 
 const DesktopNav = () => {
+  // Updated categories based on the provided list
   const categories = [
     { name: 'Protein', slug: 'protein' },
     { name: 'Pre-Workout', slug: 'pre-workout' },
-    { name: 'Weight Loss', slug: 'weight-loss' },
-    { name: 'Daily Essentials', slug: 'daily-essentials' }
+    { name: 'Vitamins', slug: 'vitamins' },
+    { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
+    { name: 'Multivitamin', slug: 'multivitamin' },
+    { name: 'Fat Burners', slug: 'fat-burners' },
+    { name: 'Creatine', slug: 'creatine' },
+    { name: 'BCAA', slug: 'bcaa' },
+    { name: 'Aminos', slug: 'aminos' },
+    { name: 'Dry Spell', slug: 'dry-spell' },
+    { name: 'Testosterone', slug: 'testosterone' },
+    { name: 'Pump Supplement', slug: 'pump-supplement' }
   ];
   
   return (
@@ -26,7 +35,7 @@ const DesktopNav = () => {
               Categories
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-              <div className="grid grid-cols-1 gap-2 p-4 w-[200px]">
+              <div className="grid grid-cols-2 gap-2 p-4 w-[400px]">
                 {categories.map((category) => (
                   <Link
                     key={category.slug}
