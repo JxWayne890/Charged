@@ -12,12 +12,12 @@ interface FeaturedProductCarouselProps {
 
 const FeaturedProductCarousel = ({
   products,
-  autoScrollInterval = 7000, // Increased from 4000ms to 7000ms to give users more time to read
+  autoScrollInterval = 8000, // Increased to 8 seconds for better readability
 }: FeaturedProductCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
 
-  // Auto scroll effect with fade transition
+  // Auto scroll effect with smooth fade transition
   useEffect(() => {
     if (!products || products.length === 0) return;
 
@@ -27,7 +27,7 @@ const FeaturedProductCarousel = ({
       setTimeout(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % products.length);
         setIsVisible(true);
-      }, 1000); // Increased from 600ms to 1000ms for a slower fade
+      }, 800); // Smooth fade out time
     }, autoScrollInterval);
 
     return () => clearInterval(interval);
@@ -44,7 +44,11 @@ const FeaturedProductCarousel = ({
         
         <div className="max-w-xl mx-auto">
           <div 
-            className={`transition-opacity duration-2000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+            className={`transition-all duration-1000 ease-in-out ${
+              isVisible 
+                ? 'opacity-100 transform translate-y-0' 
+                : 'opacity-0 transform translate-y-2'
+            }`}
           >
             <div className="flex flex-col md:flex-row items-center gap-4 p-3">
               {/* Product Image */}
@@ -86,26 +90,6 @@ const FeaturedProductCarousel = ({
                 </Button>
               </div>
             </div>
-          </div>
-          
-          {/* Dot Indicators */}
-          <div className="flex justify-center mt-4 space-x-2">
-            {products.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setIsVisible(false);
-                  setTimeout(() => {
-                    setCurrentIndex(index);
-                    setIsVisible(true);
-                  }, 1000);
-                }}
-                className={`w-2 h-2 rounded-full transition-colors duration-200 ${
-                  index === currentIndex ? 'bg-primary' : 'bg-gray-600 hover:bg-gray-500'
-                }`}
-                aria-label={`Go to product ${index + 1}`}
-              />
-            ))}
           </div>
         </div>
       </div>
