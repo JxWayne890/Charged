@@ -6,14 +6,15 @@ import {
   DropdownMenuItem, 
   DropdownMenuLabel, 
   DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { ChevronDown, Filter } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ChevronDown, Filter, Check } from 'lucide-react';
 
 // Standard categories that match our application
 const standardCategories = [
@@ -68,7 +69,6 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   const [localPriceRange, setLocalPriceRange] = useState<[number, number]>(priceRange);
   const [minInput, setMinInput] = useState<string>(priceRange[0].toString());
   const [maxInput, setMaxInput] = useState<string>(priceRange[1].toString());
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // Update local state when props change
   useEffect(() => {
@@ -78,11 +78,13 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   }, [priceRange]);
 
   const handleSliderChange = (value: number[]) => {
-    const newRange: [number, number] = [value[0], value[1]];
-    setLocalPriceRange(newRange);
-    setMinInput(newRange[0].toString());
-    setMaxInput(newRange[1].toString());
-    onPriceChange(newRange);
+    if (value.length >= 2) {
+      const newRange: [number, number] = [value[0], value[1]];
+      setLocalPriceRange(newRange);
+      setMinInput(newRange[0].toString());
+      setMaxInput(newRange[1].toString());
+      onPriceChange(newRange);
+    }
   };
 
   const handleMinInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,18 +123,29 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     onBrandChange(newSelectedBrands);
   };
 
-  const toggleCategory = (category: string) => {
-    if (selectedCategory === category) {
-      onCategoryChange(null); // Deselect if already selected
+  const handleCategoryChange = (value: string) => {
+    if (value === "all") {
+      onCategoryChange(null);
     } else {
-      onCategoryChange(category);
+      onCategoryChange(value);
     }
   };
+
+  const selectedBrandsCount = selectedBrands.length;
+  const brandLabel = selectedBrandsCount === 0 
+    ? "Select Brands" 
+    : `${selectedBrandsCount} brand${selectedBrandsCount === 1 ? '' : 's'} selected`;
 
   const clearAllFilters = () => {
     onPriceChange(minMaxPrices);
     onBrandChange([]);
     onCategoryChange(null);
+  };
+
+  const getCategoryName = (slug: string | null) => {
+    if (!slug) return "All Categories";
+    const category = standardCategories.find(c => c.slug === slug);
+    return category ? category.name : "All Categories";
   };
 
   return (
@@ -148,7 +161,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 min={minMaxPrices[0]}
                 max={minMaxPrices[1]}
                 step={1}
-                onValueChange={(values) => handleSliderChange(values as [number, number])}
+                onValueChange={handleSliderChange}
                 className="mb-6"
               />
               <div className="flex items-center gap-2">
@@ -178,33 +191,48 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           </div>
 
           <div>
-            <h3 className="text-lg font-medium mb-2">Categories</h3>
-            <div className="space-y-2">
-              {standardCategories.map((category) => (
-                <div key={category.slug} className="flex items-center gap-2">
-                  <Switch 
-                    checked={selectedCategory === category.slug}
-                    onCheckedChange={() => toggleCategory(category.slug)}
-                  />
-                  <span className="text-sm">{category.name}</span>
-                </div>
-              ))}
-            </div>
+            <h3 className="text-lg font-medium mb-2">Category</h3>
+            <Select 
+              value={selectedCategory || "all"} 
+              onValueChange={handleCategoryChange}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {standardCategories.map((category) => (
+                  <SelectItem key={category.slug} value={category.slug}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
             <h3 className="text-lg font-medium mb-2">Brands</h3>
-            <div className="space-y-2">
-              {brands.map((brand) => (
-                <div key={brand} className="flex items-center gap-2">
-                  <Switch 
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  {brandLabel}
+                  <ChevronDown className="h-4 w-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 max-h-[300px] overflow-auto">
+                <DropdownMenuLabel>Select Brands</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {brands.map((brand) => (
+                  <DropdownMenuCheckboxItem
+                    key={brand}
                     checked={selectedBrands.includes(brand)}
                     onCheckedChange={() => handleBrandToggle(brand)}
-                  />
-                  <span className="text-sm">{brand}</span>
-                </div>
-              ))}
-            </div>
+                  >
+                    {brand}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <button 
@@ -232,7 +260,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 min={minMaxPrices[0]}
                 max={minMaxPrices[1]}
                 step={1}
-                onValueChange={(values) => handleSliderChange(values as [number, number])}
+                onValueChange={handleSliderChange}
                 className="mb-6"
               />
               <div className="flex items-center gap-2">
@@ -255,20 +283,24 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
             </div>
 
             <DropdownMenuSeparator />
-            <DropdownMenuLabel>Categories</DropdownMenuLabel>
-            <div className="px-2 py-2 max-h-60 overflow-y-auto">
-              <ToggleGroup type="single" value={selectedCategory || ""} className="flex flex-wrap gap-2">
-                {standardCategories.map((category) => (
-                  <ToggleGroupItem 
-                    key={category.slug} 
-                    value={category.slug}
-                    onClick={() => toggleCategory(category.slug)}
-                    className="text-xs"
-                  >
-                    {category.name}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
+            <DropdownMenuLabel>Category</DropdownMenuLabel>
+            <div className="px-2 py-2">
+              <Select 
+                value={selectedCategory || "all"} 
+                onValueChange={handleCategoryChange}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {standardCategories.map((category) => (
+                    <SelectItem key={category.slug} value={category.slug}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <DropdownMenuSeparator />
@@ -282,9 +314,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                 >
                   <div className={`w-4 h-4 border rounded-sm ${selectedBrands.includes(brand) ? 'bg-primary border-primary' : 'bg-transparent'}`}>
                     {selectedBrands.includes(brand) && (
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-                        <path d="M20 6L9 17l-5-5" />
-                      </svg>
+                      <Check className="h-4 w-4 text-white" />
                     )}
                   </div>
                   {brand}
