@@ -24,20 +24,20 @@ const categoryImages = {
   'vitamins': '/placeholder.svg'
 };
 
-// Define our categories with EXACT matching slugs as used in the catalog function
+// Define our standardized categories with exact matching slugs
 const categories = [
-  { name: 'Aminos', slug: 'aminos' },
-  { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
-  { name: 'BCAA', slug: 'bcaa' },
-  { name: 'Creatine', slug: 'creatine' },
-  { name: 'Dry Spell', slug: 'dry-spell' },
-  { name: 'Fat Burners', slug: 'fat-burners' },
-  { name: 'Multivitamin', slug: 'multivitamin' },
-  { name: 'Pre-Workout', slug: 'pre-workout' },
+  { name: 'Pre Workout', slug: 'pre-workout' },
   { name: 'Protein', slug: 'protein' },
+  { name: 'Creatine', slug: 'creatine' },
+  { name: 'BCAA', slug: 'bcaa' },
+  { name: 'Aminos', slug: 'aminos' },
+  { name: 'Vitamins', slug: 'vitamins' },
+  { name: 'Multivitamin', slug: 'multivitamin' },
+  { name: 'Fat Burners', slug: 'fat-burners' },
   { name: 'Pump Supplement', slug: 'pump-supplement' },
   { name: 'Testosterone', slug: 'testosterone' },
-  { name: 'Vitamins', slug: 'vitamins' }
+  { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
+  { name: 'Dry Spell', slug: 'dry-spell' }
 ];
 
 const QuickCategoryLinks = () => {

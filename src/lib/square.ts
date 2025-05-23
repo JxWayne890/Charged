@@ -39,9 +39,23 @@ export async function fetchSquareProducts(): Promise<Product[]> {
     console.log('Category distribution in client:', categoryDistribution);
     
     // Validate all products have valid categories
-    const invalidCategoryProducts = data.filter(product => !product.category || product.category === 'undefined');
+    const standardCategories = [
+      'pre-workout', 'protein', 'creatine', 'bcaa', 'aminos', 'vitamins', 
+      'multivitamin', 'fat-burners', 'pump-supplement', 'testosterone', 
+      'anti-aging-supplement', 'dry-spell'
+    ];
+    
+    const invalidCategoryProducts = data.filter(product => 
+      !standardCategories.includes(product.category)
+    );
+    
     if (invalidCategoryProducts.length > 0) {
       console.error('Products with invalid categories:', invalidCategoryProducts);
+      toast({
+        title: 'Warning',
+        description: `${invalidCategoryProducts.length} products have non-standard categories.`,
+        variant: 'destructive',
+      });
     }
     
     return data as Product[];

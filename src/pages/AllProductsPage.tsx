@@ -36,7 +36,11 @@ const AllProductsPage = () => {
   
   // Filter products when the category parameter or products list changes
   useEffect(() => {
-    if (categoryParam && products.length > 0) {
+    if (!products.length) {
+      return;
+    }
+    
+    if (categoryParam) {
       console.log(`Filtering by category: ${categoryParam}`);
       
       // Log all available categories for debugging
@@ -50,13 +54,12 @@ const AllProductsPage = () => {
       
       console.log(`Total products in category "${categoryParam}": ${categoryCount}`);
       
+      // Apply filtering - using exact case-insensitive match
       const filtered = products.filter(product => {
-        // Case-insensitive match for category
         const productCategory = product.category.toLowerCase();
         const matches = productCategory === categoryParam;
         
-        // Log mismatches for debugging
-        if (categoryParam === productCategory.replace(/-/g, '')) {
+        if (!matches && categoryParam === productCategory.replace(/-/g, '')) {
           console.log(`Near miss: Product "${product.title}" has category "${product.category}" which almost matches "${categoryParam}"`);
         }
         
@@ -66,10 +69,10 @@ const AllProductsPage = () => {
       setFilteredProducts(filtered);
       console.log(`Found ${filtered.length} products matching category ${categoryParam}`);
       
-      // If we didn't find any products but we should have, show a warning
+      // Debug information if we didn't find the expected number of products
       if (filtered.length === 0 && categoryCount > 0) {
         toast({
-          title: "Filtering Issue",
+          title: "Category Filtering Issue",
           description: `There should be ${categoryCount} products in this category, but filtering returned none.`,
           variant: "destructive"
         });
@@ -81,11 +84,34 @@ const AllProductsPage = () => {
 
   // Format category name for display (e.g., "pre-workout" to "Pre Workout")
   const formatCategoryName = (slug: string): string => {
+    // First check if we have a defined category with this slug
+    const category = categories.find(c => c.slug === slug);
+    if (category) {
+      return category.name;
+    }
+    
+    // Fallback to formatting the slug
     return slug
       .split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   };
+
+  // Our standardized categories
+  const categories = [
+    { name: 'Pre Workout', slug: 'pre-workout' },
+    { name: 'Protein', slug: 'protein' },
+    { name: 'Creatine', slug: 'creatine' },
+    { name: 'BCAA', slug: 'bcaa' },
+    { name: 'Aminos', slug: 'aminos' },
+    { name: 'Vitamins', slug: 'vitamins' },
+    { name: 'Multivitamin', slug: 'multivitamin' },
+    { name: 'Fat Burners', slug: 'fat-burners' },
+    { name: 'Pump Supplement', slug: 'pump-supplement' },
+    { name: 'Testosterone', slug: 'testosterone' },
+    { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
+    { name: 'Dry Spell', slug: 'dry-spell' }
+  ];
 
   if (loading) {
     return (

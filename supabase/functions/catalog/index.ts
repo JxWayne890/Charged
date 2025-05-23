@@ -7,115 +7,196 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Define the correct categories based on the provided list - THESE MUST MATCH exactly throughout the application
-const definedCategories = [
-  { name: 'Aminos', slug: 'aminos' },
-  { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
-  { name: 'BCAA', slug: 'bcaa' },
-  { name: 'Creatine', slug: 'creatine' },
-  { name: 'Dry Spell', slug: 'dry-spell' },
-  { name: 'Fat Burners', slug: 'fat-burners' },
-  { name: 'Multivitamin', slug: 'multivitamin' },
-  { name: 'Pre-Workout', slug: 'pre-workout' },
+// Define our standard categories that will be used throughout the application
+const standardCategories = [
+  { name: 'Pre Workout', slug: 'pre-workout' },
   { name: 'Protein', slug: 'protein' },
+  { name: 'Creatine', slug: 'creatine' },
+  { name: 'BCAA', slug: 'bcaa' },
+  { name: 'Aminos', slug: 'aminos' },
+  { name: 'Vitamins', slug: 'vitamins' },
+  { name: 'Multivitamin', slug: 'multivitamin' },
+  { name: 'Fat Burners', slug: 'fat-burners' },
   { name: 'Pump Supplement', slug: 'pump-supplement' },
   { name: 'Testosterone', slug: 'testosterone' },
-  { name: 'Vitamins', slug: 'vitamins' }
+  { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
+  { name: 'Dry Spell', slug: 'dry-spell' }
 ];
 
-// Create a mapping for category detection based on more precise keywords
-const categoryMapping = {
-  'aminos': ['amino acid', 'recovery amino', ' amino ', 'amino-'],
-  'anti-aging-supplement': ['anti-aging', 'nad daily', 'collagen peptides'],
-  'bcaa': ['bcaa', 'branch chain amino acid', 'r1 bcaa', 'branched chain amino'],
-  'creatine': ['creatine monohydrate', 'creatine hcl', 'creatine (', ' creatine'],
-  'dry-spell': ['dry-spell', 'off-cycle', 'natural gains'],
-  'fat-burners': ['fat burn', 'caloriburn', 'night burn', 'thermogenic', 'weight loss'],
-  'multivitamin': ['multivitamin', 'multi vitamin', 'vitamin pack'],
-  'pre-workout': [
-    'pre-workout', 'preworkout', 'loaded pre', 'essential pre', 
-    'stim daddy', 'bamf', 'woke af', 'superhuman pre', 'thavage', 
-    'bzrk', 'pre stim', 'mother bucker', 'babe'
-  ],
-  'protein': ['protein', 'whey', 'isolate', 'casein', 'plant based protein'],
-  'pump-supplement': ['pump squared', 'pump non-stim', 'pump matrix', 'vascularity'],
-  'testosterone': ['testosterone', 'rut', 'test booster', 'maximum strength'],
-  'vitamins': ['vitamin d', 'vitamin c', 'minerals', 'vitamin']
-};
+// Map of Square category IDs to our category slugs
+let squareCategoryIdMap = {};
 
-// Product-specific overrides for products that we know are being incorrectly categorized
-// THESE MUST BE EXACT MATCHES from the Square API
-const productOverrides = {
+// Product-specific category overrides - EXACT PRODUCT NAMES from Square API
+const productCategoryMap = {
+  // Fat Burners
+  'Alpha Lion Gains Candy Caloriburn (60 caps)': 'fat-burners',
+  'Alpha Lion Night Burn (60 caps)': 'fat-burners',
+  
+  // Pre Workout - exhaustive list as provided
+  'Alpha Lion Superhuman Extreme Grapezilla (21 srv)': 'pre-workout',
+  'Alpha Lion Superhuman Extreme Hulk Juice (21 srv)': 'pre-workout',
+  'Alpha Lion Superhuman Pre Stim Hulk Juice (21 srv)': 'pre-workout',
+  'Alpha Lion Superhuman Pre Stim Miami Vice (21 srv)': 'pre-workout',
+  'Black Magic Supplements BZRK Cali Sunset': 'pre-workout',
+  'Black Magic Supplements BZRK Haterade': 'pre-workout',
+  'Black Magic Supplements BZRK Peach Rings': 'pre-workout',
+  'Black Magic Supplements BZRK Vice': 'pre-workout',
+  'Black Magic Supplements Bombsicle': 'pre-workout',
+  'Black Magic Supplements Frosty Blue': 'pre-workout',
+  'Black Magic Supplements Mad Melon': 'pre-workout',
+  'Black Magic Supplements BZRK': 'pre-workout',
+  'Bucked Up BAMF Pump N\' Grind (Grape & Green Apple)': 'pre-workout',
+  'Bucked Up BAMF POG (Pear Orange Guava)': 'pre-workout',
   'Bucked Up Babe Sparkling Orchard': 'pre-workout',
   'Bucked Up Babe Watermelon Splash': 'pre-workout',
-  'Black Magic Supplements BZRK': 'pre-workout',
-  'Black Magic Supplements BZRK Peach Rings': 'pre-workout',
-  'Black Magic Supplements BZRK Haterade': 'pre-workout',
-  'Black Magic Supplements BZRK Vice': 'pre-workout',
-  'Black Magic Supplements BZRK Cali Sunset': 'pre-workout',
-  'Black Magic Supplements Pumpkin Spice Muffin': 'pre-workout',
-  'Axe & Sledge Supplements Multi (120 caps)': 'multivitamin',
-  'Axe & Sledge Supplements Multi (90 caps)': 'multivitamin', 
-  'Rule One Proteins R1 BCAA Fruit Punch (30 srv)': 'bcaa',
-  'Rule One Proteins R1 BCAA Orange (30 srv)': 'bcaa',
-  'Fresh Supplements Amino – Shark Gummies Flavor (30 srv)': 'aminos',
-  'Fresh Supps Amino Lemon Italian Ice (30 srv)': 'aminos',
   'Bucked Up x BKFC Pre-Workout - Bare Knuckle Punch': 'pre-workout',
   'Bucked Up Grape Gainz': 'pre-workout',
-  'Bucked Up - Killa OJ': 'pre-workout',
-  'Bucked Up BAMF POG (Pear Orange Guava)': 'pre-workout',
-  'Bucked Up BAMF Pump N\' Grind (Grape & Green Apple)': 'pre-workout',
   'Bucked Up High Stimulant Mother Bucker – Gym-Junkie Juice': 'pre-workout',
   'Bucked Up High Stimulant Mother Bucker – Musclehead Mango': 'pre-workout',
   'Bucked Up High Stimulant Woke AF – Aussie Fruit': 'pre-workout',
   'Bucked Up High Stimulant Woke AF – Cherry Candy': 'pre-workout',
   'Bucked Up High Stimulant Woke AF – Miami': 'pre-workout',
+  'Bucked Up - Killa OJ': 'pre-workout',
   'Chemix Blue Razz': 'pre-workout',
   'Chemix Strawberry Watermelon': 'pre-workout',
-  'Black Magic Supplements Honey Grahams': 'protein',
-  'Black Magic Supplements Cookies & Cream': 'protein',
-  'Black Magic Supplements Campfire Smores': 'protein',
-  'Black Magic Supplements Frosty Blue': 'pre-workout',
-  'Black Magic Supplements Bombsicle': 'pre-workout',
-  'Black Magic Supplements Mad Melon': 'pre-workout',
-  'Ryse Supplements Loaded Pre Jell-O Pineapple (30 srv)': 'pre-workout',
-  'Ryse Supplements Loaded Pre Kool-Aid Tropical Punch (30 srv)': 'pre-workout',
-  'Ryse Supplements Loaded Pre Bazooka Grape (30 srv)': 'pre-workout',
-  'Ryse Supplements Loaded Pre Pink Splash (30 srv)': 'pre-workout',
-  'Ryse Supplements Stim Daddy Blue Raspberry (40 srv)': 'pre-workout',
-  'Ryse Supplements Stim Daddy Candy Watermelon (40 srv)': 'pre-workout',
-  'Ryse Supplements Loaded Protein Little Debbie Cosmic Brownie (2lb)': 'protein',
-  'Ryse Supplements Loaded Protein Little Debbie Strawberry Shortcake (2lb)': 'protein',
-  'Alpha Lion Superhuman Pre Stim Miami Vice (21 srv)': 'pre-workout',
-  'Alpha Lion Superhuman Pre Stim Hulk Juice (21 srv)': 'pre-workout',
-  'Alpha Lion Superhuman Extreme Grapezilla (21 srv)': 'pre-workout',
-  'Alpha Lion Superhuman Extreme Hulk Juice (21 srv)': 'pre-workout',
-  'Alpha Lion Gains Candy Caloriburn (60 caps)': 'fat-burners',
-  'Alpha Lion Night Burn (60 caps)': 'fat-burners',
-  'Black Magic Supplements Maximum Strength (Natural Testosterone Support, 90 Capsules)': 'testosterone',
-  'Black Magic Supplements Natural Gains (Testosterone Matrix, 30 Day Cycle)': 'dry-spell',
-  'Black Magic Supplements Potent Diuretic (Rapid Water Shed for Men & Women)': 'supplements',
-  'Bucked Up Creatine (50 srv)': 'creatine',
-  'Bucked Up Testosterone Booster – RUT': 'testosterone',
-  'Core Nutritionals Multi (120 caps)': 'multivitamin',
-  'Metabolic Nutrition NAD Daily Anti-Aging (30 caps)': 'anti-aging-supplement',
-  'Metabolic Nutrition Vitamin D3 K2 (90 ct)': 'vitamins',
-  'Raw Nutrition Creatine (100 Serving)': 'creatine',
-  'Raw Nutrition Creatine (30 Serving)': 'creatine',
   'Raw Nutrition Essential Pre Fruit Burst (30 srv)': 'pre-workout',
   'Raw Nutrition Essential Pre Orange (30 srv)': 'pre-workout',
   'Raw Nutrition Essential Pre Peach Mango (30 srv)': 'pre-workout',
   'Raw Nutrition Essential Pre Red, White, \'N Bum (30 srv)': 'pre-workout',
   'Raw Nutrition Essential Pre Sour Watermelon (30 srv)': 'pre-workout',
-  'Raw Nutrition Pump Squared Unflavored (20 srv)': 'pump-supplement',
   'Raw Nutrition Thavage Lemonade (40/20 srv)': 'pre-workout',
   'Raw Nutrition Thavage Raspberry Lemonade (40/20 srv)': 'pre-workout',
   'Raw Nutrition Thavage Rocket Candy (40/20 srv)': 'pre-workout',
-  'Raw Nutrition Thavage South Beach Slushie (40/20 srv)': 'pre-workout'
+  'Raw Nutrition Thavage South Beach Slushie (40/20 srv)': 'pre-workout',
+  'Ryse Supplements Loaded Pre Bazooka Grape (30 srv)': 'pre-workout',
+  'Ryse Supplements Loaded Pre Jell-O Pineapple (30 srv)': 'pre-workout',
+  'Ryse Supplements Loaded Pre Kool-Aid Tropical Punch (30 srv)': 'pre-workout',
+  'Ryse Supplements Loaded Pre Pink Splash (30 srv)': 'pre-workout',
+  'Ryse Supplements Stim Daddy Blue Raspberry (40 srv)': 'pre-workout',
+  'Ryse Supplements Stim Daddy Candy Watermelon (40 srv)': 'pre-workout',
+  
+  // Protein
+  'Black Magic Supplements Campfire Smores': 'protein',
+  'Black Magic Supplements Cookies & Cream': 'protein',
+  'Black Magic Supplements Honey Grahams': 'protein',
+  'Black Magic Supplements Pumpkin Spice Muffin': 'protein',
+  'Ryse Supplements Loaded Protein Little Debbie Cosmic Brownie (2lb)': 'protein',
+  'Ryse Supplements Loaded Protein Little Debbie Strawberry Shortcake (2lb)': 'protein',
+  
+  // Creatine
+  'Bucked Up Creatine (50 srv)': 'creatine',
+  'Raw Nutrition Creatine (30 Serving)': 'creatine',
+  'Raw Nutrition Creatine (100 Serving)': 'creatine',
+  
+  // Vitamins
+  'Metabolic Nutrition Vitamin D3 K2 (90 ct)': 'vitamins',
+  
+  // Multivitamin
+  'Axe & Sledge Supplements Multi (90 caps)': 'multivitamin',
+  'Core Nutritionals Multi (120 caps)': 'multivitamin',
+  'Axe & Sledge Supplements Multi (120 caps)': 'multivitamin',
+  
+  // Aminos
+  'Fresh Supplements Amino – Shark Gummies Flavor (30 srv)': 'aminos',
+  'Fresh Supps Amino Lemon Italian Ice (30 srv)': 'aminos',
+  
+  // Anti-Aging Supplement
+  'Metabolic Nutrition NAD Daily Anti-Aging (30 caps)': 'anti-aging-supplement',
+  
+  // Dry Spell
+  'Black Magic Supplements Potent Diuretic (Rapid Water Shed for Men & Women)': 'dry-spell',
+  'Black Magic Supplements Natural Gains (Testosterone Matrix, 30 Day Cycle)': 'dry-spell',
+  
+  // Testosterone
+  'Black Magic Supplements Maximum Strength (Natural Testosterone Support, 90 Capsules)': 'testosterone',
+  'Bucked Up Testosterone Booster – RUT': 'testosterone',
+  
+  // BCAA
+  'Rule One Proteins R1 BCAA Fruit Punch (30 srv)': 'bcaa',
+  'Rule One Proteins R1 BCAA Orange (30 srv)': 'bcaa',
+  
+  // Pump Supplement
+  'Raw Nutrition Pump Squared Unflavored (20 srv)': 'pump-supplement',
 };
 
-// Map of Square category IDs to our category slugs
-let squareCategoryIdMap = {};
+// Create mappings for case-insensitive partial matches (used after the exact mapping above)
+const categoryKeywordMap = {
+  'pre-workout': ['pre workout', 'preworkout', 'pre-workout', 'loaded pre', 'essential pre', 'thavage', 'stimulant', 'mother bucker', 'stim daddy'],
+  'protein': ['protein', 'whey', 'isolate', 'casein'],
+  'creatine': ['creatine'],
+  'bcaa': ['bcaa', 'branch chain amino', 'branch chain amino acid'],
+  'aminos': ['amino acid', 'amino ', 'aminos', 'recovery amino'],
+  'vitamins': ['vitamin', ' vitamin ', 'vitamin d', 'vitamin c'],
+  'multivitamin': ['multivitamin', 'multi vitamin', 'multi '],
+  'fat-burners': ['fat burn', 'thermogenic', 'weight loss', 'caloriburn', 'night burn'],
+  'pump-supplement': ['pump squared', 'pump non-stim', 'pump matrix', 'vascularity'],
+  'testosterone': ['testosterone', 'test booster', 'rut'],
+  'anti-aging-supplement': ['anti-aging', 'nad daily', 'collagen peptides'],
+  'dry-spell': ['dry-spell', 'off-cycle', 'natural gains', 'diuretic'],
+};
+
+// Map Square category names to our standardized slugs
+function standardizeCategory(squareCategoryName) {
+  if (!squareCategoryName) return null;
+  
+  const normalized = squareCategoryName.toLowerCase().trim();
+  
+  // Direct standardization mapping
+  const directMapping = {
+    'pre workout': 'pre-workout',
+    'pre-workout': 'pre-workout',
+    'preworkout': 'pre-workout',
+    'protein': 'protein',
+    'whey protein': 'protein',
+    'protein powder': 'protein',
+    'creatine': 'creatine',
+    'bcaa': 'bcaa',
+    'amino acids': 'aminos',
+    'amino': 'aminos',
+    'aminos': 'aminos',
+    'vitamins': 'vitamins',
+    'vitamin': 'vitamins',
+    'multivitamin': 'multivitamin',
+    'multi vitamin': 'multivitamin',
+    'fat burners': 'fat-burners',
+    'fat burner': 'fat-burners',
+    'weight loss': 'fat-burners',
+    'pump supplement': 'pump-supplement',
+    'pump': 'pump-supplement',
+    'testosterone': 'testosterone',
+    'test booster': 'testosterone',
+    'anti-aging': 'anti-aging-supplement',
+    'anti aging': 'anti-aging-supplement',
+    'anti-aging supplement': 'anti-aging-supplement',
+    'dry spell': 'dry-spell'
+  };
+  
+  // First try exact match
+  if (directMapping[normalized]) {
+    console.log(`Square category "${squareCategoryName}" direct mapping: ${directMapping[normalized]}`);
+    return directMapping[normalized];
+  }
+  
+  // Then look for partial matches
+  for (const [slug, keywords] of Object.entries(categoryKeywordMap)) {
+    if (keywords.some(keyword => normalized.includes(keyword.toLowerCase()))) {
+      console.log(`Square category "${squareCategoryName}" keyword match: ${slug}`);
+      return slug;
+    }
+  }
+  
+  // Find the standard category this might be
+  const matchingCategory = standardCategories.find(
+    category => category.name.toLowerCase() === normalized
+  );
+  
+  if (matchingCategory) {
+    return matchingCategory.slug;
+  }
+  
+  console.log(`No category match found for "${squareCategoryName}"`);
+  return null;
+}
 
 /**
  * Fetches product data from Square API
@@ -172,7 +253,8 @@ async function fetchSquareCategories() {
   squareCategoryIdMap = {};
   rawCategoryData.objects?.forEach(obj => {
     const squareCategoryName = obj.category_data.name;
-    const mappedSlug = mapSquareCategoryToSlug(squareCategoryName);
+    const mappedSlug = standardizeCategory(squareCategoryName);
+    
     if (mappedSlug) {
       squareCategoryIdMap[obj.id] = mappedSlug;
       console.log(`Mapped Square category ID ${obj.id} (${squareCategoryName}) to ${mappedSlug}`);
@@ -188,93 +270,18 @@ async function fetchSquareCategories() {
 }
 
 /**
- * Maps Square category names to our defined category slugs
- */
-function mapSquareCategoryToSlug(squareCategoryName) {
-  if (!squareCategoryName) return null;
-  
-  // Normalize the category name for better matching
-  const normalizedName = squareCategoryName.toLowerCase().trim();
-  
-  // Try exact match with our defined categories first
-  const exactMatch = definedCategories.find(c => 
-    normalizedName === c.name.toLowerCase()
-  );
-  
-  if (exactMatch) {
-    console.log(`Square category "${squareCategoryName}" exact match: ${exactMatch.slug}`);
-    return exactMatch.slug;
-  }
-  
-  // Direct mappings for common Square category names - CASE INSENSITIVE
-  const directMappings = {
-    'pre workout': 'pre-workout',
-    'pre-workout': 'pre-workout', 
-    'bcaa': 'bcaa',
-    'protein': 'protein',
-    'creatine': 'creatine',
-    'aminos': 'aminos',
-    'amino': 'aminos',
-    'amino acids': 'aminos',
-    'anti aging': 'anti-aging-supplement',
-    'anti-aging': 'anti-aging-supplement',
-    'vitamins': 'vitamins',
-    'vitamin': 'vitamins',
-    'fat burner': 'fat-burners',
-    'fat burners': 'fat-burners',
-    'weight loss': 'fat-burners',
-    'testosterone': 'testosterone',
-    'multivitamin': 'multivitamin',
-    'multi vitamin': 'multivitamin',
-    'pump': 'pump-supplement',
-    'supplements': 'supplements'
-  };
-  
-  // Check direct mappings first - CASE INSENSITIVE
-  for (const [key, slug] of Object.entries(directMappings)) {
-    if (normalizedName === key) {
-      console.log(`Square category "${squareCategoryName}" direct mapping: ${slug}`);
-      return slug;
-    }
-  }
-  
-  // Check for contains relationships with common keywords
-  for (const [key, slug] of Object.entries(directMappings)) {
-    if (normalizedName.includes(key)) {
-      console.log(`Square category "${squareCategoryName}" keyword match: ${slug}`);
-      return slug;
-    }
-  }
-  
-  console.log(`No match found for Square category: "${squareCategoryName}"`);
-  return null;
-}
-
-/**
- * Determines if product content matches a category based on keywords
- */
-function contentMatchesCategory(content, categorySlug) {
-  const keywords = categoryMapping[categorySlug];
-  if (!keywords) return false;
-  
-  content = content.toLowerCase();
-  return keywords.some(keyword => content.includes(keyword.toLowerCase()));
-}
-
-/**
  * Determines the category for a product
  */
 function determineProductCategory(item, squareCategoryData) {
   const productName = item.item_data.name;
   
-  // 1. Check for product-specific override - HIGHEST PRIORITY
-  if (productOverrides[productName]) {
-    const overrideCategory = productOverrides[productName];
-    console.log(`Product override for "${productName}": ${overrideCategory}`);
-    return overrideCategory;
+  // 1. HIGHEST PRIORITY: Exact product name match from our manual mapping
+  if (productCategoryMap[productName]) {
+    console.log(`Product override for "${productName}": ${productCategoryMap[productName]}`);
+    return productCategoryMap[productName];
   }
   
-  // 2. Check Square category ID mapping (more reliable than name matching)
+  // 2. Check Square category ID mapping
   if (item.item_data.category_id && squareCategoryIdMap[item.item_data.category_id]) {
     const mappedCategory = squareCategoryIdMap[item.item_data.category_id];
     console.log(`Category ID mapping for "${productName}": ${mappedCategory} (ID: ${item.item_data.category_id})`);
@@ -289,7 +296,7 @@ function determineProductCategory(item, squareCategoryData) {
       console.log(`Product: ${productName}, Square category: ${squareCategoryName}`);
       
       // Try to map the Square category to one of our defined categories
-      const mappedCategory = mapSquareCategoryToSlug(squareCategoryName);
+      const mappedCategory = standardizeCategory(squareCategoryName);
       if (mappedCategory) {
         console.log(`Mapped Square category for "${productName}": ${mappedCategory}`);
         return mappedCategory;
@@ -297,53 +304,40 @@ function determineProductCategory(item, squareCategoryData) {
     }
   }
   
-  // 4. Try content-based matching with more specific keywords
+  // 4. Try content-based matching with name and description
   const itemName = item.item_data.name.toLowerCase();
   const itemDesc = (item.item_data.description || '').toLowerCase();
   const contentToCheck = `${itemName} ${itemDesc}`;
   
-  // Special case for R1 BCAA products
-  if (itemName.includes('r1 bcaa') || 
-      contentToCheck.includes('bcaa') || 
-      contentToCheck.includes('branch chain amino') || 
-      contentToCheck.includes('branched chain amino')) {
+  // Special handling for specific product types
+  if (contentToCheck.includes('r1 bcaa') || 
+      contentToCheck.includes('bcaa') && !contentToCheck.includes('bcaa, creatine')) {
     console.log(`BCAA keyword match for "${productName}": bcaa`);
     return 'bcaa';
   }
   
-  // Check against our keyword mapping
-  for (const [categorySlug, keywords] of Object.entries(categoryMapping)) {
-    // Check for specific keyword matches
+  // Check all keyword mappings
+  for (const [categorySlug, keywords] of Object.entries(categoryKeywordMap)) {
     if (keywords.some(keyword => contentToCheck.includes(keyword.toLowerCase()))) {
       console.log(`Keyword match for "${productName}": ${categorySlug}`);
       return categorySlug;
     }
   }
   
-  // 5. Use basic name pattern matching for common categories
+  // Last resort: check name patterns
   if (contentToCheck.includes('protein')) {
-    console.log(`Basic match for "${productName}": protein`);
     return 'protein';
   } else if (contentToCheck.includes('pre-workout') || contentToCheck.includes('preworkout')) {
-    console.log(`Basic match for "${productName}": pre-workout`);
     return 'pre-workout';
   } else if (contentToCheck.includes('creatine')) {
-    console.log(`Basic match for "${productName}": creatine`);
     return 'creatine';
   } else if (contentToCheck.includes('vitamin')) {
-    console.log(`Basic match for "${productName}": vitamins`);
     return 'vitamins';
   }
   
-  // 6. If no match found, analyze name for brand-specific patterns
-  if (itemName.includes('bucked up') && (itemName.includes('babe') || itemName.includes('bamf'))) {
-    console.log(`Brand pattern match for "${productName}": pre-workout`);
-    return 'pre-workout';
-  }
-  
-  // 7. Default fallback as last resort
-  console.log(`No category match for "${productName}", using default: supplements`);
-  return 'supplements';
+  // Default category (should rarely get here with our extensive mapping)
+  console.log(`No category match for "${productName}", using default: pre-workout`);
+  return 'pre-workout';
 }
 
 /**
@@ -386,9 +380,9 @@ function transformToProducts(squareData, squareCategoryData) {
 
       // Determine the product category using our improved logic
       const category = determineProductCategory(item, squareCategoryData);
-
-      // Validate the category is in our defined list
-      const isValidCategory = definedCategories.some(c => c.slug === category) || category === 'supplements';
+      
+      // Validate the category against our standardized list
+      const isValidCategory = standardCategories.some(c => c.slug === category);
       if (!isValidCategory) {
         console.error(`Invalid category "${category}" for product "${item.item_data.name}"`);
       }
@@ -425,16 +419,22 @@ function logCategoryDistribution(products) {
   });
   console.log('Category distribution:', JSON.stringify(categoryDistribution));
   
-  // Log specific categories that are problematic
+  // Log counts by category for validation
+  standardCategories.forEach(stdCat => {
+    const count = products.filter(p => p.category === stdCat.slug).length;
+    console.log(`${stdCat.name} (${stdCat.slug}): ${count} products`);
+  });
+  
+  // Log BCAAproducts for verification
   const bcaaProducts = products.filter(p => p.category === 'bcaa');
-  console.log(`BCAA products count: ${bcaaProducts.length}`);
   if (bcaaProducts.length > 0) {
+    console.log(`BCAA products count: ${bcaaProducts.length}`);
     console.log('BCAA products:', JSON.stringify(bcaaProducts.map(p => p.title)));
   }
   
-  // Validate all products have valid categories from our definedCategories list
+  // Validate all products have valid categories
   const invalidProducts = products.filter(p => 
-    !definedCategories.some(c => c.slug === p.category) && p.category !== 'supplements'
+    !standardCategories.some(c => c.slug === p.category)
   );
   
   if (invalidProducts.length > 0) {
