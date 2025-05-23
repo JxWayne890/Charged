@@ -13,8 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronDown, Filter, Check } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 // Standard categories that match our application
 const standardCategories = [
@@ -50,17 +50,17 @@ const brands = [
 interface ProductFiltersProps {
   priceRange: [number, number];
   selectedBrands: string[];
-  selectedCategory: string | null;
+  selectedCategories: string[];
   onPriceChange: (range: [number, number]) => void;
   onBrandChange: (brands: string[]) => void;
-  onCategoryChange: (category: string | null) => void;
+  onCategoryChange: (categories: string[]) => void;
   minMaxPrices: [number, number];
 }
 
 const ProductFilters: React.FC<ProductFiltersProps> = ({
   priceRange,
   selectedBrands,
-  selectedCategory,
+  selectedCategories,
   onPriceChange,
   onBrandChange,
   onCategoryChange,
@@ -123,29 +123,30 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     onBrandChange(newSelectedBrands);
   };
 
-  const handleCategoryChange = (value: string) => {
-    if (value === "all") {
-      onCategoryChange(null);
+  const handleCategoryToggle = (slug: string) => {
+    let newSelectedCategories;
+    if (selectedCategories.includes(slug)) {
+      newSelectedCategories = selectedCategories.filter(c => c !== slug);
     } else {
-      onCategoryChange(value);
+      newSelectedCategories = [...selectedCategories, slug];
     }
+    onCategoryChange(newSelectedCategories);
   };
 
   const selectedBrandsCount = selectedBrands.length;
   const brandLabel = selectedBrandsCount === 0 
     ? "Select Brands" 
     : `${selectedBrandsCount} brand${selectedBrandsCount === 1 ? '' : 's'} selected`;
+    
+  const selectedCategoriesCount = selectedCategories.length;
+  const categoryLabel = selectedCategoriesCount === 0 
+    ? "Select Categories" 
+    : `${selectedCategoriesCount} categor${selectedCategoriesCount === 1 ? 'y' : 'ies'} selected`;
 
   const clearAllFilters = () => {
     onPriceChange(minMaxPrices);
     onBrandChange([]);
-    onCategoryChange(null);
-  };
-
-  const getCategoryName = (slug: string | null) => {
-    if (!slug) return "All Categories";
-    const category = standardCategories.find(c => c.slug === slug);
-    return category ? category.name : "All Categories";
+    onCategoryChange([]);
   };
 
   return (
@@ -192,22 +193,27 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
           <div>
             <h3 className="text-lg font-medium mb-2">Category</h3>
-            <Select 
-              value={selectedCategory || "all"} 
-              onValueChange={handleCategoryChange}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  {categoryLabel}
+                  <ChevronDown className="h-4 w-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 max-h-[300px] overflow-auto">
+                <DropdownMenuLabel>Select Categories</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 {standardCategories.map((category) => (
-                  <SelectItem key={category.slug} value={category.slug}>
+                  <DropdownMenuCheckboxItem
+                    key={category.slug}
+                    checked={selectedCategories.includes(category.slug)}
+                    onCheckedChange={() => handleCategoryToggle(category.slug)}
+                  >
                     {category.name}
-                  </SelectItem>
+                  </DropdownMenuCheckboxItem>
                 ))}
-              </SelectContent>
-            </Select>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div>
@@ -284,23 +290,21 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Category</DropdownMenuLabel>
-            <div className="px-2 py-2">
-              <Select 
-                value={selectedCategory || "all"} 
-                onValueChange={handleCategoryChange}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {standardCategories.map((category) => (
-                    <SelectItem key={category.slug} value={category.slug}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="px-2 py-2 max-h-60 overflow-y-auto">
+              {standardCategories.map((category) => (
+                <DropdownMenuItem 
+                  key={category.slug} 
+                  className="flex items-center gap-2 cursor-pointer"
+                  onClick={() => handleCategoryToggle(category.slug)}
+                >
+                  <div className={`w-4 h-4 border rounded-sm ${selectedCategories.includes(category.slug) ? 'bg-primary border-primary' : 'bg-transparent'}`}>
+                    {selectedCategories.includes(category.slug) && (
+                      <Check className="h-4 w-4 text-white" />
+                    )}
+                  </div>
+                  {category.name}
+                </DropdownMenuItem>
+              ))}
             </div>
 
             <DropdownMenuSeparator />

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
@@ -20,7 +19,9 @@ const AllProductsPage = () => {
   // Filter states
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryParam || null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    categoryParam ? [categoryParam] : []
+  );
   const [minMaxPrices, setMinMaxPrices] = useState<[number, number]>([0, 100]);
   
   useEffect(() => {
@@ -51,21 +52,22 @@ const AllProductsPage = () => {
     loadProducts();
   }, []);
   
-  // Update the URL when category changes
+  // Update the URL when categories change
   useEffect(() => {
-    if (selectedCategory !== null && selectedCategory !== categoryParam) {
-      setSearchParams({ category: selectedCategory });
-    } else if (selectedCategory === null && categoryParam) {
-      // Remove the category param if no category is selected
+    if (selectedCategories.length === 1) {
+      setSearchParams({ category: selectedCategories[0] });
+    } else if (selectedCategories.length === 0 && categoryParam) {
+      // Remove the category param if no categories are selected
       searchParams.delete('category');
       setSearchParams(searchParams);
     }
-  }, [selectedCategory, categoryParam, searchParams, setSearchParams]);
+    // We don't update URL for multiple categories to keep it clean
+  }, [selectedCategories, categoryParam, searchParams, setSearchParams]);
   
   // Set the selected category from URL parameter
   useEffect(() => {
-    if (categoryParam) {
-      setSelectedCategory(categoryParam);
+    if (categoryParam && !selectedCategories.includes(categoryParam)) {
+      setSelectedCategories([...selectedCategories, categoryParam]);
     }
   }, [categoryParam]);
   
@@ -78,28 +80,16 @@ const AllProductsPage = () => {
     let result = [...products];
     
     // Apply category filter
-    if (selectedCategory) {
-      console.log(`Filtering by category: ${selectedCategory}`);
+    if (selectedCategories.length > 0) {
+      console.log(`Filtering by categories: ${selectedCategories.join(', ')}`);
       
-      // Log all available categories for debugging
-      const availableCategories = [...new Set(products.map(p => p.category))];
-      console.log('Available categories:', availableCategories);
-      
-      // Count how many products should be in the selected category
-      const categoryCount = products.filter(p => 
-        p.category.toLowerCase() === selectedCategory
-      ).length;
-      
-      console.log(`Total products in category "${selectedCategory}": ${categoryCount}`);
-      
-      // Apply filtering - using exact case-insensitive match
+      // Apply filtering - using exact case-insensitive match for each selected category
       result = result.filter(product => {
         const productCategory = product.category.toLowerCase();
-        const matches = productCategory === selectedCategory;
-        return matches;
+        return selectedCategories.some(cat => productCategory === cat);
       });
       
-      console.log(`Found ${result.length} products matching category ${selectedCategory}`);
+      console.log(`Found ${result.length} products matching selected categories`);
     }
     
     // Apply price filter
@@ -118,7 +108,7 @@ const AllProductsPage = () => {
     }
     
     setFilteredProducts(result);
-  }, [products, selectedCategory, priceRange, selectedBrands]);
+  }, [products, selectedCategories, priceRange, selectedBrands]);
 
   // Format category name for display (e.g., "pre-workout" to "Pre Workout")
   const formatCategoryName = (slug: string): string => {
@@ -159,8 +149,8 @@ const AllProductsPage = () => {
     setSelectedBrands(brands);
   };
   
-  const handleCategoryChange = (category: string | null) => {
-    setSelectedCategory(category);
+  const handleCategoryChange = (categories: string[]) => {
+    setSelectedCategories(categories);
   };
 
   if (loading) {
@@ -188,6 +178,9 @@ const AllProductsPage = () => {
     );
   }
 
+  // Get the primary category for display in breadcrumbs
+  const primaryCategory = selectedCategories.length === 1 ? selectedCategories[0] : null;
+
   return (
     <div className="pt-24 pb-12">
       <div className="bg-gradient-to-r from-gray-900 to-gray-700 py-16 mb-8">
@@ -210,12 +203,12 @@ const AllProductsPage = () => {
                   </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
-              {categoryParam && (
+              {primaryCategory && (
                 <>
                   <BreadcrumbSeparator className="text-gray-400" />
                   <BreadcrumbItem>
                     <BreadcrumbLink className="text-white">
-                      {formatCategoryName(categoryParam)}
+                      {formatCategoryName(primaryCategory)}
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                 </>
@@ -225,13 +218,16 @@ const AllProductsPage = () => {
           
           <div className="flex items-center justify-between">
             <h1 className="text-4xl font-bold text-white">
-              {categoryParam ? formatCategoryName(categoryParam) : "All Products"}
+              {primaryCategory ? formatCategoryName(primaryCategory) : 
+               selectedCategories.length > 1 ? "Selected Categories" : "All Products"}
             </h1>
           </div>
           <p className="text-gray-300 max-w-2xl mb-4">
-            {categoryParam 
-              ? `Browse our selection of ${formatCategoryName(categoryParam)} supplements.`
-              : "Browse our complete range of premium supplements to find exactly what you need."}
+            {primaryCategory 
+              ? `Browse our selection of ${formatCategoryName(primaryCategory)} supplements.`
+              : selectedCategories.length > 1
+                ? `Browse products in your selected categories.`
+                : "Browse our complete range of premium supplements to find exactly what you need."}
           </p>
         </div>
       </div>
@@ -243,7 +239,7 @@ const AllProductsPage = () => {
             <ProductFilters
               priceRange={priceRange}
               selectedBrands={selectedBrands}
-              selectedCategory={selectedCategory}
+              selectedCategories={selectedCategories}
               onPriceChange={handlePriceChange}
               onBrandChange={handleBrandChange}
               onCategoryChange={handleCategoryChange}
@@ -253,10 +249,10 @@ const AllProductsPage = () => {
             <div className="mt-8 p-4 bg-gray-100 rounded-lg border">
               <h3 className="text-lg font-medium mb-2">Active Filters</h3>
               <div className="space-y-2">
-                {selectedCategory && (
+                {selectedCategories.length > 0 && (
                   <div className="flex items-center justify-between">
-                    <span>Category:</span>
-                    <span className="font-medium">{formatCategoryName(selectedCategory)}</span>
+                    <span>Categories:</span>
+                    <span className="font-medium">{selectedCategories.length}</span>
                   </div>
                 )}
                 {(priceRange[0] > minMaxPrices[0] || priceRange[1] < minMaxPrices[1]) && (
@@ -271,7 +267,7 @@ const AllProductsPage = () => {
                     <span className="font-medium">{selectedBrands.length}</span>
                   </div>
                 )}
-                {!selectedCategory && priceRange[0] === minMaxPrices[0] && priceRange[1] === minMaxPrices[1] && selectedBrands.length === 0 && (
+                {selectedCategories.length === 0 && priceRange[0] === minMaxPrices[0] && priceRange[1] === minMaxPrices[1] && selectedBrands.length === 0 && (
                   <div className="text-gray-500">No active filters</div>
                 )}
               </div>
@@ -283,13 +279,13 @@ const AllProductsPage = () => {
             {filteredProducts.length === 0 ? (
               <div className="text-center py-12">
                 <h3 className="text-xl font-medium mb-2">
-                  {categoryParam 
-                    ? `No ${formatCategoryName(categoryParam)} products found`
+                  {selectedCategories.length > 0 
+                    ? `No products found for selected categories`
                     : "No products match your filters"}
                 </h3>
                 <p className="text-gray-600">
-                  {categoryParam 
-                    ? `We couldn't find any ${formatCategoryName(categoryParam)} products in our catalog. Please check back later!`
+                  {selectedCategories.length > 0 
+                    ? `We couldn't find any products matching your selected categories. Please try different filters!`
                     : "Try adjusting your filters to find products."}
                 </p>
               </div>
