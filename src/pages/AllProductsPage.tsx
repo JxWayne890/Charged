@@ -245,33 +245,6 @@ const AllProductsPage = () => {
               onCategoryChange={handleCategoryChange}
               minMaxPrices={minMaxPrices}
             />
-            
-            <div className="mt-8 p-4 bg-gray-100 rounded-lg border">
-              <h3 className="text-lg font-medium mb-2">Active Filters</h3>
-              <div className="space-y-2">
-                {selectedCategories.length > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span>Categories:</span>
-                    <span className="font-medium">{selectedCategories.length}</span>
-                  </div>
-                )}
-                {(priceRange[0] > minMaxPrices[0] || priceRange[1] < minMaxPrices[1]) && (
-                  <div className="flex items-center justify-between">
-                    <span>Price:</span>
-                    <span className="font-medium">${priceRange[0]} - ${priceRange[1]}</span>
-                  </div>
-                )}
-                {selectedBrands.length > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span>Brands:</span>
-                    <span className="font-medium">{selectedBrands.length}</span>
-                  </div>
-                )}
-                {selectedCategories.length === 0 && priceRange[0] === minMaxPrices[0] && priceRange[1] === minMaxPrices[1] && selectedBrands.length === 0 && (
-                  <div className="text-gray-500">No active filters</div>
-                )}
-              </div>
-            </div>
           </div>
           
           {/* Product grid */}

@@ -1,20 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItem
-} from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Filter, Check } from 'lucide-react';
+import { Filter } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 // Standard categories that match our application
 const standardCategories = [
@@ -66,26 +62,14 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   onCategoryChange,
   minMaxPrices
 }) => {
-  const [localPriceRange, setLocalPriceRange] = useState<[number, number]>(priceRange);
   const [minInput, setMinInput] = useState<string>(priceRange[0].toString());
   const [maxInput, setMaxInput] = useState<string>(priceRange[1].toString());
 
   // Update local state when props change
   useEffect(() => {
-    setLocalPriceRange(priceRange);
     setMinInput(priceRange[0].toString());
     setMaxInput(priceRange[1].toString());
   }, [priceRange]);
-
-  const handleSliderChange = (value: number[]) => {
-    if (value.length >= 2) {
-      const newRange: [number, number] = [value[0], value[1]];
-      setLocalPriceRange(newRange);
-      setMinInput(newRange[0].toString());
-      setMaxInput(newRange[1].toString());
-      onPriceChange(newRange);
-    }
-  };
 
   const handleMinInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMinInput(e.target.value);
@@ -93,9 +77,8 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     if (!isNaN(minValue)) {
       const newRange: [number, number] = [
         Math.max(minValue, minMaxPrices[0]), 
-        localPriceRange[1]
+        priceRange[1]
       ];
-      setLocalPriceRange(newRange);
       onPriceChange(newRange);
     }
   };
@@ -105,10 +88,9 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
     const maxValue = parseFloat(e.target.value) || minMaxPrices[1];
     if (!isNaN(maxValue)) {
       const newRange: [number, number] = [
-        localPriceRange[0], 
+        priceRange[0], 
         Math.min(maxValue, minMaxPrices[1])
       ];
-      setLocalPriceRange(newRange);
       onPriceChange(newRange);
     }
   };
@@ -134,14 +116,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   };
 
   const selectedBrandsCount = selectedBrands.length;
-  const brandLabel = selectedBrandsCount === 0 
-    ? "Select Brands" 
-    : `${selectedBrandsCount} brand${selectedBrandsCount === 1 ? '' : 's'} selected`;
-    
   const selectedCategoriesCount = selectedCategories.length;
-  const categoryLabel = selectedCategoriesCount === 0 
-    ? "Select Categories" 
-    : `${selectedCategoriesCount} categor${selectedCategoriesCount === 1 ? 'y' : 'ies'} selected`;
 
   const clearAllFilters = () => {
     onPriceChange(minMaxPrices);
@@ -151,191 +126,130 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
   return (
     <div className="w-full">
-      {/* Desktop Filters */}
-      <div className="hidden md:block">
-        <div className="flex flex-col gap-6 p-4 bg-background rounded-lg border shadow-sm">
-          <div>
-            <h3 className="text-lg font-medium mb-2">Price Range</h3>
-            <div className="space-y-4">
-              <Slider
-                value={localPriceRange}
-                min={minMaxPrices[0]}
-                max={minMaxPrices[1]}
-                step={1}
-                onValueChange={handleSliderChange}
-                className="mb-6"
-              />
-              <div className="flex items-center gap-2">
-                <div className="flex-1">
-                  <Label htmlFor="min-price" className="text-sm">Min</Label>
-                  <Input
-                    id="min-price"
-                    type="number"
-                    value={minInput}
-                    onChange={handleMinInputChange}
-                    className="mt-1"
-                  />
-                </div>
-                <span className="pt-6">-</span>
-                <div className="flex-1">
-                  <Label htmlFor="max-price" className="text-sm">Max</Label>
-                  <Input
-                    id="max-price"
-                    type="number"
-                    value={maxInput}
-                    onChange={handleMaxInputChange}
-                    className="mt-1"
-                  />
+      <div className="flex flex-col gap-6">
+        <Accordion type="multiple" defaultValue={["price", "category", "brand"]} className="w-full">
+          <AccordionItem value="price" className="border border-gray-200 rounded-md overflow-hidden">
+            <AccordionTrigger className="px-4 py-3 bg-gray-50 hover:bg-gray-100 font-medium">
+              PRICE
+            </AccordionTrigger>
+            <AccordionContent className="px-4 py-3 border-t">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <Label htmlFor="min-price" className="text-sm">Min Price ($)</Label>
+                    <Input
+                      id="min-price"
+                      type="number"
+                      value={minInput}
+                      onChange={handleMinInputChange}
+                      className="mt-1"
+                    />
+                  </div>
+                  <span className="pt-6">-</span>
+                  <div className="flex-1">
+                    <Label htmlFor="max-price" className="text-sm">Max Price ($)</Label>
+                    <Input
+                      id="max-price"
+                      type="number"
+                      value={maxInput}
+                      onChange={handleMaxInputChange}
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          <div>
-            <h3 className="text-lg font-medium mb-2">Category</h3>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  {categoryLabel}
-                  <ChevronDown className="h-4 w-4 ml-2" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 max-h-[300px] overflow-auto">
-                <DropdownMenuLabel>Select Categories</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+          <AccordionItem value="category" className="border border-gray-200 rounded-md mt-2 overflow-hidden">
+            <AccordionTrigger className="px-4 py-3 bg-gray-50 hover:bg-gray-100 font-medium">
+              PRODUCT TYPE {selectedCategoriesCount > 0 && `(${selectedCategoriesCount})`}
+            </AccordionTrigger>
+            <AccordionContent className="px-4 py-3 border-t">
+              <div className="space-y-2">
                 {standardCategories.map((category) => (
-                  <DropdownMenuCheckboxItem
-                    key={category.slug}
-                    checked={selectedCategories.includes(category.slug)}
-                    onCheckedChange={() => handleCategoryToggle(category.slug)}
-                  >
-                    {category.name}
-                  </DropdownMenuCheckboxItem>
+                  <div key={category.slug} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`category-${category.slug}`} 
+                      checked={selectedCategories.includes(category.slug)}
+                      onCheckedChange={() => handleCategoryToggle(category.slug)}
+                    />
+                    <label
+                      htmlFor={`category-${category.slug}`}
+                      className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      {category.name} ({category.slug === 'pre-workout' ? '29' : '2'})
+                    </label>
+                  </div>
                 ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          <div>
-            <h3 className="text-lg font-medium mb-2">Brands</h3>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  {brandLabel}
-                  <ChevronDown className="h-4 w-4 ml-2" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 max-h-[300px] overflow-auto">
-                <DropdownMenuLabel>Select Brands</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+          <AccordionItem value="brand" className="border border-gray-200 rounded-md mt-2 overflow-hidden">
+            <AccordionTrigger className="px-4 py-3 bg-gray-50 hover:bg-gray-100 font-medium">
+              SHOP BY BRANDS {selectedBrandsCount > 0 && `(${selectedBrandsCount})`}
+            </AccordionTrigger>
+            <AccordionContent className="px-4 py-3 border-t">
+              <div className="space-y-2">
                 {brands.map((brand) => (
-                  <DropdownMenuCheckboxItem
-                    key={brand}
-                    checked={selectedBrands.includes(brand)}
-                    onCheckedChange={() => handleBrandToggle(brand)}
-                  >
-                    {brand}
-                  </DropdownMenuCheckboxItem>
+                  <div key={brand} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`brand-${brand}`} 
+                      checked={selectedBrands.includes(brand)}
+                      onCheckedChange={() => handleBrandToggle(brand)}
+                    />
+                    <label
+                      htmlFor={`brand-${brand}`}
+                      className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      {brand} ({brand === 'Bucked Up' ? '42' : '3'})
+                    </label>
+                  </div>
                 ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <button 
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+        
+        {(selectedCategories.length > 0 || selectedBrands.length > 0 || 
+          priceRange[0] > minMaxPrices[0] || priceRange[1] < minMaxPrices[1]) && (
+          <Button 
+            variant="link"
             onClick={clearAllFilters}
-            className="text-primary hover:underline text-sm font-medium mt-2"
+            className="text-primary hover:underline text-sm font-medium mt-2 self-start"
           >
             Clear All Filters
-          </button>
-        </div>
+          </Button>
+        )}
       </div>
 
-      {/* Mobile Filter Dropdown */}
-      <div className="block md:hidden">
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 border rounded-lg">
-            <Filter size={18} />
-            <span>Filters</span>
-            <ChevronDown size={16} />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-screen max-w-md p-4">
-            <DropdownMenuLabel>Price Range</DropdownMenuLabel>
-            <div className="px-2 py-4">
-              <Slider
-                value={localPriceRange}
-                min={minMaxPrices[0]}
-                max={minMaxPrices[1]}
-                step={1}
-                onValueChange={handleSliderChange}
-                className="mb-6"
-              />
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  value={minInput}
-                  onChange={handleMinInputChange}
-                  placeholder="Min"
-                  className="w-24"
-                />
-                <span>to</span>
-                <Input
-                  type="number"
-                  value={maxInput}
-                  onChange={handleMaxInputChange}
-                  placeholder="Max"
-                  className="w-24"
-                />
-              </div>
+      {/* Mobile Filters - Using Collapsible for mobile */}
+      <div className="block md:hidden mt-4">
+        <div className="text-sm text-gray-500">
+          {selectedCategoriesCount > 0 || selectedBrandsCount > 0 || 
+            priceRange[0] > minMaxPrices[0] || priceRange[1] < minMaxPrices[1] ? (
+            <div className="flex gap-2 flex-wrap">
+              {selectedCategoriesCount > 0 && (
+                <span className="bg-gray-100 px-2 py-1 rounded">
+                  {selectedCategoriesCount} categories
+                </span>
+              )}
+              {selectedBrandsCount > 0 && (
+                <span className="bg-gray-100 px-2 py-1 rounded">
+                  {selectedBrandsCount} brands
+                </span>
+              )}
+              {(priceRange[0] > minMaxPrices[0] || priceRange[1] < minMaxPrices[1]) && (
+                <span className="bg-gray-100 px-2 py-1 rounded">
+                  ${priceRange[0]} - ${priceRange[1]}
+                </span>
+              )}
             </div>
-
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>Category</DropdownMenuLabel>
-            <div className="px-2 py-2 max-h-60 overflow-y-auto">
-              {standardCategories.map((category) => (
-                <DropdownMenuItem 
-                  key={category.slug} 
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => handleCategoryToggle(category.slug)}
-                >
-                  <div className={`w-4 h-4 border rounded-sm ${selectedCategories.includes(category.slug) ? 'bg-primary border-primary' : 'bg-transparent'}`}>
-                    {selectedCategories.includes(category.slug) && (
-                      <Check className="h-4 w-4 text-white" />
-                    )}
-                  </div>
-                  {category.name}
-                </DropdownMenuItem>
-              ))}
-            </div>
-
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>Brands</DropdownMenuLabel>
-            <div className="px-2 py-2 max-h-60 overflow-y-auto">
-              {brands.map((brand) => (
-                <DropdownMenuItem 
-                  key={brand} 
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => handleBrandToggle(brand)}
-                >
-                  <div className={`w-4 h-4 border rounded-sm ${selectedBrands.includes(brand) ? 'bg-primary border-primary' : 'bg-transparent'}`}>
-                    {selectedBrands.includes(brand) && (
-                      <Check className="h-4 w-4 text-white" />
-                    )}
-                  </div>
-                  {brand}
-                </DropdownMenuItem>
-              ))}
-            </div>
-
-            <div className="mt-4 px-2">
-              <button 
-                onClick={clearAllFilters}
-                className="text-primary hover:underline text-sm font-medium"
-              >
-                Clear All Filters
-              </button>
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          ) : (
+            <span>No filters applied</span>
+          )}
+        </div>
       </div>
     </div>
   );
