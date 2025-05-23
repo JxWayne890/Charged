@@ -12,7 +12,7 @@ interface FeaturedProductCarouselProps {
 
 const FeaturedProductCarousel = ({
   products,
-  autoScrollInterval = 8000, // Increased to 8 seconds for better readability
+  autoScrollInterval = 8000, // 8 seconds for better readability
 }: FeaturedProductCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
@@ -65,9 +65,8 @@ const FeaturedProductCarousel = ({
                 )}
               </div>
               
-              {/* Product Info */}
+              {/* Product Info - Removed category and description */}
               <div className="w-full md:w-1/2 flex flex-col text-center md:text-left">
-                <span className="text-sm text-gray-400 mb-1">{currentProduct.category}</span>
                 <h3 className="text-lg font-bold mb-2 uppercase">{currentProduct.title}</h3>
                 
                 <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
@@ -80,10 +79,6 @@ const FeaturedProductCarousel = ({
                     <span className="text-lg font-bold">{formatPrice(currentProduct.price)}</span>
                   )}
                 </div>
-                
-                <p className="mb-4 text-gray-300 line-clamp-3 text-sm">
-                  {currentProduct.description}
-                </p>
                 
                 <Button asChild className="bg-primary hover:bg-primary-dark w-full md:w-auto max-w-xs mx-auto md:mx-0">
                   <Link to={`/product/${currentProduct.slug}`}>View Product</Link>
