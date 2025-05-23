@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { Product } from '@/types';
 import { cn } from '@/lib/utils';
@@ -27,20 +27,6 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     addToCart(product, 1);
-  };
-  
-  const renderStars = (rating: number) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Star 
-          key={i}
-          size={14}
-          className={i <= rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}
-        />
-      );
-    }
-    return stars;
   };
   
   return (
@@ -89,16 +75,6 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
           <h3 className="text-md font-medium line-clamp-2">
             {product.title}
           </h3>
-          
-          {/* Rating */}
-          <div className="mt-1 flex items-center">
-            <div className="flex mr-1">
-              {renderStars(product.rating)}
-            </div>
-            <span className="text-xs text-gray-500">
-              ({product.reviewCount})
-            </span>
-          </div>
           
           {/* Price */}
           <div className="mt-2 font-roboto-mono font-medium">
