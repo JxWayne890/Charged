@@ -6,7 +6,6 @@ import { useCart } from '@/context/CartContext';
 import { Product } from '@/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/use-toast';
 
 interface ProductCardProps {
   product: Product;
@@ -15,9 +14,6 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, className }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [loadAttempts, setLoadAttempts] = useState(0);
   const { addToCart } = useCart();
   
   // Format category name for display
@@ -32,74 +28,6 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
     e.preventDefault();
     addToCart(product, 1);
   };
-
-  const handleImageError = () => {
-    console.log(`Image failed to load for product: ${product.title}, URL: ${product.images[currentImageIndex]}, attempt: ${loadAttempts + 1}`);
-    
-    // Strategy 1: Try next image if available
-    if (currentImageIndex < product.images.length - 1) {
-      console.log(`Trying next image for ${product.title}`);
-      setCurrentImageIndex(currentImageIndex + 1);
-      setLoadAttempts(0); // Reset attempts for new image
-    } 
-    // Strategy 2: Retry same image a few times (sometimes transient errors occur)
-    else if (loadAttempts < 2) {
-      console.log(`Retrying same image for ${product.title}, attempt: ${loadAttempts + 1}`);
-      setLoadAttempts(loadAttempts + 1);
-      // Force reload by toggling a timestamp parameter
-      const currentSrc = product.images[currentImageIndex];
-      if (currentSrc && !currentSrc.includes('/placeholder.svg')) {
-        const newSrc = currentSrc.includes('?') 
-          ? `${currentSrc}&_t=${Date.now()}`
-          : `${currentSrc}?_t=${Date.now()}`;
-        
-        // Create a new image element to try preloading
-        const img = new Image();
-        img.src = newSrc;
-        img.onload = () => {
-          console.log(`Preload successful for ${product.title}`);
-          // Force a re-render by toggling the error state
-          setImageError(false);
-          // We'll use the timestamp URL in getCurrentImage
-        };
-        img.onerror = () => {
-          console.log(`Preload failed for ${product.title} even after retry`);
-          setImageError(true);
-        };
-      }
-    } 
-    // Strategy 3: Fall back to placeholder as last resort
-    else {
-      console.log(`All images failed for ${product.title}, using placeholder`);
-      setImageError(true);
-      
-      // Notify about image loading issue (only once)
-      if (!imageError) {
-        toast({
-          title: "Image loading issue",
-          description: `We couldn't load images for ${product.title}. This has been logged for our team to fix.`,
-          variant: "default",
-        });
-      }
-    }
-  };
-
-  const getCurrentImage = () => {
-    if (imageError) {
-      return '/placeholder.svg';
-    }
-    
-    const baseUrl = product.images[currentImageIndex] || '/placeholder.svg';
-    
-    // Add timestamp for retry attempts only if not a placeholder
-    if (loadAttempts > 0 && !baseUrl.includes('/placeholder.svg')) {
-      return baseUrl.includes('?') 
-        ? `${baseUrl}&_t=${Date.now()}` 
-        : `${baseUrl}?_t=${Date.now()}`;
-    }
-    
-    return baseUrl;
-  };
   
   return (
     <div 
@@ -113,15 +41,9 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
       <Link to={`/product/${product.slug}`}>
         <div className="relative aspect-square overflow-hidden bg-gray-100">
           <img 
-            src={getCurrentImage()}
+            src={product.images[0]} 
             alt={product.title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            onError={handleImageError}
-            onLoad={() => {
-              // Reset error state and load attempts when image loads successfully
-              if (imageError) setImageError(false);
-              setLoadAttempts(0);
-            }}
           />
           
           {product.bestSeller && (

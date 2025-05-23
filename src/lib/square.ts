@@ -7,14 +7,7 @@ import { toast } from '@/components/ui/use-toast';
 export async function fetchSquareProducts(): Promise<Product[]> {
   console.log('Fetching products from Square via Supabase Edge Function');
   try {
-    // Track start time for performance measurement
-    const startTime = Date.now();
-    
     const { data, error } = await supabase.functions.invoke('catalog');
-    
-    // Log fetch time
-    const fetchTime = Date.now() - startTime;
-    console.log(`Fetch completed in ${fetchTime}ms`);
     
     if (error) {
       console.error('Error fetching products:', error);
@@ -37,13 +30,6 @@ export async function fetchSquareProducts(): Promise<Product[]> {
     }
     
     console.log(`Successfully fetched ${data.length} products`);
-    
-    // Log image distribution for debugging
-    const productsWithValidImages = data.filter(p => 
-      p.images.length > 0 && !p.images.includes('/placeholder.svg')
-    );
-    
-    console.log(`Products with valid images: ${productsWithValidImages.length}/${data.length} (${Math.round(productsWithValidImages.length/data.length*100)}%)`);
     
     // Log category distribution for debugging
     const categoryDistribution = {};

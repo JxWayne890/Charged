@@ -135,85 +135,6 @@ const categoryKeywordMap = {
   'dry-spell': ['dry-spell', 'off-cycle', 'natural gains', 'diuretic'],
 };
 
-// Simplified image URL validation that just checks format
-function isValidImageUrl(url) {
-  if (!url) return false;
-  
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-  } catch (error) {
-    console.error(`Invalid image URL format: ${url}`);
-    return false;
-  }
-}
-
-// Process and extract images
-function processImages(imageIds, squareObjects, productName) {
-  console.log(`Processing images for "${productName}": ${imageIds.length} image IDs found`);
-  
-  const images = [];
-  const imageDebugInfo = [];
-  
-  for (const id of imageIds) {
-    const imgObj = squareObjects.find(
-      (obj) => obj.id === id && obj.type === 'IMAGE'
-    );
-    
-    if (imgObj?.image_data?.url) {
-      const imageUrl = imgObj.image_data.url;
-      console.log(`Found image URL for "${productName}": ${imageUrl}`);
-      
-      // Simple URL format validation
-      if (isValidImageUrl(imageUrl)) {
-        images.push(imageUrl);
-        imageDebugInfo.push({ status: 'added', url: imageUrl });
-        console.log(`✓ Image added for "${productName}": ${imageUrl}`);
-      } else {
-        console.warn(`✗ Invalid image URL format for "${productName}": ${imageUrl}`);
-        imageDebugInfo.push({ status: 'invalid_format', url: imageUrl });
-      }
-    } else {
-      console.warn(`Image object found but no URL for "${productName}", ID: ${id}`);
-      imageDebugInfo.push({ status: 'no_url', id });
-    }
-  }
-  
-  // If no valid images found, use placeholder
-  if (images.length === 0) {
-    console.warn(`No valid images found for "${productName}", using placeholder`);
-    images.push('/placeholder.svg');
-    imageDebugInfo.push({ status: 'using_placeholder' });
-  }
-  
-  console.log(`Final image count for "${productName}": ${images.length}`);
-  return { images, imageDebugInfo };
-}
-
-// Extract price from variation with better error handling
-function extractPrice(variation, productName) {
-  if (!variation) {
-    console.warn(`No variation found for "${productName}"`);
-    return 0;
-  }
-  
-  const priceData = variation.item_variation_data?.price_money;
-  if (!priceData) {
-    console.warn(`No price data found for "${productName}"`);
-    return 0;
-  }
-  
-  const priceInCents = priceData.amount;
-  if (typeof priceInCents !== 'number') {
-    console.warn(`Invalid price amount for "${productName}": ${priceInCents}`);
-    return 0;
-  }
-  
-  const price = priceInCents / 100;
-  console.log(`Price extracted for "${productName}": $${price} (${priceInCents} cents)`);
-  return price;
-}
-
 // Map Square category names to our standardized slugs
 function standardizeCategory(squareCategoryName) {
   if (!squareCategoryName) return null;
@@ -422,99 +343,70 @@ function determineProductCategory(item, squareCategoryData) {
 /**
  * Transforms Square API data into product objects
  */
-async function transformToProducts(squareData, squareCategoryData) {
-  const items = squareData.objects
+function transformToProducts(squareData, squareCategoryData) {
+  return squareData.objects
     .filter(
       (item) =>
         item.type === 'ITEM' &&
         item.item_data &&
         item.item_data.product_type !== 'APPOINTMENTS_SERVICE' &&
         item.item_data.name !== 'Training session (example service)'
-    );
+    )
+    .map((item) => {
+      const variation =
+        item.item_data.variations && item.item_data.variations.length > 0
+          ? item.item_data.variations[0]
+          : null;
 
-  console.log(`Processing ${items.length} valid items from Square`);
+      const priceInCents =
+        variation?.item_variation_data?.price_money?.amount ?? 0;
 
-  const products = [];
-  const productsWithImageIssues = [];
+      const imageIds = item.item_data.image_ids || [];
+      const images = imageIds
+        .map((id) => {
+          const imgObj = squareData.objects.find(
+            (obj) => obj.id === id && obj.type === 'IMAGE'
+          );
+          return imgObj?.image_data?.url || '';
+        })
+        .filter(Boolean);
 
-  for (const item of items) {
-    const productName = item.item_data.name;
-    console.log(`\n--- Processing product: "${productName}" ---`);
+      if (images.length === 0) images.push('/placeholder.svg');
 
-    const variation = item.item_data.variations && item.item_data.variations.length > 0
-      ? item.item_data.variations[0]
-      : null;
+      const slug = item.item_data.name
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-');
 
-    // Extract price with better error handling
-    const price = extractPrice(variation, productName);
-
-    // Process images with improved handling
-    const imageIds = item.item_data.image_ids || [];
-    const { images, imageDebugInfo } = processImages(imageIds, squareData.objects, productName);
-    
-    // Track products with image issues for debugging
-    if (images.length === 1 && images[0] === '/placeholder.svg') {
-      productsWithImageIssues.push({
-        name: productName,
-        id: item.id,
-        imageIds,
-        debugInfo: imageDebugInfo
-      });
-    }
-
-    const slug = item.item_data.name
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-');
-
-    // Determine the product category using our improved logic
-    const category = determineProductCategory(item, squareCategoryData);
-    
-    // Validate the category against our standardized list
-    const isValidCategory = standardCategories.some(c => c.slug === category);
-    if (!isValidCategory) {
-      console.error(`Invalid category "${category}" for product "${productName}"`);
-    }
-
-    const product = {
-      id: item.id,
-      title: productName,
-      description: item.item_data.description || '',
-      price,
-      images,
-      stock: variation?.item_variation_data?.inventory_count ?? 10,
-      rating: 4.5,
-      reviewCount: Math.floor(Math.random() * 50) + 5,
-      slug,
-      category,
-      bestSeller: Math.random() > 0.7,
-      featured: Math.random() > 0.8,
-      benefits: [item.item_data.description || ''],
-      ingredients: 'Natural ingredients',
-      directions: 'Follow package instructions',
-      faqs: [],
-      tags: [category],
-      _debug: {
-        imageIds,
-        imageDebugInfo
+      // Determine the product category using our improved logic
+      const category = determineProductCategory(item, squareCategoryData);
+      
+      // Validate the category against our standardized list
+      const isValidCategory = standardCategories.some(c => c.slug === category);
+      if (!isValidCategory) {
+        console.error(`Invalid category "${category}" for product "${item.item_data.name}"`);
       }
-    };
 
-    console.log(`✓ Product processed: "${productName}" - Price: $${price}, Images: ${images.length}, Category: ${category}`);
-    products.push(product);
-  }
-
-  // Log products with image issues
-  if (productsWithImageIssues.length > 0) {
-    console.log(`\n==================\n${productsWithImageIssues.length} PRODUCTS WITH IMAGE ISSUES:\n==================`);
-    productsWithImageIssues.forEach(p => {
-      console.log(`- ${p.name} (ID: ${p.id}):`);
-      console.log(`  Image IDs: ${JSON.stringify(p.imageIds)}`);
-      console.log(`  Debug info: ${JSON.stringify(p.debugInfo)}`);
+      return {
+        id: item.id,
+        title: item.item_data.name,
+        description: item.item_data.description || '',
+        price: priceInCents / 100,
+        images,
+        stock: variation?.item_variation_data?.inventory_count ?? 10,
+        rating: 4.5,
+        reviewCount: Math.floor(Math.random() * 50) + 5,
+        slug,
+        category,
+        bestSeller: Math.random() > 0.7,
+        featured: Math.random() > 0.8,
+        benefits: [item.item_data.description || ''],
+        ingredients: 'Natural ingredients',
+        directions: 'Follow package instructions',
+        faqs: [],
+        tags: [category],
+      };
     });
-  }
-
-  return products;
 }
 
 /**
@@ -573,27 +465,12 @@ serve(async (req) => {
     const squareCategoryData = await fetchSquareCategories();
     
     // Transform to products
-    const products = await transformToProducts(squareData, squareCategoryData);
+    const products = transformToProducts(squareData, squareCategoryData);
     
     // Log category distribution for debugging
     logCategoryDistribution(products);
 
-    // Log products with missing or placeholder images
-    const productsWithPlaceholder = products.filter(p => 
-      p.images.length === 1 && p.images[0] === '/placeholder.svg'
-    );
-    
-    if (productsWithPlaceholder.length > 0) {
-      console.log(`\n⚠️  ${productsWithPlaceholder.length} products using placeholder images:`);
-      productsWithPlaceholder.forEach(p => console.log(`- ${p.title}`));
-    }
-
-    // Create a cleaned version of products for response (without debug info)
-    const cleanedProducts = products.map(({ _debug, ...product }) => product);
-
-    console.log(`\n✅ Successfully processed ${products.length} products`);
-
-    return new Response(JSON.stringify(cleanedProducts), {
+    return new Response(JSON.stringify(products), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
