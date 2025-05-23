@@ -1,7 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import HeroSection from '@/components/HeroSection';
 import ProductCarousel from '@/components/ProductCarousel';
-import BundlePromo from '@/components/BundlePromo';
 import ValueStrip from '@/components/ValueStrip';
 import { blogPosts } from '@/data/blog';
 import BlogPostCard from '@/components/BlogPostCard';
@@ -112,11 +112,6 @@ const Index = () => {
           <p className="text-center text-gray-600">No best sellers available at the moment. Check back soon!</p>
         </section>
       )}
-      
-      {/* Bundle Promo */}
-      <section className="container mx-auto px-4 py-12">
-        <BundlePromo />
-      </section>
       
       {/* Content Hub Teaser */}
       <section className="container mx-auto px-4 py-12 bg-gray-50">

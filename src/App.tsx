@@ -9,7 +9,6 @@ import { AuthProvider } from "@/context/AuthContext";
 import Index from "./pages/Index";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer";
-import AnnouncementBar from "./components/AnnouncementBar";
 import CartDrawer from "./components/CartDrawer";
 import NotFound from "./pages/NotFound";
 import AllProductsPage from "./pages/AllProductsPage";
@@ -30,7 +29,6 @@ const App = () => (
             <Sonner />
             
             <div className="flex flex-col min-h-screen">
-              <AnnouncementBar />
               <Header />
               <CartDrawer />
               
