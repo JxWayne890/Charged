@@ -12,7 +12,7 @@ interface FeaturedProductCarouselProps {
 
 const FeaturedProductCarousel = ({
   products,
-  autoScrollInterval = 4000,
+  autoScrollInterval = 7000, // Increased from 4000ms to 7000ms to give users more time to read
 }: FeaturedProductCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
@@ -27,7 +27,7 @@ const FeaturedProductCarousel = ({
       setTimeout(() => {
         setCurrentIndex((prevIndex) => (prevIndex + 1) % products.length);
         setIsVisible(true);
-      }, 600); // Increased from 300ms to 600ms for slower fade
+      }, 1000); // Increased from 600ms to 1000ms for a slower fade
     }, autoScrollInterval);
 
     return () => clearInterval(interval);
@@ -44,7 +44,7 @@ const FeaturedProductCarousel = ({
         
         <div className="max-w-xl mx-auto">
           <div 
-            className={`transition-opacity duration-1200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+            className={`transition-opacity duration-2000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
           >
             <div className="flex flex-col md:flex-row items-center gap-4 p-3">
               {/* Product Image */}
@@ -77,7 +77,7 @@ const FeaturedProductCarousel = ({
                   )}
                 </div>
                 
-                <p className="mb-4 text-gray-300 line-clamp-2 text-sm">
+                <p className="mb-4 text-gray-300 line-clamp-3 text-sm">
                   {currentProduct.description}
                 </p>
                 
@@ -98,7 +98,7 @@ const FeaturedProductCarousel = ({
                   setTimeout(() => {
                     setCurrentIndex(index);
                     setIsVisible(true);
-                  }, 600);
+                  }, 1000);
                 }}
                 className={`w-2 h-2 rounded-full transition-colors duration-200 ${
                   index === currentIndex ? 'bg-primary' : 'bg-gray-600 hover:bg-gray-500'
