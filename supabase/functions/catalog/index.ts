@@ -1,4 +1,3 @@
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 
@@ -134,6 +133,79 @@ const categoryKeywordMap = {
   'anti-aging-supplement': ['anti-aging', 'nad daily', 'collagen peptides'],
   'dry-spell': ['dry-spell', 'off-cycle', 'natural gains', 'diuretic'],
 };
+
+// Validate image URL
+async function validateImageUrl(url: string): Promise<boolean> {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.ok && response.headers.get('content-type')?.startsWith('image/');
+  } catch (error) {
+    console.error(`Failed to validate image URL ${url}:`, error);
+    return false;
+  }
+}
+
+// Process and validate images
+async function processImages(imageIds: string[], squareObjects: any[], productName: string): Promise<string[]> {
+  console.log(`Processing images for "${productName}": ${imageIds.length} image IDs found`);
+  
+  const images: string[] = [];
+  
+  for (const id of imageIds) {
+    const imgObj = squareObjects.find(
+      (obj) => obj.id === id && obj.type === 'IMAGE'
+    );
+    
+    if (imgObj?.image_data?.url) {
+      const imageUrl = imgObj.image_data.url;
+      console.log(`Found image URL for "${productName}": ${imageUrl}`);
+      
+      // Validate the image URL
+      const isValid = await validateImageUrl(imageUrl);
+      if (isValid) {
+        images.push(imageUrl);
+        console.log(`✓ Valid image added for "${productName}": ${imageUrl}`);
+      } else {
+        console.warn(`✗ Invalid image URL for "${productName}": ${imageUrl}`);
+      }
+    } else {
+      console.warn(`Image object found but no URL for "${productName}", ID: ${id}`);
+    }
+  }
+  
+  // If no valid images found, use placeholder
+  if (images.length === 0) {
+    console.warn(`No valid images found for "${productName}", using placeholder`);
+    images.push('/placeholder.svg');
+  }
+  
+  console.log(`Final image count for "${productName}": ${images.length}`);
+  return images;
+}
+
+// Extract price from variation with better error handling
+function extractPrice(variation: any, productName: string): number {
+  if (!variation) {
+    console.warn(`No variation found for "${productName}"`);
+    return 0;
+  }
+  
+  const priceData = variation.item_variation_data?.price_money;
+  if (!priceData) {
+    console.warn(`No price data found for "${productName}"`);
+    return 0;
+  }
+  
+  const priceInCents = priceData.amount;
+  if (typeof priceInCents !== 'number') {
+    console.warn(`Invalid price amount for "${productName}": ${priceInCents}`);
+    return 0;
+  }
+  
+  const price = priceInCents / 100;
+  console.log(`Price extracted for "${productName}": $${price} (${priceInCents} cents)`);
+  return price;
+}
 
 // Map Square category names to our standardized slugs
 function standardizeCategory(squareCategoryName) {
@@ -343,70 +415,74 @@ function determineProductCategory(item, squareCategoryData) {
 /**
  * Transforms Square API data into product objects
  */
-function transformToProducts(squareData, squareCategoryData) {
-  return squareData.objects
+async function transformToProducts(squareData, squareCategoryData) {
+  const items = squareData.objects
     .filter(
       (item) =>
         item.type === 'ITEM' &&
         item.item_data &&
         item.item_data.product_type !== 'APPOINTMENTS_SERVICE' &&
         item.item_data.name !== 'Training session (example service)'
-    )
-    .map((item) => {
-      const variation =
-        item.item_data.variations && item.item_data.variations.length > 0
-          ? item.item_data.variations[0]
-          : null;
+    );
 
-      const priceInCents =
-        variation?.item_variation_data?.price_money?.amount ?? 0;
+  console.log(`Processing ${items.length} valid items from Square`);
 
-      const imageIds = item.item_data.image_ids || [];
-      const images = imageIds
-        .map((id) => {
-          const imgObj = squareData.objects.find(
-            (obj) => obj.id === id && obj.type === 'IMAGE'
-          );
-          return imgObj?.image_data?.url || '';
-        })
-        .filter(Boolean);
+  const products = [];
 
-      if (images.length === 0) images.push('/placeholder.svg');
+  for (const item of items) {
+    const productName = item.item_data.name;
+    console.log(`\n--- Processing product: "${productName}" ---`);
 
-      const slug = item.item_data.name
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-');
+    const variation = item.item_data.variations && item.item_data.variations.length > 0
+      ? item.item_data.variations[0]
+      : null;
 
-      // Determine the product category using our improved logic
-      const category = determineProductCategory(item, squareCategoryData);
-      
-      // Validate the category against our standardized list
-      const isValidCategory = standardCategories.some(c => c.slug === category);
-      if (!isValidCategory) {
-        console.error(`Invalid category "${category}" for product "${item.item_data.name}"`);
-      }
+    // Extract price with better error handling
+    const price = extractPrice(variation, productName);
 
-      return {
-        id: item.id,
-        title: item.item_data.name,
-        description: item.item_data.description || '',
-        price: priceInCents / 100,
-        images,
-        stock: variation?.item_variation_data?.inventory_count ?? 10,
-        rating: 4.5,
-        reviewCount: Math.floor(Math.random() * 50) + 5,
-        slug,
-        category,
-        bestSeller: Math.random() > 0.7,
-        featured: Math.random() > 0.8,
-        benefits: [item.item_data.description || ''],
-        ingredients: 'Natural ingredients',
-        directions: 'Follow package instructions',
-        faqs: [],
-        tags: [category],
-      };
-    });
+    // Process images with validation
+    const imageIds = item.item_data.image_ids || [];
+    const images = await processImages(imageIds, squareData.objects, productName);
+
+    const slug = item.item_data.name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-');
+
+    // Determine the product category using our improved logic
+    const category = determineProductCategory(item, squareCategoryData);
+    
+    // Validate the category against our standardized list
+    const isValidCategory = standardCategories.some(c => c.slug === category);
+    if (!isValidCategory) {
+      console.error(`Invalid category "${category}" for product "${productName}"`);
+    }
+
+    const product = {
+      id: item.id,
+      title: productName,
+      description: item.item_data.description || '',
+      price,
+      images,
+      stock: variation?.item_variation_data?.inventory_count ?? 10,
+      rating: 4.5,
+      reviewCount: Math.floor(Math.random() * 50) + 5,
+      slug,
+      category,
+      bestSeller: Math.random() > 0.7,
+      featured: Math.random() > 0.8,
+      benefits: [item.item_data.description || ''],
+      ingredients: 'Natural ingredients',
+      directions: 'Follow package instructions',
+      faqs: [],
+      tags: [category],
+    };
+
+    console.log(`✓ Product processed: "${productName}" - Price: $${price}, Images: ${images.length}, Category: ${category}`);
+    products.push(product);
+  }
+
+  return products;
 }
 
 /**
@@ -465,10 +541,22 @@ serve(async (req) => {
     const squareCategoryData = await fetchSquareCategories();
     
     // Transform to products
-    const products = transformToProducts(squareData, squareCategoryData);
+    const products = await transformToProducts(squareData, squareCategoryData);
     
     // Log category distribution for debugging
     logCategoryDistribution(products);
+
+    // Log products with missing or placeholder images
+    const productsWithPlaceholder = products.filter(p => 
+      p.images.length === 1 && p.images[0] === '/placeholder.svg'
+    );
+    
+    if (productsWithPlaceholder.length > 0) {
+      console.log(`\n⚠️  ${productsWithPlaceholder.length} products using placeholder images:`);
+      productsWithPlaceholder.forEach(p => console.log(`- ${p.title}`));
+    }
+
+    console.log(`\n✅ Successfully processed ${products.length} products`);
 
     return new Response(JSON.stringify(products), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

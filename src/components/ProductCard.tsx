@@ -14,6 +14,8 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, className }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { addToCart } = useCart();
   
   // Format category name for display
@@ -28,6 +30,25 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
     e.preventDefault();
     addToCart(product, 1);
   };
+
+  const handleImageError = () => {
+    console.log(`Image failed to load for product: ${product.title}, URL: ${product.images[currentImageIndex]}`);
+    
+    // Try next image if available
+    if (currentImageIndex < product.images.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    } else {
+      // All images failed, use placeholder
+      setImageError(true);
+    }
+  };
+
+  const getCurrentImage = () => {
+    if (imageError) {
+      return '/placeholder.svg';
+    }
+    return product.images[currentImageIndex] || '/placeholder.svg';
+  };
   
   return (
     <div 
@@ -41,9 +62,16 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
       <Link to={`/product/${product.slug}`}>
         <div className="relative aspect-square overflow-hidden bg-gray-100">
           <img 
-            src={product.images[0]} 
+            src={getCurrentImage()}
             alt={product.title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={handleImageError}
+            onLoad={() => {
+              // Log successful image loads for debugging
+              if (!imageError) {
+                console.log(`Image loaded successfully for: ${product.title}`);
+              }
+            }}
           />
           
           {product.bestSeller && (
