@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Home } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
+import ProductFilters from '@/components/ProductFilters';
 import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
 import { toast } from "@/components/ui/use-toast";
@@ -13,8 +14,14 @@ const AllProductsPage = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get('category')?.toLowerCase();
+  
+  // Filter states
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryParam || null);
+  const [minMaxPrices, setMinMaxPrices] = useState<[number, number]>([0, 100]);
   
   useEffect(() => {
     const loadProducts = async () => {
@@ -22,6 +29,16 @@ const AllProductsPage = () => {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
         setProducts(fetchedProducts);
+        
+        // Calculate min and max prices for the price filter
+        if (fetchedProducts.length > 0) {
+          const prices = fetchedProducts.map(p => p.price);
+          const min = Math.floor(Math.min(...prices));
+          const max = Math.ceil(Math.max(...prices));
+          setMinMaxPrices([min, max]);
+          setPriceRange([min, max]);
+        }
+        
         setError(null);
       } catch (err) {
         console.error('Failed to load products:', err);
@@ -34,14 +51,35 @@ const AllProductsPage = () => {
     loadProducts();
   }, []);
   
-  // Filter products when the category parameter or products list changes
+  // Update the URL when category changes
+  useEffect(() => {
+    if (selectedCategory !== null && selectedCategory !== categoryParam) {
+      setSearchParams({ category: selectedCategory });
+    } else if (selectedCategory === null && categoryParam) {
+      // Remove the category param if no category is selected
+      searchParams.delete('category');
+      setSearchParams(searchParams);
+    }
+  }, [selectedCategory, categoryParam, searchParams, setSearchParams]);
+  
+  // Set the selected category from URL parameter
+  useEffect(() => {
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [categoryParam]);
+  
+  // Apply all filters
   useEffect(() => {
     if (!products.length) {
       return;
     }
     
-    if (categoryParam) {
-      console.log(`Filtering by category: ${categoryParam}`);
+    let result = [...products];
+    
+    // Apply category filter
+    if (selectedCategory) {
+      console.log(`Filtering by category: ${selectedCategory}`);
       
       // Log all available categories for debugging
       const availableCategories = [...new Set(products.map(p => p.category))];
@@ -49,38 +87,38 @@ const AllProductsPage = () => {
       
       // Count how many products should be in the selected category
       const categoryCount = products.filter(p => 
-        p.category.toLowerCase() === categoryParam
+        p.category.toLowerCase() === selectedCategory
       ).length;
       
-      console.log(`Total products in category "${categoryParam}": ${categoryCount}`);
+      console.log(`Total products in category "${selectedCategory}": ${categoryCount}`);
       
       // Apply filtering - using exact case-insensitive match
-      const filtered = products.filter(product => {
+      result = result.filter(product => {
         const productCategory = product.category.toLowerCase();
-        const matches = productCategory === categoryParam;
-        
-        if (!matches && categoryParam === productCategory.replace(/-/g, '')) {
-          console.log(`Near miss: Product "${product.title}" has category "${product.category}" which almost matches "${categoryParam}"`);
-        }
-        
+        const matches = productCategory === selectedCategory;
         return matches;
       });
       
-      setFilteredProducts(filtered);
-      console.log(`Found ${filtered.length} products matching category ${categoryParam}`);
-      
-      // Debug information if we didn't find the expected number of products
-      if (filtered.length === 0 && categoryCount > 0) {
-        toast({
-          title: "Category Filtering Issue",
-          description: `There should be ${categoryCount} products in this category, but filtering returned none.`,
-          variant: "destructive"
-        });
-      }
-    } else {
-      setFilteredProducts(products);
+      console.log(`Found ${result.length} products matching category ${selectedCategory}`);
     }
-  }, [categoryParam, products]);
+    
+    // Apply price filter
+    result = result.filter(product => 
+      product.price >= priceRange[0] && product.price <= priceRange[1]
+    );
+    
+    // Apply brand filter
+    if (selectedBrands.length > 0) {
+      result = result.filter(product => {
+        // Check if the product title contains any of the selected brands
+        return selectedBrands.some(brand => 
+          product.title.toLowerCase().includes(brand.toLowerCase())
+        );
+      });
+    }
+    
+    setFilteredProducts(result);
+  }, [products, selectedCategory, priceRange, selectedBrands]);
 
   // Format category name for display (e.g., "pre-workout" to "Pre Workout")
   const formatCategoryName = (slug: string): string => {
@@ -112,6 +150,18 @@ const AllProductsPage = () => {
     { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
     { name: 'Dry Spell', slug: 'dry-spell' }
   ];
+  
+  const handlePriceChange = (range: [number, number]) => {
+    setPriceRange(range);
+  };
+  
+  const handleBrandChange = (brands: string[]) => {
+    setSelectedBrands(brands);
+  };
+  
+  const handleCategoryChange = (category: string | null) => {
+    setSelectedCategory(category);
+  };
 
   if (loading) {
     return (
@@ -187,25 +237,70 @@ const AllProductsPage = () => {
       </div>
       
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProducts.length === 0 ? (
-            <div className="text-center col-span-full py-12">
-              <h3 className="text-xl font-medium mb-2">
-                {categoryParam 
-                  ? `No ${formatCategoryName(categoryParam)} products found`
-                  : "No products available"}
-              </h3>
-              <p className="text-gray-600">
-                {categoryParam 
-                  ? `We couldn't find any ${formatCategoryName(categoryParam)} products in our catalog. Please check back later!`
-                  : "We couldn't find any products in our catalog. Please check back later!"}
-              </p>
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Filters sidebar */}
+          <div className="w-full md:w-1/4">
+            <ProductFilters
+              priceRange={priceRange}
+              selectedBrands={selectedBrands}
+              selectedCategory={selectedCategory}
+              onPriceChange={handlePriceChange}
+              onBrandChange={handleBrandChange}
+              onCategoryChange={handleCategoryChange}
+              minMaxPrices={minMaxPrices}
+            />
+            
+            <div className="mt-8 p-4 bg-gray-100 rounded-lg border">
+              <h3 className="text-lg font-medium mb-2">Active Filters</h3>
+              <div className="space-y-2">
+                {selectedCategory && (
+                  <div className="flex items-center justify-between">
+                    <span>Category:</span>
+                    <span className="font-medium">{formatCategoryName(selectedCategory)}</span>
+                  </div>
+                )}
+                {(priceRange[0] > minMaxPrices[0] || priceRange[1] < minMaxPrices[1]) && (
+                  <div className="flex items-center justify-between">
+                    <span>Price:</span>
+                    <span className="font-medium">${priceRange[0]} - ${priceRange[1]}</span>
+                  </div>
+                )}
+                {selectedBrands.length > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span>Brands:</span>
+                    <span className="font-medium">{selectedBrands.length}</span>
+                  </div>
+                )}
+                {!selectedCategory && priceRange[0] === minMaxPrices[0] && priceRange[1] === minMaxPrices[1] && selectedBrands.length === 0 && (
+                  <div className="text-gray-500">No active filters</div>
+                )}
+              </div>
             </div>
-          ) : (
-            filteredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          )}
+          </div>
+          
+          {/* Product grid */}
+          <div className="w-full md:w-3/4">
+            {filteredProducts.length === 0 ? (
+              <div className="text-center py-12">
+                <h3 className="text-xl font-medium mb-2">
+                  {categoryParam 
+                    ? `No ${formatCategoryName(categoryParam)} products found`
+                    : "No products match your filters"}
+                </h3>
+                <p className="text-gray-600">
+                  {categoryParam 
+                    ? `We couldn't find any ${formatCategoryName(categoryParam)} products in our catalog. Please check back later!`
+                    : "Try adjusting your filters to find products."}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredProducts.map(product => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
