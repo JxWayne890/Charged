@@ -4,13 +4,6 @@ import { Link } from 'react-router-dom';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import { Button } from './ui/button';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
 
 interface FeaturedProductCarouselProps {
   products: Product[];
@@ -19,105 +12,102 @@ interface FeaturedProductCarouselProps {
 
 const FeaturedProductCarousel = ({
   products,
-  autoScrollInterval = 5000,
+  autoScrollInterval = 4000,
 }: FeaturedProductCarouselProps) => {
-  const [api, setApi] = useState<any>();
-  const [current, setCurrent] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
 
-  // Auto scroll effect
+  // Auto scroll effect with fade transition
   useEffect(() => {
-    if (!api) return;
+    if (!products || products.length === 0) return;
 
-    // Set up the interval for auto scrolling
     const interval = setInterval(() => {
-      api.scrollNext();
+      setIsVisible(false);
+      
+      setTimeout(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % products.length);
+        setIsVisible(true);
+      }, 300); // Half of the transition duration
     }, autoScrollInterval);
 
-    // Update current slide index when slide changes
-    const onSelect = () => {
-      setCurrent(api.selectedScrollSnap());
-    };
-    api.on('select', onSelect);
-
-    // Clean up
-    return () => {
-      clearInterval(interval);
-      api.off('select', onSelect);
-    };
-  }, [api, autoScrollInterval]);
+    return () => clearInterval(interval);
+  }, [products, autoScrollInterval]);
 
   if (!products || products.length === 0) return null;
 
+  const currentProduct = products[currentIndex];
+
   return (
-    <div className="bg-black text-white py-8 md:py-16">
-      <div className="container mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">Featured Products</h2>
+    <div className="bg-black text-white py-8">
+      <div className="container mx-auto px-4">
+        <h2 className="text-2xl font-bold text-center mb-6">Featured Products</h2>
         
-        <Carousel
-          setApi={setApi}
-          opts={{
-            align: 'center',
-            loop: true,
-          }}
-          className="w-full max-w-4xl mx-auto"
-        >
-          <CarouselContent>
-            {products.map((product, index) => (
-              <CarouselItem key={product.id} className="w-full flex justify-center">
-                <div className="w-full max-w-lg p-4 flex flex-col md:flex-row items-center gap-8">
-                  {/* Product Image */}
-                  <div className="w-full md:w-1/2 aspect-square relative overflow-hidden rounded-lg bg-gray-900">
-                    <img
-                      src={product.images[0]}
-                      alt={product.title}
-                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                    />
-                    {product.bestSeller && (
-                      <div className="absolute top-2 left-2 bg-primary text-white text-xs py-1 px-2 rounded">
-                        Best Seller
-                      </div>
-                    )}
+        <div className="max-w-2xl mx-auto">
+          <div 
+            className={`transition-opacity duration-600 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+          >
+            <div className="flex flex-col md:flex-row items-center gap-6 p-4">
+              {/* Product Image */}
+              <div className="w-full md:w-1/2 max-w-sm aspect-square relative overflow-hidden rounded-lg bg-gray-900">
+                <img
+                  src={currentProduct.images[0]}
+                  alt={currentProduct.title}
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                />
+                {currentProduct.bestSeller && (
+                  <div className="absolute top-2 left-2 bg-primary text-white text-xs py-1 px-2 rounded">
+                    Best Seller
                   </div>
-                  
-                  {/* Product Info */}
-                  <div className="w-full md:w-1/2 flex flex-col">
-                    <span className="text-sm text-gray-400 mb-1">{product.category}</span>
-                    <h3 className="text-xl font-bold mb-2">{product.title}</h3>
-                    
-                    <div className="flex items-center gap-2 mb-4">
-                      {product.salePrice ? (
-                        <>
-                          <span className="text-lg font-bold text-primary">{formatPrice(product.salePrice)}</span>
-                          <span className="text-sm line-through text-gray-400">{formatPrice(product.price)}</span>
-                        </>
-                      ) : (
-                        <span className="text-lg font-bold">{formatPrice(product.price)}</span>
-                      )}
-                    </div>
-                    
-                    <p className="mb-6 text-gray-300 line-clamp-3">{product.description}</p>
-                    
-                    <Button asChild className="mb-2 bg-primary hover:bg-primary-dark w-full md:w-auto">
-                      <Link to={`/product/${product.slug}`}>View Product</Link>
-                    </Button>
-                    
-                    <div className="mt-4 flex justify-center">
-                      {products.map((_, i) => (
-                        <span 
-                          key={i}
-                          className={`w-2 h-2 rounded-full mx-1 ${i === current ? 'bg-primary' : 'bg-gray-600'}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                )}
+              </div>
+              
+              {/* Product Info */}
+              <div className="w-full md:w-1/2 flex flex-col text-center md:text-left">
+                <span className="text-sm text-gray-400 mb-1">{currentProduct.category}</span>
+                <h3 className="text-xl font-bold mb-2 uppercase">{currentProduct.title}</h3>
+                
+                <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
+                  {currentProduct.salePrice ? (
+                    <>
+                      <span className="text-lg font-bold text-primary">{formatPrice(currentProduct.salePrice)}</span>
+                      <span className="text-sm line-through text-gray-400">{formatPrice(currentProduct.price)}</span>
+                    </>
+                  ) : (
+                    <span className="text-lg font-bold">{formatPrice(currentProduct.price)}</span>
+                  )}
                 </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
+                
+                <p className="mb-6 text-gray-300 line-clamp-3 text-sm">
+                  {currentProduct.description}
+                </p>
+                
+                <Button asChild className="bg-primary hover:bg-primary-dark w-full md:w-auto max-w-xs mx-auto md:mx-0">
+                  <Link to={`/product/${currentProduct.slug}`}>View Product</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
           
-          <CarouselPrevious className="left-2 md:left-8 bg-white/10 hover:bg-primary border-none text-white" />
-          <CarouselNext className="right-2 md:right-8 bg-white/10 hover:bg-primary border-none text-white" />
-        </Carousel>
+          {/* Dot Indicators */}
+          <div className="flex justify-center mt-6 space-x-2">
+            {products.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setIsVisible(false);
+                  setTimeout(() => {
+                    setCurrentIndex(index);
+                    setIsVisible(true);
+                  }, 300);
+                }}
+                className={`w-2 h-2 rounded-full transition-colors duration-200 ${
+                  index === currentIndex ? 'bg-primary' : 'bg-gray-600 hover:bg-gray-500'
+                }`}
+                aria-label={`Go to product ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
