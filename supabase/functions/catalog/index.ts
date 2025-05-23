@@ -1,3 +1,4 @@
+
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 
@@ -134,22 +135,25 @@ const categoryKeywordMap = {
   'dry-spell': ['dry-spell', 'off-cycle', 'natural gains', 'diuretic'],
 };
 
-// Validate image URL
-async function validateImageUrl(url: string): Promise<boolean> {
+// Simplified image URL validation that just checks format
+function isValidImageUrl(url) {
+  if (!url) return false;
+  
   try {
-    const response = await fetch(url, { method: 'HEAD' });
-    return response.ok && response.headers.get('content-type')?.startsWith('image/');
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
   } catch (error) {
-    console.error(`Failed to validate image URL ${url}:`, error);
+    console.error(`Invalid image URL format: ${url}`);
     return false;
   }
 }
 
-// Process and validate images
-async function processImages(imageIds: string[], squareObjects: any[], productName: string): Promise<string[]> {
+// Process and extract images
+function processImages(imageIds, squareObjects, productName) {
   console.log(`Processing images for "${productName}": ${imageIds.length} image IDs found`);
   
-  const images: string[] = [];
+  const images = [];
+  const imageDebugInfo = [];
   
   for (const id of imageIds) {
     const imgObj = squareObjects.find(
@@ -160,16 +164,18 @@ async function processImages(imageIds: string[], squareObjects: any[], productNa
       const imageUrl = imgObj.image_data.url;
       console.log(`Found image URL for "${productName}": ${imageUrl}`);
       
-      // Validate the image URL
-      const isValid = await validateImageUrl(imageUrl);
-      if (isValid) {
+      // Simple URL format validation
+      if (isValidImageUrl(imageUrl)) {
         images.push(imageUrl);
-        console.log(`✓ Valid image added for "${productName}": ${imageUrl}`);
+        imageDebugInfo.push({ status: 'added', url: imageUrl });
+        console.log(`✓ Image added for "${productName}": ${imageUrl}`);
       } else {
-        console.warn(`✗ Invalid image URL for "${productName}": ${imageUrl}`);
+        console.warn(`✗ Invalid image URL format for "${productName}": ${imageUrl}`);
+        imageDebugInfo.push({ status: 'invalid_format', url: imageUrl });
       }
     } else {
       console.warn(`Image object found but no URL for "${productName}", ID: ${id}`);
+      imageDebugInfo.push({ status: 'no_url', id });
     }
   }
   
@@ -177,14 +183,15 @@ async function processImages(imageIds: string[], squareObjects: any[], productNa
   if (images.length === 0) {
     console.warn(`No valid images found for "${productName}", using placeholder`);
     images.push('/placeholder.svg');
+    imageDebugInfo.push({ status: 'using_placeholder' });
   }
   
   console.log(`Final image count for "${productName}": ${images.length}`);
-  return images;
+  return { images, imageDebugInfo };
 }
 
 // Extract price from variation with better error handling
-function extractPrice(variation: any, productName: string): number {
+function extractPrice(variation, productName) {
   if (!variation) {
     console.warn(`No variation found for "${productName}"`);
     return 0;
@@ -428,6 +435,7 @@ async function transformToProducts(squareData, squareCategoryData) {
   console.log(`Processing ${items.length} valid items from Square`);
 
   const products = [];
+  const productsWithImageIssues = [];
 
   for (const item of items) {
     const productName = item.item_data.name;
@@ -440,9 +448,19 @@ async function transformToProducts(squareData, squareCategoryData) {
     // Extract price with better error handling
     const price = extractPrice(variation, productName);
 
-    // Process images with validation
+    // Process images with improved handling
     const imageIds = item.item_data.image_ids || [];
-    const images = await processImages(imageIds, squareData.objects, productName);
+    const { images, imageDebugInfo } = processImages(imageIds, squareData.objects, productName);
+    
+    // Track products with image issues for debugging
+    if (images.length === 1 && images[0] === '/placeholder.svg') {
+      productsWithImageIssues.push({
+        name: productName,
+        id: item.id,
+        imageIds,
+        debugInfo: imageDebugInfo
+      });
+    }
 
     const slug = item.item_data.name
       .toLowerCase()
@@ -476,10 +494,24 @@ async function transformToProducts(squareData, squareCategoryData) {
       directions: 'Follow package instructions',
       faqs: [],
       tags: [category],
+      _debug: {
+        imageIds,
+        imageDebugInfo
+      }
     };
 
     console.log(`✓ Product processed: "${productName}" - Price: $${price}, Images: ${images.length}, Category: ${category}`);
     products.push(product);
+  }
+
+  // Log products with image issues
+  if (productsWithImageIssues.length > 0) {
+    console.log(`\n==================\n${productsWithImageIssues.length} PRODUCTS WITH IMAGE ISSUES:\n==================`);
+    productsWithImageIssues.forEach(p => {
+      console.log(`- ${p.name} (ID: ${p.id}):`);
+      console.log(`  Image IDs: ${JSON.stringify(p.imageIds)}`);
+      console.log(`  Debug info: ${JSON.stringify(p.debugInfo)}`);
+    });
   }
 
   return products;
@@ -556,9 +588,12 @@ serve(async (req) => {
       productsWithPlaceholder.forEach(p => console.log(`- ${p.title}`));
     }
 
+    // Create a cleaned version of products for response (without debug info)
+    const cleanedProducts = products.map(({ _debug, ...product }) => product);
+
     console.log(`\n✅ Successfully processed ${products.length} products`);
 
-    return new Response(JSON.stringify(products), {
+    return new Response(JSON.stringify(cleanedProducts), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
