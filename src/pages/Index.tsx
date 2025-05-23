@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react';
 import HeroSection from '@/components/HeroSection';
 import ProductCarousel from '@/components/ProductCarousel';
 import ValueStrip from '@/components/ValueStrip';
-import { blogPosts } from '@/data/blog';
-import BlogPostCard from '@/components/BlogPostCard';
 import FeaturedProductCarousel from '@/components/FeaturedProductCarousel';
 import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
@@ -112,22 +110,6 @@ const Index = () => {
           <p className="text-center text-gray-600">No best sellers available at the moment. Check back soon!</p>
         </section>
       )}
-      
-      {/* Content Hub Teaser */}
-      <section className="container mx-auto px-4 py-12 bg-gray-50">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Latest Articles</h2>
-          <a href="/blog" className="text-primary hover:text-primary-dark text-sm font-medium transition">
-            View All
-          </a>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {blogPosts.slice(0, 3).map(post => (
-            <BlogPostCard key={post.id} post={post} />
-          ))}
-        </div>
-      </section>
       
       {/* Value Strip */}
       <ValueStrip />

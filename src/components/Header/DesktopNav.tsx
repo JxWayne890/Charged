@@ -56,15 +56,6 @@ const DesktopNav = () => {
               All Products
             </Link>
           </NavigationMenuItem>
-          
-          <NavigationMenuItem>
-            <Link 
-              to="/blog" 
-              className="font-medium text-white hover:text-primary transition-colors duration-200 px-4 py-2 inline-block"
-            >
-              Blog
-            </Link>
-          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
     </nav>

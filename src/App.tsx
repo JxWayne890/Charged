@@ -12,7 +12,6 @@ import Footer from "./components/Footer";
 import CartDrawer from "./components/CartDrawer";
 import NotFound from "./pages/NotFound";
 import AllProductsPage from "./pages/AllProductsPage";
-import BlogPage from "./pages/BlogPage";
 import AuthPage from "./pages/AuthPage";
 import AccountPage from "./pages/AccountPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
@@ -43,9 +42,6 @@ const App = () => (
                   {/* Products Pages */}
                   <Route path="/products" element={<AllProductsPage />} />
                   <Route path="/product/:slug" element={<ProductDetailPage />} />
-                  
-                  {/* Blog Page */}
-                  <Route path="/blog" element={<BlogPage />} />
                   
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />

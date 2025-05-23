@@ -14,7 +14,6 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { label: 'All Products', href: '/products' },
-  { label: 'Blog', href: '/blog' },
 ];
 
 const MobileNav = () => {
