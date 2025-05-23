@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { Home } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import ProductCard from '@/components/ProductCard';
 import ProductFilters from '@/components/ProductFilters';
 import { fetchSquareProducts } from '@/lib/square';
@@ -178,60 +176,11 @@ const AllProductsPage = () => {
     );
   }
 
-  // Get the primary category for display in breadcrumbs
+  // Get the primary category for display
   const primaryCategory = selectedCategories.length === 1 ? selectedCategories[0] : null;
 
   return (
     <div className="pt-24 pb-12">
-      <div className="bg-gradient-to-r from-gray-900 to-gray-700 py-16 mb-8">
-        <div className="container mx-auto px-4">
-          <Breadcrumb className="mb-4">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link to="/" className="flex items-center text-gray-300 hover:text-white">
-                    <Home className="h-4 w-4 mr-1" />
-                    Home
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="text-gray-400" />
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link to="/products" className="text-gray-300 hover:text-white">
-                    All Products
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              {primaryCategory && (
-                <>
-                  <BreadcrumbSeparator className="text-gray-400" />
-                  <BreadcrumbItem>
-                    <BreadcrumbLink className="text-white">
-                      {formatCategoryName(primaryCategory)}
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                </>
-              )}
-            </BreadcrumbList>
-          </Breadcrumb>
-          
-          <div className="flex items-center justify-between">
-            <h1 className="text-4xl font-bold text-white">
-              {primaryCategory ? formatCategoryName(primaryCategory) : 
-               selectedCategories.length > 1 ? "Selected Categories" : "All Products"}
-            </h1>
-          </div>
-          <p className="text-gray-300 max-w-2xl mb-4">
-            {primaryCategory 
-              ? `Browse our selection of ${formatCategoryName(primaryCategory)} supplements.`
-              : selectedCategories.length > 1
-                ? `Browse products in your selected categories.`
-                : "Browse our complete range of premium supplements to find exactly what you need."}
-          </p>
-        </div>
-      </div>
-      
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Filters sidebar */}
@@ -249,6 +198,11 @@ const AllProductsPage = () => {
           
           {/* Product grid */}
           <div className="w-full md:w-3/4">
+            <h1 className="text-2xl font-bold mb-6">
+              {primaryCategory ? formatCategoryName(primaryCategory) : 
+               selectedCategories.length > 1 ? "Selected Categories" : "All Products"}
+            </h1>
+            
             {filteredProducts.length === 0 ? (
               <div className="text-center py-12">
                 <h3 className="text-xl font-medium mb-2">
