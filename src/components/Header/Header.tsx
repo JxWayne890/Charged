@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Logo from './Logo';
 import DesktopNav from './DesktopNav';
 import MobileNav from './MobileNav';
@@ -12,6 +13,11 @@ import { useAuth } from '@/context/AuthContext';
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useAuth();
+  const location = useLocation();
+  
+  // Check if current page is a product or category page
+  const isProductOrCategoryPage = location.pathname.includes('/product/') || 
+                                 location.pathname.includes('/products');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,7 +38,11 @@ const Header = () => {
   return (
     <header 
       className={`fixed top-0 z-40 w-full transition-all duration-300 ${
-        isScrolled ? 'bg-black/90 backdrop-blur-sm py-1 shadow-lg' : 'bg-transparent py-2'
+        isProductOrCategoryPage 
+          ? 'bg-black py-1 shadow-lg' // Always black on product/category pages
+          : isScrolled 
+            ? 'bg-black/90 backdrop-blur-sm py-1 shadow-lg' 
+            : 'bg-transparent py-2'
       }`}
     >
       <div className="container mx-auto px-4">

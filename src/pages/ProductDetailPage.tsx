@@ -3,9 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/utils';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Home, Package } from 'lucide-react';
+import { Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -95,40 +94,6 @@ const ProductDetailPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-12 pt-32">
-      {/* Enhanced Breadcrumbs with better styling */}
-      <div className="bg-black/80 backdrop-blur-sm rounded-lg px-4 py-3 mb-8">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to="/" className="flex items-center">
-                  <Home className="h-4 w-4 mr-1" />
-                  <span>Home</span>
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to="/products">Products</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to={`/category/${product.category.toLowerCase().replace(/ /g, '-')}`} className="capitalize">
-                  {product.category}
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>{product.title}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
-
       {/* Product Overview Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
         {/* Product Images */}
