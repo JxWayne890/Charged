@@ -90,6 +90,25 @@ const Footer = () => {
           </div>
         </div>
         
+        {/* Provider's System Attribution */}
+        <div className="border-t border-gray-200 pt-6 mb-6">
+          <div className="flex justify-center">
+            <a 
+              href="https://providersystems.netlify.app/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <span className="text-sm mr-2">This site created by</span>
+              <img 
+                src="/lovable-uploads/7b61b93e-56d7-4364-a69f-91bdf111a0ad.png" 
+                alt="The Provider's System" 
+                className="h-6 w-auto"
+              />
+            </a>
+          </div>
+        </div>
+        
         {/* Bottom */}
         <div className="border-t border-gray-200 pt-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
