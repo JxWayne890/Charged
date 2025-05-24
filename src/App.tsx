@@ -14,8 +14,6 @@ import AccountPage from '@/pages/AccountPage';
 import BlogPage from '@/pages/BlogPage';
 import NotFound from '@/pages/NotFound';
 
-import CacheStatus from '@/components/CacheStatus';
-
 const queryClient = new QueryClient();
 
 function App() {
@@ -37,7 +35,6 @@ function App() {
               </Routes>
               <Footer />
               <Toaster />
-              <CacheStatus />
             </div>
           </CartProvider>
         </AuthProvider>
