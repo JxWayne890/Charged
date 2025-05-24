@@ -280,21 +280,7 @@ const ProductDetailPage = () => {
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-3">
               <div className="prose max-w-none">
-                <p className="text-gray-700 mb-4">{product.description}</p>
-                
-                {product.benefits && product.benefits.length > 0 && (
-                  <>
-                    <h4 className="text-base font-semibold mb-3 text-black">Key Benefits</h4>
-                    <ul className="space-y-2">
-                      {product.benefits.map((benefit, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="text-primary mr-2 mt-1">✓</span>
-                          <span className="text-gray-700">{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                )}
+                <p className="text-gray-700">{product.description}</p>
               </div>
             </AccordionContent>
           </AccordionItem>
