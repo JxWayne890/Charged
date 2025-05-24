@@ -1,8 +1,9 @@
+
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { CartProvider } from '@/context/CartContext';
-import Header from '@/components/Header';
+import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';
 import Index from '@/pages/Index';
 import AllProductsPage from '@/pages/AllProductsPage';
