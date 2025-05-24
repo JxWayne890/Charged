@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import { Button } from './ui/button';
+import ProductImage from './ProductImage';
 
 interface FeaturedProductCarouselProps {
   products: Product[];
@@ -53,10 +54,11 @@ const FeaturedProductCarousel = ({
             <div className="flex flex-col md:flex-row items-center gap-4 p-3">
               {/* Product Image */}
               <div className="w-full md:w-1/2 max-w-xs aspect-square relative overflow-hidden rounded-lg bg-gray-900">
-                <img
+                <ProductImage
                   src={currentProduct.images[0]}
                   alt={currentProduct.title}
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  width={400} // Optimized for featured display
                 />
                 {currentProduct.bestSeller && (
                   <div className="absolute top-2 left-2 bg-primary text-white text-xs py-1 px-2 rounded">

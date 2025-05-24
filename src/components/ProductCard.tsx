@@ -55,6 +55,7 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
             alt={product.title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             onError={handleImageError}
+            width={400} // Optimized for card display
           />
           
           {product.bestSeller && (

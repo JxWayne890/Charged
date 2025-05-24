@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '@/components/ProductCard';
@@ -5,6 +6,10 @@ import ProductFilters from '@/components/ProductFilters';
 import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
 import { toast } from "@/components/ui/use-toast";
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
+const PRODUCTS_PER_PAGE = 12;
 
 const AllProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -12,6 +17,8 @@ const AllProductsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [currentPage, setCurrentPage] = useState(1);
+  
   const categoryParam = searchParams.get('category')?.toLowerCase();
   
   // Filter states
@@ -69,7 +76,7 @@ const AllProductsPage = () => {
     }
   }, [categoryParam]);
   
-  // Apply all filters
+  // Apply all filters and reset to page 1 when filters change
   useEffect(() => {
     if (!products.length) {
       return;
@@ -106,6 +113,7 @@ const AllProductsPage = () => {
     }
     
     setFilteredProducts(result);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [products, selectedCategories, priceRange, selectedBrands]);
 
   // Format category name for display (e.g., "pre-workout" to "Pre Workout")
@@ -149,6 +157,17 @@ const AllProductsPage = () => {
   
   const handleCategoryChange = (categories: string[]) => {
     setSelectedCategories(categories);
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  const endIndex = startIndex + PRODUCTS_PER_PAGE;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (loading) {
@@ -198,10 +217,17 @@ const AllProductsPage = () => {
           
           {/* Product grid */}
           <div className="w-full md:w-3/4">
-            <h1 className="text-2xl font-bold mb-6">
-              {primaryCategory ? formatCategoryName(primaryCategory) : 
-               selectedCategories.length > 1 ? "Selected Categories" : "All Products"}
-            </h1>
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold">
+                {primaryCategory ? formatCategoryName(primaryCategory) : 
+                 selectedCategories.length > 1 ? "Selected Categories" : "All Products"}
+              </h1>
+              {filteredProducts.length > 0 && (
+                <p className="text-gray-600">
+                  Showing {startIndex + 1}-{Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length} products
+                </p>
+              )}
+            </div>
             
             {filteredProducts.length === 0 ? (
               <div className="text-center py-12">
@@ -217,11 +243,52 @@ const AllProductsPage = () => {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {filteredProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                  {currentProducts.map(product => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      Previous
+                    </Button>
+                    
+                    <div className="flex space-x-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(page)}
+                          className="min-w-[40px]"
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

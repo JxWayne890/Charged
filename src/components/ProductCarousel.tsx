@@ -45,6 +45,9 @@ const ProductCarousel = ({ title, products, viewAllLink }: ProductCarouselProps)
     }
   };
 
+  // Limit products to prevent rendering too many at once
+  const displayProducts = products.slice(0, 12);
+
   return (
     <div className="relative">
       <div className="flex justify-between items-center mb-4">
@@ -74,7 +77,7 @@ const ProductCarousel = ({ title, products, viewAllLink }: ProductCarouselProps)
           className="flex overflow-x-auto scrollbar-none gap-4 pb-2"
           style={{ scrollSnapType: 'x mandatory' }}
         >
-          {products.map((product) => (
+          {displayProducts.map((product) => (
             <div
               key={product.id}
               className="min-w-[240px] max-w-[240px] md:min-w-[260px] md:max-w-[260px] snap-start"
