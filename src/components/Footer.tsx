@@ -1,10 +1,7 @@
-
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
-
 const Footer = () => {
-  return (
-    <footer className="bg-gray-100 pt-12 pb-6">
+  return <footer className="bg-gray-100 pt-12 pb-6">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Newsletter Signup */}
@@ -12,16 +9,8 @@ const Footer = () => {
             <h3 className="text-lg mb-4">JOIN OUR NEWSLETTER</h3>
             <p className="text-gray-600 mb-4">Get 10% off your first order and stay updated on new products and promotions.</p>
             <form className="flex flex-col sm:flex-row gap-2">
-              <input 
-                type="email" 
-                placeholder="Your email" 
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                required
-              />
-              <button 
-                type="submit" 
-                className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition duration-200 btn-hover-effect"
-              >
+              <input type="email" placeholder="Your email" className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required />
+              <button type="submit" className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition duration-200 btn-hover-effect">
                 Subscribe
               </button>
             </form>
@@ -93,18 +82,9 @@ const Footer = () => {
         {/* Provider's System Attribution */}
         <div className="border-t border-gray-200 pt-6 mb-6">
           <div className="flex justify-center">
-            <a 
-              href="https://providersystems.netlify.app/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center text-gray-500 hover:text-gray-700 transition-colors"
-            >
+            <a href="https://providersystems.netlify.app/" target="_blank" rel="noopener noreferrer" className="flex items-center text-gray-500 hover:text-gray-700 transition-colors">
               <span className="text-sm mr-2">This site created by</span>
-              <img 
-                src="/lovable-uploads/7b61b93e-56d7-4364-a69f-91bdf111a0ad.png" 
-                alt="The Provider's System" 
-                className="h-6 w-auto"
-              />
+              <img src="/lovable-uploads/7b61b93e-56d7-4364-a69f-91bdf111a0ad.png" alt="The Provider's System" className="h-24 w-auto object-cover" />
             </a>
           </div>
         </div>
@@ -113,11 +93,7 @@ const Footer = () => {
         <div className="border-t border-gray-200 pt-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-4 md:mb-0">
-              <img 
-                src="/lovable-uploads/bc24b7f2-3784-4277-be96-81767ce6d068.png" 
-                alt="Charged Up Nutrition" 
-                className="h-8 w-auto mr-2"
-              />
+              <img src="/lovable-uploads/bc24b7f2-3784-4277-be96-81767ce6d068.png" alt="Charged Up Nutrition" className="h-8 w-auto mr-2" />
               <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} Charged Up Nutrition. All rights reserved.</p>
             </div>
             <div className="flex space-x-4">
@@ -137,8 +113,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
