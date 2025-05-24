@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchProductBySlug } from '@/lib/square';
@@ -31,6 +30,11 @@ const ProductDetailPage = () => {
   const [isSubscription, setIsSubscription] = useState<boolean>(false);
   const { addToCart } = useCart();
   const { toast } = useToast();
+
+  // Scroll to top when component mounts or slug changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
 
   useEffect(() => {
     const loadProduct = async () => {
