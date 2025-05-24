@@ -178,7 +178,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                       htmlFor={`category-${category.slug}`}
                       className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                     >
-                      {category.name} ({category.slug === 'pre-workout' ? '29' : '2'})
+                      {category.name}
                     </label>
                   </div>
                 ))}
@@ -203,7 +203,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
                       htmlFor={`brand-${brand}`}
                       className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                     >
-                      {brand} ({brand === 'Bucked Up' ? '42' : '3'})
+                      {brand}
                     </label>
                   </div>
                 ))}
