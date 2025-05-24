@@ -219,7 +219,7 @@ async function validateImageUrl(url, productName) {
     // Test if image is accessible with a shorter timeout
     const response = await fetch(url, { 
       method: 'HEAD',
-      signal: AbortSignal.timeout(3000) // Reduced to 3 seconds
+      signal: AbortSignal.timeout(3000) // 3 seconds timeout
     });
     
     if (!response.ok) {
@@ -243,16 +243,83 @@ async function validateImageUrl(url, productName) {
 }
 
 /**
- * Processes images from Square API with comprehensive error handling
+ * Fetches all catalog data from Square API with full pagination support
  */
-async function processProductImages(item, squareData) {
+async function fetchAllSquareData() {
+  console.log('🔄 Fetching ALL products and images from Square API with pagination...');
+  
+  let allObjects = [];
+  let cursor = null;
+  let pageCount = 0;
+  
+  try {
+    do {
+      pageCount++;
+      const url = `https://connect.squareup.com/v2/catalog/list?types=ITEM,IMAGE&location_id=LAP5AV1E9Z15S${cursor ? `&cursor=${cursor}` : ''}`;
+      
+      console.log(`📄 Fetching page ${pageCount}${cursor ? ` with cursor: ${cursor.substring(0, 10)}...` : ' (first page)'}`);
+      
+      const squareRes = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${Deno.env.get('SQUARE_ACCESS_TOKEN')}`,
+          Accept: 'application/json',
+        },
+      });
+
+      if (!squareRes.ok) {
+        const errorText = await squareRes.text();
+        throw new Error(`Square API error (${squareRes.status}): ${errorText}`);
+      }
+
+      const squareData = await squareRes.json();
+      
+      if (!squareData.objects || !Array.isArray(squareData.objects)) {
+        console.warn(`⚠️ Page ${pageCount} returned no objects or invalid format`);
+        break;
+      }
+      
+      allObjects.push(...squareData.objects);
+      cursor = squareData.cursor;
+      
+      console.log(`✅ Page ${pageCount}: Found ${squareData.objects.length} objects. Total so far: ${allObjects.length}`);
+      
+      // Safety check to prevent infinite loops
+      if (pageCount > 50) {
+        console.error('🚨 Too many pages fetched, breaking to prevent infinite loop');
+        break;
+      }
+      
+    } while (cursor);
+    
+    console.log(`🎉 Pagination complete! Fetched ${pageCount} pages with ${allObjects.length} total objects`);
+    
+    // Analyze the complete dataset
+    const objectTypes = {};
+    allObjects.forEach(obj => {
+      objectTypes[obj.type] = (objectTypes[obj.type] || 0) + 1;
+    });
+    
+    console.log(`📊 Complete dataset analysis:`, JSON.stringify(objectTypes));
+    
+    return { objects: allObjects };
+    
+  } catch (error) {
+    console.error('❌ Error during pagination:', error);
+    throw error;
+  }
+}
+
+/**
+ * Processes images from Square API with improved mapping
+ */
+async function processProductImages(item, imageMap) {
   const productName = item.item_data.name;
   const imageIds = item.item_data.image_ids || [];
   const validImages = [];
   
   console.log(`🖼️ Processing images for: ${productName}`);
   console.log(`📋 Image IDs from Square: ${JSON.stringify(imageIds)}`);
-  console.log(`📊 Total objects in Square response: ${squareData.objects?.length || 0}`);
 
   if (imageIds.length === 0) {
     console.log(`❌ No image IDs found for product: ${productName}`);
@@ -260,43 +327,14 @@ async function processProductImages(item, squareData) {
     return validImages;
   }
 
-  // Log all available image objects for debugging
-  const allImageObjects = squareData.objects?.filter(obj => obj.type === 'IMAGE') || [];
-  console.log(`🗂️ Available image objects in response: ${allImageObjects.length}`);
-  
-  // Log the first few image object IDs for comparison
-  if (allImageObjects.length > 0) {
-    const availableImageIds = allImageObjects.slice(0, 5).map(img => img.id);
-    console.log(`🔍 Sample available image IDs: ${JSON.stringify(availableImageIds)}`);
-  }
-
-  // Process each image ID
+  // Process each image ID using the imageMap
   for (const imageId of imageIds) {
     console.log(`🔍 Looking for image ID: ${imageId} for product: ${productName}`);
     
-    const imgObj = squareData.objects?.find(
-      (obj) => obj.id === imageId && obj.type === 'IMAGE'
-    );
+    const imgObj = imageMap.get(imageId);
 
     if (!imgObj) {
       console.error(`❌ Image object not found for ID: ${imageId} in product: ${productName}`);
-      
-      // Try to find any image object that might be related (fallback strategy)
-      const anyImageForProduct = allImageObjects.find(img => 
-        img.image_data?.caption?.toLowerCase().includes(productName.toLowerCase().split(' ')[0])
-      );
-      
-      if (anyImageForProduct) {
-        console.log(`🔄 Found potential fallback image for ${productName}: ${anyImageForProduct.id}`);
-        const imageUrl = anyImageForProduct.image_data?.url;
-        if (imageUrl) {
-          const validUrl = await validateImageUrl(imageUrl, productName);
-          if (validUrl) {
-            validImages.push(validUrl);
-            continue;
-          }
-        }
-      }
       continue;
     }
 
@@ -304,8 +342,7 @@ async function processProductImages(item, squareData) {
       id: imgObj.id,
       type: imgObj.type,
       has_image_data: !!imgObj.image_data,
-      url: imgObj.image_data?.url ? 'HAS_URL' : 'NO_URL',
-      caption: imgObj.image_data?.caption || 'NO_CAPTION'
+      url: imgObj.image_data?.url ? 'HAS_URL' : 'NO_URL'
     }));
 
     const imageUrl = imgObj.image_data?.url;
@@ -330,72 +367,6 @@ async function processProductImages(item, squareData) {
   }
 
   return validImages;
-}
-
-/**
- * Fetches product data from Square API with improved error handling
- */
-async function fetchSquareData() {
-  console.log('🔄 Fetching products from Square API...');
-  
-  try {
-    const squareRes = await fetch(
-      'https://connect.squareup.com/v2/catalog/list?types=ITEM,IMAGE&location_id=LAP5AV1E9Z15S',
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${Deno.env.get('SQUARE_ACCESS_TOKEN')}`,
-          Accept: 'application/json',
-        },
-      }
-    );
-
-    if (!squareRes.ok) {
-      const errorText = await squareRes.text();
-      throw new Error(`Square API error (${squareRes.status}): ${errorText}`);
-    }
-
-    const squareData = await squareRes.json();
-    
-    console.log(`📊 Square API Response Summary:`);
-    console.log(`- Total objects: ${squareData.objects?.length || 0}`);
-    console.log(`- Has objects array: ${!!squareData.objects}`);
-    
-    if (!squareData.objects || !Array.isArray(squareData.objects)) {
-      throw new Error('Invalid or empty response from Square API - missing objects array');
-    }
-
-    // Analyze the response structure
-    const objectTypes = {};
-    squareData.objects.forEach(obj => {
-      objectTypes[obj.type] = (objectTypes[obj.type] || 0) + 1;
-    });
-    
-    console.log(`📋 Object types in response:`, JSON.stringify(objectTypes));
-    
-    // Log detailed info about image objects
-    const imageObjects = squareData.objects.filter(obj => obj.type === 'IMAGE');
-    console.log(`🖼️ Found ${imageObjects.length} image objects in Square response`);
-    
-    if (imageObjects.length > 0) {
-      // Log structure of first few image objects
-      const sampleImages = imageObjects.slice(0, 3).map(img => ({
-        id: img.id,
-        type: img.type,
-        has_image_data: !!img.image_data,
-        url: img.image_data?.url ? 'HAS_URL' : 'NO_URL',
-        caption: img.image_data?.caption || 'NO_CAPTION'
-      }));
-      console.log('🔍 Sample image objects structure:', JSON.stringify(sampleImages, null, 2));
-    } else {
-      console.error('❌ No IMAGE objects found in Square API response!');
-    }
-    
-    return squareData;
-  } catch (error) {
-    console.error('❌ Error fetching Square data:', error);
-    throw error;
-  }
 }
 
 /**
@@ -523,7 +494,15 @@ async function transformToProducts(squareData, squareCategoryData) {
       item.item_data.name !== 'Training session (example service)'
   );
 
-  console.log(`Processing ${items.length} items for transformation`);
+  // Build image lookup map from all image objects
+  const imageMap = new Map();
+  squareData.objects
+    .filter(obj => obj.type === 'IMAGE')
+    .forEach(img => {
+      imageMap.set(img.id, img);
+    });
+
+  console.log(`📊 Built image lookup map with ${imageMap.size} images for ${items.length} products`);
 
   for (const item of items) {
     const variation =
@@ -534,8 +513,8 @@ async function transformToProducts(squareData, squareCategoryData) {
     const priceInCents =
       variation?.item_variation_data?.price_money?.amount ?? 0;
 
-    // Process images with comprehensive error handling
-    const images = await processProductImages(item, squareData);
+    // Process images using the imageMap
+    const images = await processProductImages(item, imageMap);
 
     const slug = item.item_data.name
       .toLowerCase()
@@ -616,7 +595,7 @@ function logCategoryDistribution(products) {
  * Logs image statistics for debugging
  */
 function logImageStatistics(products) {
-  console.log('=== IMAGE STATISTICS ===');
+  console.log('=== FINAL IMAGE STATISTICS ===');
   
   const imageStats = {
     totalProducts: products.length,
@@ -624,7 +603,8 @@ function logImageStatistics(products) {
     productsWithRealImages: 0,
     totalImages: 0,
     placeholderImages: 0,
-    realImages: 0
+    realImages: 0,
+    failedImageIds: []
   };
 
   products.forEach(product => {
@@ -645,8 +625,12 @@ function logImageStatistics(products) {
     imageStats.realImages += product.images.filter(img => !img.includes('placeholder.svg')).length;
   });
 
-  console.log('Image Statistics:', JSON.stringify(imageStats, null, 2));
-  console.log(`Success Rate: ${((imageStats.productsWithRealImages / imageStats.totalProducts) * 100).toFixed(2)}%`);
+  console.log('📊 Final Image Statistics:', JSON.stringify(imageStats, null, 2));
+  console.log(`🎯 Success Rate: ${((imageStats.productsWithRealImages / imageStats.totalProducts) * 100).toFixed(2)}%`);
+  
+  if (imageStats.productsWithPlaceholder > 0) {
+    console.log(`⚠️ ${imageStats.productsWithPlaceholder} products still using placeholder images`);
+  }
 }
 
 /**
@@ -658,7 +642,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 === STARTING CATALOG FETCH ===');
+    console.log('🚀 === STARTING CATALOG FETCH WITH FULL PAGINATION ===');
     const startTime = Date.now();
     
     // Create Supabase client
@@ -666,26 +650,26 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Fetch data from Square API
-    console.log('📡 Step 1: Fetching Square data...');
-    const squareData = await fetchSquareData();
+    // Fetch ALL data from Square API with pagination
+    console.log('📡 Step 1: Fetching ALL Square data with pagination...');
+    const squareData = await fetchAllSquareData();
     
     // Fetch Square categories
     console.log('📂 Step 2: Fetching Square categories...');
     const squareCategoryData = await fetchSquareCategories();
     
     // Transform to products
-    console.log('🔄 Step 3: Transforming products...');
+    console.log('🔄 Step 3: Transforming products with proper image mapping...');
     const products = await transformToProducts(squareData, squareCategoryData);
     
     // Log statistics
-    console.log('📊 Step 4: Logging statistics...');
+    console.log('📊 Step 4: Logging final statistics...');
     logCategoryDistribution(products);
     logImageStatistics(products);
 
     const endTime = Date.now();
     console.log(`⏱️ Total processing time: ${endTime - startTime}ms`);
-    console.log('✅ === CATALOG FETCH COMPLETED ===');
+    console.log('✅ === CATALOG FETCH WITH PAGINATION COMPLETED ===');
 
     return new Response(JSON.stringify(products), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
