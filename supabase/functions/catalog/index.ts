@@ -207,37 +207,37 @@ async function validateImageUrl(url, productName) {
   }
 
   try {
-    console.log(`Validating image URL for ${productName}: ${url}`);
+    console.log(`🔍 Validating image URL for ${productName}: ${url}`);
     
     // Check if URL is properly formatted
     const urlObj = new URL(url);
     if (!urlObj.protocol.startsWith('http')) {
-      console.error(`Invalid protocol for image URL: ${url}`);
+      console.error(`❌ Invalid protocol for image URL: ${url}`);
       return null;
     }
 
-    // Test if image is accessible
+    // Test if image is accessible with a shorter timeout
     const response = await fetch(url, { 
       method: 'HEAD',
-      signal: AbortSignal.timeout(5000) // 5 second timeout
+      signal: AbortSignal.timeout(3000) // Reduced to 3 seconds
     });
     
     if (!response.ok) {
-      console.error(`Image URL not accessible (${response.status}): ${url}`);
+      console.error(`❌ Image URL not accessible (${response.status}): ${url}`);
       return null;
     }
 
     // Check if it's actually an image
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.startsWith('image/')) {
-      console.error(`URL does not point to an image (${contentType}): ${url}`);
+      console.error(`❌ URL does not point to an image (${contentType}): ${url}`);
       return null;
     }
 
-    console.log(`✅ Valid image found for ${productName}: ${url}`);
+    console.log(`✅ Valid image confirmed for ${productName}: ${url}`);
     return url;
   } catch (error) {
-    console.error(`Error validating image URL for ${productName}: ${error.message}`);
+    console.error(`❌ Error validating image URL for ${productName}: ${error.message}`);
     return null;
   }
 }
@@ -250,8 +250,9 @@ async function processProductImages(item, squareData) {
   const imageIds = item.item_data.image_ids || [];
   const validImages = [];
   
-  console.log(`Processing images for product: ${productName}`);
-  console.log(`Image IDs from Square: ${JSON.stringify(imageIds)}`);
+  console.log(`🖼️ Processing images for: ${productName}`);
+  console.log(`📋 Image IDs from Square: ${JSON.stringify(imageIds)}`);
+  console.log(`📊 Total objects in Square response: ${squareData.objects?.length || 0}`);
 
   if (imageIds.length === 0) {
     console.log(`❌ No image IDs found for product: ${productName}`);
@@ -259,26 +260,52 @@ async function processProductImages(item, squareData) {
     return validImages;
   }
 
+  // Log all available image objects for debugging
+  const allImageObjects = squareData.objects?.filter(obj => obj.type === 'IMAGE') || [];
+  console.log(`🗂️ Available image objects in response: ${allImageObjects.length}`);
+  
+  // Log the first few image object IDs for comparison
+  if (allImageObjects.length > 0) {
+    const availableImageIds = allImageObjects.slice(0, 5).map(img => img.id);
+    console.log(`🔍 Sample available image IDs: ${JSON.stringify(availableImageIds)}`);
+  }
+
   // Process each image ID
   for (const imageId of imageIds) {
-    console.log(`Processing image ID: ${imageId} for product: ${productName}`);
+    console.log(`🔍 Looking for image ID: ${imageId} for product: ${productName}`);
     
-    const imgObj = squareData.objects.find(
+    const imgObj = squareData.objects?.find(
       (obj) => obj.id === imageId && obj.type === 'IMAGE'
     );
 
     if (!imgObj) {
       console.error(`❌ Image object not found for ID: ${imageId} in product: ${productName}`);
+      
+      // Try to find any image object that might be related (fallback strategy)
+      const anyImageForProduct = allImageObjects.find(img => 
+        img.image_data?.caption?.toLowerCase().includes(productName.toLowerCase().split(' ')[0])
+      );
+      
+      if (anyImageForProduct) {
+        console.log(`🔄 Found potential fallback image for ${productName}: ${anyImageForProduct.id}`);
+        const imageUrl = anyImageForProduct.image_data?.url;
+        if (imageUrl) {
+          const validUrl = await validateImageUrl(imageUrl, productName);
+          if (validUrl) {
+            validImages.push(validUrl);
+            continue;
+          }
+        }
+      }
       continue;
     }
 
-    console.log(`Found image object for ${productName}:`, JSON.stringify({
+    console.log(`✅ Found image object for ${productName}:`, JSON.stringify({
       id: imgObj.id,
       type: imgObj.type,
-      image_data: imgObj.image_data ? {
-        url: imgObj.image_data.url,
-        caption: imgObj.image_data.caption
-      } : 'No image_data'
+      has_image_data: !!imgObj.image_data,
+      url: imgObj.image_data?.url ? 'HAS_URL' : 'NO_URL',
+      caption: imgObj.image_data?.caption || 'NO_CAPTION'
     }));
 
     const imageUrl = imgObj.image_data?.url;
@@ -299,57 +326,76 @@ async function processProductImages(item, squareData) {
     console.log(`❌ No valid images found for product: ${productName}, using placeholder`);
     validImages.push('/placeholder.svg');
   } else {
-    console.log(`✅ Found ${validImages.length} valid images for product: ${productName}`);
+    console.log(`✅ Successfully found ${validImages.length} valid images for product: ${productName}`);
   }
 
   return validImages;
 }
 
 /**
- * Fetches product data from Square API
+ * Fetches product data from Square API with improved error handling
  */
 async function fetchSquareData() {
-  console.log('Fetching products from Square API');
-  const squareRes = await fetch(
-    'https://connect.squareup.com/v2/catalog/list?types=ITEM,IMAGE&location_id=LAP5AV1E9Z15S',
-    {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${Deno.env.get('SQUARE_ACCESS_TOKEN')}`,
-        Accept: 'application/json',
-      },
+  console.log('🔄 Fetching products from Square API...');
+  
+  try {
+    const squareRes = await fetch(
+      'https://connect.squareup.com/v2/catalog/list?types=ITEM,IMAGE&location_id=LAP5AV1E9Z15S',
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${Deno.env.get('SQUARE_ACCESS_TOKEN')}`,
+          Accept: 'application/json',
+        },
+      }
+    );
+
+    if (!squareRes.ok) {
+      const errorText = await squareRes.text();
+      throw new Error(`Square API error (${squareRes.status}): ${errorText}`);
     }
-  );
 
-  if (!squareRes.ok) {
-    const errorText = await squareRes.text();
-    throw new Error(`Square API error (${squareRes.status}): ${errorText}`);
-  }
+    const squareData = await squareRes.json();
+    
+    console.log(`📊 Square API Response Summary:`);
+    console.log(`- Total objects: ${squareData.objects?.length || 0}`);
+    console.log(`- Has objects array: ${!!squareData.objects}`);
+    
+    if (!squareData.objects || !Array.isArray(squareData.objects)) {
+      throw new Error('Invalid or empty response from Square API - missing objects array');
+    }
 
-  const squareData = await squareRes.json();
-  if (!squareData.objects) {
-    throw new Error('Invalid or empty response from Square API');
+    // Analyze the response structure
+    const objectTypes = {};
+    squareData.objects.forEach(obj => {
+      objectTypes[obj.type] = (objectTypes[obj.type] || 0) + 1;
+    });
+    
+    console.log(`📋 Object types in response:`, JSON.stringify(objectTypes));
+    
+    // Log detailed info about image objects
+    const imageObjects = squareData.objects.filter(obj => obj.type === 'IMAGE');
+    console.log(`🖼️ Found ${imageObjects.length} image objects in Square response`);
+    
+    if (imageObjects.length > 0) {
+      // Log structure of first few image objects
+      const sampleImages = imageObjects.slice(0, 3).map(img => ({
+        id: img.id,
+        type: img.type,
+        has_image_data: !!img.image_data,
+        url: img.image_data?.url ? 'HAS_URL' : 'NO_URL',
+        caption: img.image_data?.caption || 'NO_CAPTION'
+      }));
+      console.log('🔍 Sample image objects structure:', JSON.stringify(sampleImages, null, 2));
+    } else {
+      console.error('❌ No IMAGE objects found in Square API response!');
+    }
+    
+    return squareData;
+  } catch (error) {
+    console.error('❌ Error fetching Square data:', error);
+    throw error;
   }
-
-  console.log(`Fetched ${squareData.objects.length} objects from Square API`);
-  
-  // Log image objects for debugging
-  const imageObjects = squareData.objects.filter(obj => obj.type === 'IMAGE');
-  console.log(`Found ${imageObjects.length} image objects in Square response`);
-  
-  // Log a sample of image objects
-  if (imageObjects.length > 0) {
-    console.log('Sample image objects:', JSON.stringify(imageObjects.slice(0, 3).map(img => ({
-      id: img.id,
-      type: img.type,
-      image_data: img.image_data ? {
-        url: img.image_data.url,
-        caption: img.image_data.caption
-      } : 'No image_data'
-    })), null, 2));
-  }
-  
-  return squareData;
 }
 
 /**
@@ -612,7 +658,8 @@ serve(async (req) => {
   }
 
   try {
-    console.log('=== STARTING CATALOG FETCH ===');
+    console.log('🚀 === STARTING CATALOG FETCH ===');
+    const startTime = Date.now();
     
     // Create Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -620,35 +667,38 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     
     // Fetch data from Square API
-    console.log('Step 1: Fetching Square data...');
+    console.log('📡 Step 1: Fetching Square data...');
     const squareData = await fetchSquareData();
     
     // Fetch Square categories
-    console.log('Step 2: Fetching Square categories...');
+    console.log('📂 Step 2: Fetching Square categories...');
     const squareCategoryData = await fetchSquareCategories();
     
     // Transform to products
-    console.log('Step 3: Transforming products...');
+    console.log('🔄 Step 3: Transforming products...');
     const products = await transformToProducts(squareData, squareCategoryData);
     
     // Log statistics
-    console.log('Step 4: Logging statistics...');
+    console.log('📊 Step 4: Logging statistics...');
     logCategoryDistribution(products);
     logImageStatistics(products);
 
-    console.log('=== CATALOG FETCH COMPLETED ===');
+    const endTime = Date.now();
+    console.log(`⏱️ Total processing time: ${endTime - startTime}ms`);
+    console.log('✅ === CATALOG FETCH COMPLETED ===');
 
     return new Response(JSON.stringify(products), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
   } catch (err) {
-    console.error('Error processing request:', err);
+    console.error('💥 Error processing request:', err);
     
     return new Response(
       JSON.stringify({ 
         error: 'Failed to fetch Square Catalog', 
-        details: err.message 
+        details: err.message,
+        timestamp: new Date().toISOString()
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -36,74 +36,78 @@ export async function fetchSquareProducts(): Promise<Product[]> {
     
     console.log(`✅ Successfully fetched ${data.length} products`);
     
-    // Log image success/failure statistics
-    let productsWithImages = 0;
+    // Enhanced image analysis
+    let productsWithRealImages = 0;
     let productsWithPlaceholders = 0;
     let totalImages = 0;
     let placeholderImages = 0;
+    let realImages = 0;
+    const problemProducts = [];
     
     data.forEach(product => {
-      const hasRealImages = product.images.some(img => !img.includes('placeholder.svg'));
+      const hasRealImages = product.images.some(img => !img.includes('placeholder.svg') && img.startsWith('http'));
       const hasPlaceholders = product.images.some(img => img.includes('placeholder.svg'));
       
-      if (hasRealImages) productsWithImages++;
-      if (hasPlaceholders && !hasRealImages) productsWithPlaceholders++;
+      if (hasRealImages) {
+        productsWithRealImages++;
+      } else if (hasPlaceholders || product.images.length === 0) {
+        productsWithPlaceholders++;
+        problemProducts.push({
+          title: product.title,
+          images: product.images,
+          category: product.category
+        });
+      }
       
       totalImages += product.images.length;
       placeholderImages += product.images.filter(img => img.includes('placeholder.svg')).length;
+      realImages += product.images.filter(img => !img.includes('placeholder.svg') && img.startsWith('http')).length;
     });
     
-    console.log('📊 Image Statistics:', {
+    const successRate = ((productsWithRealImages / data.length) * 100).toFixed(1);
+    
+    console.log('📊 Enhanced Image Statistics:', {
       totalProducts: data.length,
-      productsWithImages,
+      productsWithRealImages,
       productsWithPlaceholders,
       totalImages,
       placeholderImages,
-      realImages: totalImages - placeholderImages,
-      successRate: `${((productsWithImages / data.length) * 100).toFixed(1)}%`
+      realImages,
+      successRate: `${successRate}%`,
+      problemProductsCount: problemProducts.length
     });
     
-    // Show warning if many products are missing images
-    if (productsWithPlaceholders > data.length * 0.3) {
-      console.warn(`⚠️ Warning: ${productsWithPlaceholders} products (${((productsWithPlaceholders / data.length) * 100).toFixed(1)}%) are using placeholder images`);
-      
-      toast({
-        title: 'Image Loading Issues',
-        description: `${productsWithPlaceholders} products have image loading issues. Check console for details.`,
-        variant: 'default',
-      });
+    // Log some problematic products for debugging
+    if (problemProducts.length > 0) {
+      console.warn(`⚠️ Products without real images (showing first 5):`, 
+        problemProducts.slice(0, 5).map(p => ({
+          title: p.title,
+          imageCount: p.images.length,
+          firstImage: p.images[0]
+        }))
+      );
     }
     
-    // Log category distribution for debugging
-    const categoryDistribution = {};
-    data.forEach(product => {
-      categoryDistribution[product.category] = (categoryDistribution[product.category] || 0) + 1;
-    });
-    console.log('📋 Category distribution in client:', categoryDistribution);
-    
-    // Validate all products have valid categories
-    const standardCategories = [
-      'pre-workout', 'protein', 'creatine', 'bcaa', 'aminos', 'vitamins', 
-      'multivitamin', 'fat-burners', 'pump-supplement', 'testosterone', 
-      'anti-aging-supplement', 'dry-spell'
-    ];
-    
-    const invalidCategoryProducts = data.filter(product => 
-      !standardCategories.includes(product.category)
-    );
-    
-    if (invalidCategoryProducts.length > 0) {
-      console.error('❌ Products with invalid categories:', invalidCategoryProducts);
+    // Show toast if significant image issues
+    if (productsWithPlaceholders > data.length * 0.5) {
+      console.error(`🚨 CRITICAL: ${productsWithPlaceholders} products (${((productsWithPlaceholders / data.length) * 100).toFixed(1)}%) have no real images!`);
+      
       toast({
-        title: 'Warning',
-        description: `${invalidCategoryProducts.length} products have non-standard categories.`,
+        title: 'Image Loading Issues Detected',
+        description: `${productsWithPlaceholders} products have image loading issues. Check console for details.`,
         variant: 'destructive',
+      });
+    } else if (productsWithPlaceholders > data.length * 0.2) {
+      toast({
+        title: 'Some Image Issues',
+        description: `${productsWithPlaceholders} products have image loading issues.`,
+        variant: 'default',
       });
     }
     
     return data as Product[];
   } catch (error) {
-    console.error('❌ Error in fetchSquareProducts:', error);
+    console.error('💥 Error in fetchSquareProducts:', error);
     toast({
       title: 'Error',
       description: 'Failed to load products. Please try again later.',
