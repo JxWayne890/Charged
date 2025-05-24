@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { CartProvider } from '@/context/CartContext';
+import { AuthProvider } from '@/context/AuthContext';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';
 import Index from '@/pages/Index';
@@ -21,23 +22,25 @@ function App() {
   return (
     <Router>
       <QueryClientProvider client={queryClient}>
-        <CartProvider>
-          <div className="min-h-screen bg-background">
-            <Header />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/products" element={<AllProductsPage />} />
-              <Route path="/product/:slug" element={<ProductDetailPage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/account" element={<AccountPage />} />
-              <Route path="/blog" element={<BlogPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Footer />
-            <Toaster />
-            <CacheStatus />
-          </div>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <div className="min-h-screen bg-background">
+              <Header />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/products" element={<AllProductsPage />} />
+                <Route path="/product/:slug" element={<ProductDetailPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/account" element={<AccountPage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <Footer />
+              <Toaster />
+              <CacheStatus />
+            </div>
+          </CartProvider>
+        </AuthProvider>
       </QueryClientProvider>
     </Router>
   );
