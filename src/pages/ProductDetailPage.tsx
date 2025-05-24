@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchSquareProducts } from '@/lib/square';
@@ -10,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/context/CartContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from "@/hooks/use-toast";
+import ProductImage from '@/components/ProductImage';
 import {
   Accordion,
   AccordionContent,
@@ -25,6 +27,7 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>('');
+  const [imageError, setImageError] = useState<boolean>(false);
   const [isSubscription, setIsSubscription] = useState<boolean>(false);
   const { addToCart } = useCart();
   const { toast } = useToast();
@@ -75,6 +78,11 @@ const ProductDetailPage = () => {
     }
   };
 
+  const handleImageError = () => {
+    console.log(`Main product image failed to load: ${selectedImage}`);
+    setImageError(true);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -104,10 +112,11 @@ const ProductDetailPage = () => {
         {/* Product Images */}
         <div className="space-y-4">
           <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-            <img 
+            <ProductImage
               src={selectedImage} 
-              alt={product.title} 
+              alt={product.title}
               className="w-full h-full object-cover"
+              onError={handleImageError}
             />
           </div>
           
@@ -118,9 +127,9 @@ const ProductDetailPage = () => {
                 onClick={() => setSelectedImage(image)}
                 className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === image ? 'border-primary' : 'border-transparent'}`}
               >
-                <img 
+                <ProductImage
                   src={image} 
-                  alt={`${product.title} thumbnail ${index + 1}`} 
+                  alt={`${product.title} thumbnail ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
               </button>

@@ -1,4 +1,3 @@
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 
@@ -199,6 +198,114 @@ function standardizeCategory(squareCategoryName) {
 }
 
 /**
+ * Validates if an image URL is accessible and returns a valid image
+ */
+async function validateImageUrl(url, productName) {
+  if (!url) {
+    console.log(`No image URL provided for product: ${productName}`);
+    return null;
+  }
+
+  try {
+    console.log(`Validating image URL for ${productName}: ${url}`);
+    
+    // Check if URL is properly formatted
+    const urlObj = new URL(url);
+    if (!urlObj.protocol.startsWith('http')) {
+      console.error(`Invalid protocol for image URL: ${url}`);
+      return null;
+    }
+
+    // Test if image is accessible
+    const response = await fetch(url, { 
+      method: 'HEAD',
+      signal: AbortSignal.timeout(5000) // 5 second timeout
+    });
+    
+    if (!response.ok) {
+      console.error(`Image URL not accessible (${response.status}): ${url}`);
+      return null;
+    }
+
+    // Check if it's actually an image
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.startsWith('image/')) {
+      console.error(`URL does not point to an image (${contentType}): ${url}`);
+      return null;
+    }
+
+    console.log(`✅ Valid image found for ${productName}: ${url}`);
+    return url;
+  } catch (error) {
+    console.error(`Error validating image URL for ${productName}: ${error.message}`);
+    return null;
+  }
+}
+
+/**
+ * Processes images from Square API with comprehensive error handling
+ */
+async function processProductImages(item, squareData) {
+  const productName = item.item_data.name;
+  const imageIds = item.item_data.image_ids || [];
+  const validImages = [];
+  
+  console.log(`Processing images for product: ${productName}`);
+  console.log(`Image IDs from Square: ${JSON.stringify(imageIds)}`);
+
+  if (imageIds.length === 0) {
+    console.log(`❌ No image IDs found for product: ${productName}`);
+    validImages.push('/placeholder.svg');
+    return validImages;
+  }
+
+  // Process each image ID
+  for (const imageId of imageIds) {
+    console.log(`Processing image ID: ${imageId} for product: ${productName}`);
+    
+    const imgObj = squareData.objects.find(
+      (obj) => obj.id === imageId && obj.type === 'IMAGE'
+    );
+
+    if (!imgObj) {
+      console.error(`❌ Image object not found for ID: ${imageId} in product: ${productName}`);
+      continue;
+    }
+
+    console.log(`Found image object for ${productName}:`, JSON.stringify({
+      id: imgObj.id,
+      type: imgObj.type,
+      image_data: imgObj.image_data ? {
+        url: imgObj.image_data.url,
+        caption: imgObj.image_data.caption
+      } : 'No image_data'
+    }));
+
+    const imageUrl = imgObj.image_data?.url;
+    if (!imageUrl) {
+      console.error(`❌ No URL found in image data for ID: ${imageId} in product: ${productName}`);
+      continue;
+    }
+
+    // Validate the image URL
+    const validUrl = await validateImageUrl(imageUrl, productName);
+    if (validUrl) {
+      validImages.push(validUrl);
+    }
+  }
+
+  // If no valid images found, use placeholder
+  if (validImages.length === 0) {
+    console.log(`❌ No valid images found for product: ${productName}, using placeholder`);
+    validImages.push('/placeholder.svg');
+  } else {
+    console.log(`✅ Found ${validImages.length} valid images for product: ${productName}`);
+  }
+
+  return validImages;
+}
+
+/**
  * Fetches product data from Square API
  */
 async function fetchSquareData() {
@@ -225,6 +332,23 @@ async function fetchSquareData() {
   }
 
   console.log(`Fetched ${squareData.objects.length} objects from Square API`);
+  
+  // Log image objects for debugging
+  const imageObjects = squareData.objects.filter(obj => obj.type === 'IMAGE');
+  console.log(`Found ${imageObjects.length} image objects in Square response`);
+  
+  // Log a sample of image objects
+  if (imageObjects.length > 0) {
+    console.log('Sample image objects:', JSON.stringify(imageObjects.slice(0, 3).map(img => ({
+      id: img.id,
+      type: img.type,
+      image_data: img.image_data ? {
+        url: img.image_data.url,
+        caption: img.image_data.caption
+      } : 'No image_data'
+    })), null, 2));
+  }
+  
   return squareData;
 }
 
@@ -343,70 +467,68 @@ function determineProductCategory(item, squareCategoryData) {
 /**
  * Transforms Square API data into product objects
  */
-function transformToProducts(squareData, squareCategoryData) {
-  return squareData.objects
-    .filter(
-      (item) =>
-        item.type === 'ITEM' &&
-        item.item_data &&
-        item.item_data.product_type !== 'APPOINTMENTS_SERVICE' &&
-        item.item_data.name !== 'Training session (example service)'
-    )
-    .map((item) => {
-      const variation =
-        item.item_data.variations && item.item_data.variations.length > 0
-          ? item.item_data.variations[0]
-          : null;
+async function transformToProducts(squareData, squareCategoryData) {
+  const products = [];
+  const items = squareData.objects.filter(
+    (item) =>
+      item.type === 'ITEM' &&
+      item.item_data &&
+      item.item_data.product_type !== 'APPOINTMENTS_SERVICE' &&
+      item.item_data.name !== 'Training session (example service)'
+  );
 
-      const priceInCents =
-        variation?.item_variation_data?.price_money?.amount ?? 0;
+  console.log(`Processing ${items.length} items for transformation`);
 
-      const imageIds = item.item_data.image_ids || [];
-      const images = imageIds
-        .map((id) => {
-          const imgObj = squareData.objects.find(
-            (obj) => obj.id === id && obj.type === 'IMAGE'
-          );
-          return imgObj?.image_data?.url || '';
-        })
-        .filter(Boolean);
+  for (const item of items) {
+    const variation =
+      item.item_data.variations && item.item_data.variations.length > 0
+        ? item.item_data.variations[0]
+        : null;
 
-      if (images.length === 0) images.push('/placeholder.svg');
+    const priceInCents =
+      variation?.item_variation_data?.price_money?.amount ?? 0;
 
-      const slug = item.item_data.name
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-');
+    // Process images with comprehensive error handling
+    const images = await processProductImages(item, squareData);
 
-      // Determine the product category using our improved logic
-      const category = determineProductCategory(item, squareCategoryData);
-      
-      // Validate the category against our standardized list
-      const isValidCategory = standardCategories.some(c => c.slug === category);
-      if (!isValidCategory) {
-        console.error(`Invalid category "${category}" for product "${item.item_data.name}"`);
-      }
+    const slug = item.item_data.name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-');
 
-      return {
-        id: item.id,
-        title: item.item_data.name,
-        description: item.item_data.description || '',
-        price: priceInCents / 100,
-        images,
-        stock: variation?.item_variation_data?.inventory_count ?? 10,
-        rating: 4.5,
-        reviewCount: Math.floor(Math.random() * 50) + 5,
-        slug,
-        category,
-        bestSeller: Math.random() > 0.7,
-        featured: Math.random() > 0.8,
-        benefits: [item.item_data.description || ''],
-        ingredients: 'Natural ingredients',
-        directions: 'Follow package instructions',
-        faqs: [],
-        tags: [category],
-      };
-    });
+    // Determine the product category using our improved logic
+    const category = determineProductCategory(item, squareCategoryData);
+    
+    // Validate the category against our standardized list
+    const isValidCategory = standardCategories.some(c => c.slug === category);
+    if (!isValidCategory) {
+      console.error(`Invalid category "${category}" for product "${item.item_data.name}"`);
+    }
+
+    const product = {
+      id: item.id,
+      title: item.item_data.name,
+      description: item.item_data.description || '',
+      price: priceInCents / 100,
+      images,
+      stock: variation?.item_variation_data?.inventory_count ?? 10,
+      rating: 4.5,
+      reviewCount: Math.floor(Math.random() * 50) + 5,
+      slug,
+      category,
+      bestSeller: Math.random() > 0.7,
+      featured: Math.random() > 0.8,
+      benefits: [item.item_data.description || ''],
+      ingredients: 'Natural ingredients',
+      directions: 'Follow package instructions',
+      faqs: [],
+      tags: [category],
+    };
+
+    products.push(product);
+  }
+
+  return products;
 }
 
 /**
@@ -445,6 +567,43 @@ function logCategoryDistribution(products) {
 }
 
 /**
+ * Logs image statistics for debugging
+ */
+function logImageStatistics(products) {
+  console.log('=== IMAGE STATISTICS ===');
+  
+  const imageStats = {
+    totalProducts: products.length,
+    productsWithPlaceholder: 0,
+    productsWithRealImages: 0,
+    totalImages: 0,
+    placeholderImages: 0,
+    realImages: 0
+  };
+
+  products.forEach(product => {
+    const hasPlaceholder = product.images.some(img => img.includes('placeholder.svg'));
+    const hasRealImages = product.images.some(img => !img.includes('placeholder.svg'));
+    
+    if (hasPlaceholder && !hasRealImages) {
+      imageStats.productsWithPlaceholder++;
+      console.log(`❌ Product using only placeholder: ${product.title}`);
+    }
+    
+    if (hasRealImages) {
+      imageStats.productsWithRealImages++;
+    }
+    
+    imageStats.totalImages += product.images.length;
+    imageStats.placeholderImages += product.images.filter(img => img.includes('placeholder.svg')).length;
+    imageStats.realImages += product.images.filter(img => !img.includes('placeholder.svg')).length;
+  });
+
+  console.log('Image Statistics:', JSON.stringify(imageStats, null, 2));
+  console.log(`Success Rate: ${((imageStats.productsWithRealImages / imageStats.totalProducts) * 100).toFixed(2)}%`);
+}
+
+/**
  * Main handler function
  */
 serve(async (req) => {
@@ -453,22 +612,31 @@ serve(async (req) => {
   }
 
   try {
+    console.log('=== STARTING CATALOG FETCH ===');
+    
     // Create Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     const supabase = createClient(supabaseUrl, supabaseKey);
     
     // Fetch data from Square API
+    console.log('Step 1: Fetching Square data...');
     const squareData = await fetchSquareData();
     
     // Fetch Square categories
+    console.log('Step 2: Fetching Square categories...');
     const squareCategoryData = await fetchSquareCategories();
     
     // Transform to products
-    const products = transformToProducts(squareData, squareCategoryData);
+    console.log('Step 3: Transforming products...');
+    const products = await transformToProducts(squareData, squareCategoryData);
     
-    // Log category distribution for debugging
+    // Log statistics
+    console.log('Step 4: Logging statistics...');
     logCategoryDistribution(products);
+    logImageStatistics(products);
+
+    console.log('=== CATALOG FETCH COMPLETED ===');
 
     return new Response(JSON.stringify(products), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

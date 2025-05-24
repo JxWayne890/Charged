@@ -6,6 +6,7 @@ import { useCart } from '@/context/CartContext';
 import { Product } from '@/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import ProductImage from '@/components/ProductImage';
 
 interface ProductCardProps {
   product: Product;
@@ -14,6 +15,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, className }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { addToCart } = useCart();
   
   // Format category name for display
@@ -28,6 +30,14 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
     e.preventDefault();
     addToCart(product, 1);
   };
+
+  const handleImageError = () => {
+    console.log(`Image error for product ${product.title}, trying next image...`);
+    // Try next image if available
+    if (currentImageIndex < product.images.length - 1) {
+      setCurrentImageIndex(prev => prev + 1);
+    }
+  };
   
   return (
     <div 
@@ -40,10 +50,11 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
     >
       <Link to={`/product/${product.slug}`}>
         <div className="relative aspect-square overflow-hidden bg-gray-100">
-          <img 
-            src={product.images[0]} 
+          <ProductImage
+            src={product.images[currentImageIndex]} 
             alt={product.title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={handleImageError}
           />
           
           {product.bestSeller && (
@@ -61,6 +72,21 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
           {product.stock < 10 && product.stock > 0 && (
             <div className="absolute bottom-2 left-2 bg-orange-500 text-white text-xs py-1 px-2 rounded">
               Low Stock
+            </div>
+          )}
+
+          {/* Image indicator dots if multiple images */}
+          {product.images.length > 1 && (
+            <div className="absolute bottom-2 right-2 flex space-x-1">
+              {product.images.map((_, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "w-1.5 h-1.5 rounded-full transition-colors",
+                    index === currentImageIndex ? "bg-white" : "bg-white/50"
+                  )}
+                />
+              ))}
             </div>
           )}
         </div>
