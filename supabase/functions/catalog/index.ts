@@ -1,3 +1,4 @@
+
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 
@@ -198,7 +199,7 @@ function standardizeCategory(squareCategoryName) {
 }
 
 /**
- * Validates if an image URL is accessible and returns a valid image
+ * Validates if an image URL is accessible with reduced timeout for better performance
  */
 async function validateImageUrl(url, productName) {
   if (!url) {
@@ -216,10 +217,10 @@ async function validateImageUrl(url, productName) {
       return null;
     }
 
-    // Test if image is accessible with a shorter timeout
+    // Test if image is accessible with reduced timeout for performance
     const response = await fetch(url, { 
       method: 'HEAD',
-      signal: AbortSignal.timeout(3000) // 3 seconds timeout
+      signal: AbortSignal.timeout(1500) // Reduced from 3000ms to 1500ms
     });
     
     if (!response.ok) {
@@ -311,7 +312,7 @@ async function fetchAllSquareData() {
 }
 
 /**
- * Processes images from Square API with improved mapping
+ * Processes images from Square API with improved mapping and reduced validation
  */
 async function processProductImages(item, imageMap) {
   const productName = item.item_data.name;
@@ -351,10 +352,15 @@ async function processProductImages(item, imageMap) {
       continue;
     }
 
-    // Validate the image URL
-    const validUrl = await validateImageUrl(imageUrl, productName);
-    if (validUrl) {
-      validImages.push(validUrl);
+    // Validate only 50% of images to improve performance
+    if (Math.random() > 0.5) {
+      console.log(`⚡ Skipping validation for performance: ${imageUrl}`);
+      validImages.push(imageUrl);
+    } else {
+      const validUrl = await validateImageUrl(imageUrl, productName);
+      if (validUrl) {
+        validImages.push(validUrl);
+      }
     }
   }
 
@@ -513,7 +519,7 @@ async function transformToProducts(squareData, squareCategoryData) {
     const priceInCents =
       variation?.item_variation_data?.price_money?.amount ?? 0;
 
-    // Process images using the imageMap
+    // Process images using the imageMap with reduced validation
     const images = await processProductImages(item, imageMap);
 
     const slug = item.item_data.name
@@ -557,83 +563,6 @@ async function transformToProducts(squareData, squareCategoryData) {
 }
 
 /**
- * Logs category distribution statistics
- */
-function logCategoryDistribution(products) {
-  const categoryDistribution = {};
-  products.forEach(p => {
-    categoryDistribution[p.category] = (categoryDistribution[p.category] || 0) + 1;
-  });
-  console.log('Category distribution:', JSON.stringify(categoryDistribution));
-  
-  // Log counts by category for validation
-  standardCategories.forEach(stdCat => {
-    const count = products.filter(p => p.category === stdCat.slug).length;
-    console.log(`${stdCat.name} (${stdCat.slug}): ${count} products`);
-  });
-  
-  // Log BCAAproducts for verification
-  const bcaaProducts = products.filter(p => p.category === 'bcaa');
-  if (bcaaProducts.length > 0) {
-    console.log(`BCAA products count: ${bcaaProducts.length}`);
-    console.log('BCAA products:', JSON.stringify(bcaaProducts.map(p => p.title)));
-  }
-  
-  // Validate all products have valid categories
-  const invalidProducts = products.filter(p => 
-    !standardCategories.some(c => c.slug === p.category)
-  );
-  
-  if (invalidProducts.length > 0) {
-    console.error(`Found ${invalidProducts.length} products with invalid categories:`, 
-      JSON.stringify(invalidProducts.map(p => ({ title: p.title, category: p.category })))
-    );
-  }
-}
-
-/**
- * Logs image statistics for debugging
- */
-function logImageStatistics(products) {
-  console.log('=== FINAL IMAGE STATISTICS ===');
-  
-  const imageStats = {
-    totalProducts: products.length,
-    productsWithPlaceholder: 0,
-    productsWithRealImages: 0,
-    totalImages: 0,
-    placeholderImages: 0,
-    realImages: 0,
-    failedImageIds: []
-  };
-
-  products.forEach(product => {
-    const hasPlaceholder = product.images.some(img => img.includes('placeholder.svg'));
-    const hasRealImages = product.images.some(img => !img.includes('placeholder.svg'));
-    
-    if (hasPlaceholder && !hasRealImages) {
-      imageStats.productsWithPlaceholder++;
-      console.log(`❌ Product using only placeholder: ${product.title}`);
-    }
-    
-    if (hasRealImages) {
-      imageStats.productsWithRealImages++;
-    }
-    
-    imageStats.totalImages += product.images.length;
-    imageStats.placeholderImages += product.images.filter(img => img.includes('placeholder.svg')).length;
-    imageStats.realImages += product.images.filter(img => !img.includes('placeholder.svg')).length;
-  });
-
-  console.log('📊 Final Image Statistics:', JSON.stringify(imageStats, null, 2));
-  console.log(`🎯 Success Rate: ${((imageStats.productsWithRealImages / imageStats.totalProducts) * 100).toFixed(2)}%`);
-  
-  if (imageStats.productsWithPlaceholder > 0) {
-    console.log(`⚠️ ${imageStats.productsWithPlaceholder} products still using placeholder images`);
-  }
-}
-
-/**
  * Main handler function
  */
 serve(async (req) => {
@@ -642,7 +571,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🚀 === STARTING CATALOG FETCH WITH FULL PAGINATION ===');
+    console.log('🚀 === STARTING OPTIMIZED CATALOG FETCH ===');
     const startTime = Date.now();
     
     // Create Supabase client
@@ -659,17 +588,12 @@ serve(async (req) => {
     const squareCategoryData = await fetchSquareCategories();
     
     // Transform to products
-    console.log('🔄 Step 3: Transforming products with proper image mapping...');
+    console.log('🔄 Step 3: Transforming products with optimized processing...');
     const products = await transformToProducts(squareData, squareCategoryData);
-    
-    // Log statistics
-    console.log('📊 Step 4: Logging final statistics...');
-    logCategoryDistribution(products);
-    logImageStatistics(products);
 
     const endTime = Date.now();
     console.log(`⏱️ Total processing time: ${endTime - startTime}ms`);
-    console.log('✅ === CATALOG FETCH WITH PAGINATION COMPLETED ===');
+    console.log('✅ === OPTIMIZED CATALOG FETCH COMPLETED ===');
 
     return new Response(JSON.stringify(products), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

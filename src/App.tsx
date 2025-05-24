@@ -1,60 +1,45 @@
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { Toaster } from '@/components/ui/toaster';
+import { CartProvider } from '@/context/CartContext';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Index from '@/pages/Index';
+import AllProductsPage from '@/pages/AllProductsPage';
+import ProductDetailPage from '@/pages/ProductDetailPage';
+import AuthPage from '@/pages/AuthPage';
+import AccountPage from '@/pages/AccountPage';
+import BlogPage from '@/pages/BlogPage';
+import NotFound from '@/pages/NotFound';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { CartProvider } from "@/context/CartContext";
-import { AuthProvider } from "@/context/AuthContext";
-import Index from "./pages/Index";
-import Header from "./components/Header/Header";
-import Footer from "./components/Footer";
-import CartDrawer from "./components/CartDrawer";
-import NotFound from "./pages/NotFound";
-import AllProductsPage from "./pages/AllProductsPage";
-import AuthPage from "./pages/AuthPage";
-import AccountPage from "./pages/AccountPage";
-import ProductDetailPage from "./pages/ProductDetailPage";
+import CacheStatus from '@/components/CacheStatus';
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <AuthProvider>
+function App() {
+  return (
+    <Router>
+      <QueryClientProvider client={queryClient}>
         <CartProvider>
-          <TooltipProvider>
+          <div className="min-h-screen bg-background">
+            <Header />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/products" element={<AllProductsPage />} />
+              <Route path="/product/:slug" element={<ProductDetailPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/account" element={<AccountPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <Footer />
             <Toaster />
-            <Sonner />
-            
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <CartDrawer />
-              
-              <main className="flex-1">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  
-                  {/* Auth & Account Pages */}
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/account" element={<AccountPage />} />
-                  
-                  {/* Products Pages */}
-                  <Route path="/products" element={<AllProductsPage />} />
-                  <Route path="/product/:slug" element={<ProductDetailPage />} />
-                  
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
-              
-              <Footer />
-            </div>
-          </TooltipProvider>
+            <CacheStatus />
+          </div>
         </CartProvider>
-      </AuthProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
-);
+      </QueryClientProvider>
+    </Router>
+  );
+}
 
 export default App;

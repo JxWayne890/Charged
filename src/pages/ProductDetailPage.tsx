@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchSquareProducts } from '@/lib/square';
+import { fetchProductBySlug } from '@/lib/square';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import { Package } from 'lucide-react';
@@ -34,12 +34,17 @@ const ProductDetailPage = () => {
 
   useEffect(() => {
     const loadProduct = async () => {
+      if (!slug) return;
+      
       try {
         setLoading(true);
-        const products = await fetchSquareProducts();
-        const foundProduct = products.find(p => p.slug === slug);
+        setError(null);
+        
+        console.log(`🔄 Loading product with slug: ${slug}`);
+        const foundProduct = await fetchProductBySlug(slug);
         
         if (foundProduct) {
+          console.log(`✅ Product loaded: ${foundProduct.title}`);
           setProduct(foundProduct);
           setSelectedImage(foundProduct.images[0]);
           
@@ -48,6 +53,7 @@ const ProductDetailPage = () => {
             setSelectedFlavor(foundProduct.flavors[0]);
           }
         } else {
+          console.log(`❌ Product not found for slug: ${slug}`);
           setError('Product not found');
         }
       } catch (err) {
