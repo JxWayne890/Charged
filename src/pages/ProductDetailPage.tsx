@@ -1,9 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/utils';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,12 @@ import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/context/CartContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from "@/hooks/use-toast";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const ProductDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -257,80 +263,124 @@ const ProductDetailPage = () => {
         </div>
       </div>
       
-      {/* Product Details Tabs */}
-      <Tabs defaultValue="description" className="mb-16">
-        <TabsList className="w-full justify-start border-b space-x-8">
-          <TabsTrigger value="description">Description</TabsTrigger>
-          <TabsTrigger value="details">Details</TabsTrigger>
-          <TabsTrigger value="faqs">FAQs</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="description" className="py-6">
-          <div className="prose max-w-none">
-            <p className="text-lg mb-6">{product.description}</p>
-            
-            <h3 className="text-xl font-semibold mb-4">Key Benefits</h3>
-            <ul className="space-y-2 mb-6">
-              {product.benefits.map((benefit, index) => (
-                <li key={index} className="flex items-start">
-                  <span className="text-primary mr-2">✓</span>
-                  <span>{benefit}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="details" className="py-6 space-y-6">
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Ingredients</h3>
-            <p>{product.ingredients}</p>
-          </div>
-          
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Directions for Use</h3>
-            <p>{product.directions}</p>
-          </div>
-          
-          {product.dietary && product.dietary.length > 0 && (
-            <div>
-              <h3 className="text-xl font-semibold mb-4">Dietary Information</h3>
-              <div className="flex flex-wrap gap-2">
-                {product.dietary.map((item, index) => (
-                  <span key={index} className="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm">
-                    {item}
-                  </span>
-                ))}
+      {/* Product Details Accordion */}
+      <div className="mb-16">
+        <Accordion type="single" collapsible className="w-full space-y-4">
+          <AccordionItem value="description" className="border border-gray-200 rounded-lg">
+            <AccordionTrigger className="px-6 py-4 text-lg font-semibold hover:no-underline [&[data-state=open]>svg]:rotate-180">
+              Description
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <div className="prose max-w-none">
+                <p className="text-gray-700 mb-4">{product.description}</p>
+                
+                {product.benefits && product.benefits.length > 0 && (
+                  <>
+                    <h4 className="text-lg font-semibold mb-3 text-black">Key Benefits</h4>
+                    <ul className="space-y-2">
+                      {product.benefits.map((benefit, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-primary mr-2 mt-1">✓</span>
+                          <span className="text-gray-700">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
               </div>
-            </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="details" className="border border-gray-200 rounded-lg">
+            <AccordionTrigger className="px-6 py-4 text-lg font-semibold hover:no-underline [&[data-state=open]>svg]:rotate-180">
+              Details
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <div className="space-y-4">
+                {product.dietary && product.dietary.length > 0 && (
+                  <div>
+                    <h4 className="text-md font-semibold mb-2 text-black">Dietary Information</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {product.dietary.map((item, index) => (
+                        <span key={index} className="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {product.tags && product.tags.length > 0 && (
+                  <div>
+                    <h4 className="text-md font-semibold mb-2 text-black">Tags</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {product.tags.map((tag, index) => (
+                        <span key={index} className="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm">
+                          {tag.replace(/-/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="ingredients" className="border border-gray-200 rounded-lg">
+            <AccordionTrigger className="px-6 py-4 text-lg font-semibold hover:no-underline [&[data-state=open]>svg]:rotate-180">
+              Ingredients
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <p className="text-gray-700">{product.ingredients}</p>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="directions" className="border border-gray-200 rounded-lg">
+            <AccordionTrigger className="px-6 py-4 text-lg font-semibold hover:no-underline [&[data-state=open]>svg]:rotate-180">
+              How To Use
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <p className="text-gray-700">{product.directions}</p>
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="shipping" className="border border-gray-200 rounded-lg">
+            <AccordionTrigger className="px-6 py-4 text-lg font-semibold hover:no-underline [&[data-state=open]>svg]:rotate-180">
+              Shipping and Returns
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <div className="space-y-3 text-gray-700">
+                <div>
+                  <h4 className="font-semibold text-black mb-1">Shipping</h4>
+                  <p>Free shipping on orders over $50. Standard shipping takes 3-5 business days.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-black mb-1">Returns</h4>
+                  <p>30-day return policy. Products must be unopened and in original packaging.</p>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {product.faqs && product.faqs.length > 0 && (
+            <AccordionItem value="faqs" className="border border-gray-200 rounded-lg">
+              <AccordionTrigger className="px-6 py-4 text-lg font-semibold hover:no-underline [&[data-state=open]>svg]:rotate-180">
+                FAQs
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-4">
+                <div className="space-y-4">
+                  {product.faqs.map((faq, index) => (
+                    <div key={index} className="border-b border-gray-100 pb-3 last:border-0">
+                      <h4 className="font-medium mb-2 text-black">{faq.question}</h4>
+                      <p className="text-gray-700">{faq.answer}</p>
+                    </div>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
           )}
-          
-          {product.tags && product.tags.length > 0 && (
-            <div>
-              <h3 className="text-xl font-semibold mb-4">Tags</h3>
-              <div className="flex flex-wrap gap-2">
-                {product.tags.map((tag, index) => (
-                  <span key={index} className="bg-gray-100 text-gray-800 py-1 px-3 rounded-full text-sm">
-                    {tag.replace(/-/g, ' ')}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="faqs" className="py-6">
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold mb-4">Frequently Asked Questions</h3>
-            {product.faqs.map((faq, index) => (
-              <div key={index} className="border-b border-gray-200 pb-4 mb-4 last:border-0">
-                <h4 className="text-lg font-medium mb-2">{faq.question}</h4>
-                <p className="text-gray-600">{faq.answer}</p>
-              </div>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+        </Accordion>
+      </div>
     </div>
   );
 };
