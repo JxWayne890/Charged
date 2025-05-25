@@ -17,6 +17,20 @@ import NotFound from '@/pages/NotFound';
 import CheckoutPage from '@/pages/CheckoutPage';
 import OrderSuccessPage from '@/pages/OrderSuccessPage';
 
+// Brand pages
+import AbePage from '@/pages/brands/AbePage';
+import AlphaLionPage from '@/pages/brands/AlphaLionPage';
+import AxeSledgePage from '@/pages/brands/AxeSledgePage';
+import BuckedUpPage from '@/pages/brands/BuckedUpPage';
+import ChemixPage from '@/pages/brands/ChemixPage';
+import CoreNutritionalPage from '@/pages/brands/CoreNutritionalPage';
+import FreshSuppsPage from '@/pages/brands/FreshSuppsPage';
+import GorillaMindPage from '@/pages/brands/GorillaMindPage';
+import MetabolicNutritionPage from '@/pages/brands/MetabolicNutritionPage';
+import RawNutritionPage from '@/pages/brands/RawNutritionPage';
+import RuleOnePage from '@/pages/brands/RuleOnePage';
+import PandaSupplementsPage from '@/pages/brands/PandaSupplementsPage';
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -36,6 +50,21 @@ function App() {
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order-success" element={<OrderSuccessPage />} />
+                
+                {/* Brand pages */}
+                <Route path="/brands/abe" element={<AbePage />} />
+                <Route path="/brands/alpha-lion" element={<AlphaLionPage />} />
+                <Route path="/brands/axe-sledge" element={<AxeSledgePage />} />
+                <Route path="/brands/bucked-up" element={<BuckedUpPage />} />
+                <Route path="/brands/chemix" element={<ChemixPage />} />
+                <Route path="/brands/core-nutritionals" element={<CoreNutritionalPage />} />
+                <Route path="/brands/fresh-supps" element={<FreshSuppsPage />} />
+                <Route path="/brands/gorilla-mind" element={<GorillaMindPage />} />
+                <Route path="/brands/metabolic-nutrition" element={<MetabolicNutritionPage />} />
+                <Route path="/brands/raw-nutrition" element={<RawNutritionPage />} />
+                <Route path="/brands/rule-one" element={<RuleOnePage />} />
+                <Route path="/brands/panda-supplements" element={<PandaSupplementsPage />} />
+                
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Footer />

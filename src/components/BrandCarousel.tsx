@@ -1,4 +1,6 @@
+
 import { useRef, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -112,11 +114,6 @@ const BrandCarousel = () => {
     }
   };
 
-  const handleBrandClick = (brand: Brand) => {
-    // Navigate to products filtered by brand
-    window.location.href = `/products?brand=${encodeURIComponent(brand.name)}`;
-  };
-
   return (
     <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 overflow-hidden">
       {/* Background effects */}
@@ -153,39 +150,40 @@ const BrandCarousel = () => {
             {brands.map((brand, index) => (
               <div
                 key={brand.slug}
-                className="min-w-[180px] max-w-[180px] snap-start cursor-pointer group"
-                onClick={() => handleBrandClick(brand)}
+                className="min-w-[180px] max-w-[180px] snap-start"
               >
-                <div className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-primary/50 transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-primary/20 h-32 flex items-center justify-center overflow-hidden">
-                  {/* Glow effect on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                <Link to={`/brands/${brand.slug}`} className="cursor-pointer group block">
+                  <div className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-primary/50 transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-primary/20 h-32 flex items-center justify-center overflow-hidden">
+                    {/* Glow effect on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                    
+                    {/* Electric border effect */}
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary via-yellow-400 to-primary opacity-0 group-hover:opacity-20 blur-sm transition-opacity duration-500"></div>
+                    
+                    <img
+                      src={brand.logo}
+                      alt={brand.name}
+                      className={cn(
+                        "object-contain filter group-hover:brightness-110 group-hover:drop-shadow-lg transition-all duration-500 relative z-10",
+                        brand.largeIcon ? "max-w-[90%] max-h-[90%]" : "max-w-full max-h-full"
+                      )}
+                      onError={(e) => {
+                        console.log(`Failed to load logo for ${brand.name}`);
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                    
+                    {/* Animated corners */}
+                    <div className="absolute top-2 left-2 w-3 h-3 border-l-2 border-t-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
+                    <div className="absolute top-2 right-2 w-3 h-3 border-r-2 border-t-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
+                    <div className="absolute bottom-2 left-2 w-3 h-3 border-l-2 border-b-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
+                    <div className="absolute bottom-2 right-2 w-3 h-3 border-r-2 border-b-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
+                  </div>
                   
-                  {/* Electric border effect */}
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary via-yellow-400 to-primary opacity-0 group-hover:opacity-20 blur-sm transition-opacity duration-500"></div>
-                  
-                  <img
-                    src={brand.logo}
-                    alt={brand.name}
-                    className={cn(
-                      "object-contain filter group-hover:brightness-110 group-hover:drop-shadow-lg transition-all duration-500 relative z-10",
-                      brand.largeIcon ? "max-w-[90%] max-h-[90%]" : "max-w-full max-h-full"
-                    )}
-                    onError={(e) => {
-                      console.log(`Failed to load logo for ${brand.name}`);
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                  
-                  {/* Animated corners */}
-                  <div className="absolute top-2 left-2 w-3 h-3 border-l-2 border-t-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
-                  <div className="absolute top-2 right-2 w-3 h-3 border-r-2 border-t-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
-                  <div className="absolute bottom-2 left-2 w-3 h-3 border-l-2 border-b-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
-                  <div className="absolute bottom-2 right-2 w-3 h-3 border-r-2 border-b-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
-                </div>
-                
-                <p className="text-center text-sm mt-3 font-medium text-gray-300 group-hover:text-primary transition-colors duration-300 uppercase tracking-wide">
-                  {brand.name}
-                </p>
+                  <p className="text-center text-sm mt-3 font-medium text-gray-300 group-hover:text-primary transition-colors duration-300 uppercase tracking-wide">
+                    {brand.name}
+                  </p>
+                </Link>
               </div>
             ))}
           </div>
