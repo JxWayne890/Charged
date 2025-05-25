@@ -69,7 +69,7 @@ const FeaturedProductCarousel = ({
               
               {/* Right side - Product name and View Product button */}
               <div className="flex flex-col items-start justify-center flex-1">
-                <h3 className="font-bold uppercase text-white electric-lime-glow mb-3 text-base">
+                <h3 className="font-bold uppercase text-white electric-lime-glow mb-3 text-lg">
                   {currentProduct.title}
                 </h3>
                 
