@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -13,6 +12,8 @@ import AuthPage from '@/pages/AuthPage';
 import AccountPage from '@/pages/AccountPage';
 import BlogPage from '@/pages/BlogPage';
 import NotFound from '@/pages/NotFound';
+import CheckoutPage from '@/pages/CheckoutPage';
+import OrderSuccessPage from '@/pages/OrderSuccessPage';
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,8 @@ function App() {
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/blog" element={<BlogPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/order-success" element={<OrderSuccessPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Footer />
