@@ -39,15 +39,15 @@ const FeaturedProductCarousel = ({
   const currentProduct = products[currentIndex];
 
   return (
-    <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 overflow-hidden">
+    <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black py-8 overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(122,210,60,0.1),transparent_70%)]"></div>
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 electric-lime-glow">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 electric-lime-glow">
             FEATURED PRODUCTS
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-yellow-400 mx-auto rounded-full"></div>
@@ -61,7 +61,7 @@ const FeaturedProductCarousel = ({
                 : 'opacity-0 transform translate-y-2'
             }`}
           >
-            <div className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl p-8 border border-gray-700/50 hover:border-primary/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-primary/20 overflow-hidden group">
+            <div className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-primary/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-primary/20 overflow-hidden group">
               {/* Glow effect on hover */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
               
@@ -76,20 +76,20 @@ const FeaturedProductCarousel = ({
               
               <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
                 {/* Product Image */}
-                <div className="w-full md:w-1/2 max-w-sm aspect-square relative overflow-hidden rounded-lg bg-gray-900/50 border border-gray-700/50">
+                <div className="w-full md:w-1/2 max-w-xs aspect-square relative overflow-hidden rounded-lg bg-gray-900/50 border border-gray-700/50">
                   <ProductImage
                     src={currentProduct.images[0]}
                     alt={currentProduct.title}
                     className="w-full h-full object-cover transition-all duration-500 group-hover:brightness-110 group-hover:drop-shadow-lg group-hover:scale-105"
-                    width={400}
+                    width={300}
                   />
                   {currentProduct.bestSeller && (
-                    <div className="absolute top-3 left-3 bg-gradient-to-r from-primary to-green-400 text-black text-xs font-bold py-2 px-3 rounded-full shadow-lg">
+                    <div className="absolute top-3 left-3 bg-gradient-to-r from-primary to-green-400 text-black text-xs font-bold py-1.5 px-3 rounded-full shadow-lg">
                       BEST SELLER
                     </div>
                   )}
                   {currentProduct.featured && (
-                    <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-primary text-black text-xs font-bold py-2 px-3 rounded-full shadow-lg">
+                    <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-primary text-black text-xs font-bold py-1.5 px-3 rounded-full shadow-lg">
                       FEATURED
                     </div>
                   )}
@@ -97,14 +97,14 @@ const FeaturedProductCarousel = ({
                 
                 {/* Product Info */}
                 <div className="w-full md:w-1/2 flex flex-col text-center md:text-left">
-                  <h3 className="text-2xl md:text-3xl font-bold mb-4 uppercase text-white group-hover:text-primary transition-colors duration-300 electric-lime-glow">
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 uppercase text-white group-hover:text-primary transition-colors duration-300 electric-lime-glow">
                     {currentProduct.title}
                   </h3>
                   
-                  <div className="flex items-center justify-center md:justify-start gap-3 mb-6">
+                  <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
                     {currentProduct.salePrice ? (
                       <>
-                        <span className="text-2xl md:text-3xl font-bold text-primary electric-lime-glow">
+                        <span className="text-xl md:text-2xl font-bold text-primary electric-lime-glow">
                           {formatPrice(currentProduct.salePrice)}
                         </span>
                         <span className="text-lg line-through text-gray-400">
@@ -112,13 +112,13 @@ const FeaturedProductCarousel = ({
                         </span>
                       </>
                     ) : (
-                      <span className="text-2xl md:text-3xl font-bold text-white group-hover:text-primary transition-colors duration-300">
+                      <span className="text-xl md:text-2xl font-bold text-white group-hover:text-primary transition-colors duration-300">
                         {formatPrice(currentProduct.price)}
                       </span>
                     )}
                   </div>
                   
-                  <Button asChild className="bg-gradient-to-r from-primary to-green-400 hover:from-green-400 hover:to-primary text-black font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-primary/50 transition-all duration-300 hover:scale-105 w-full md:w-auto max-w-xs mx-auto md:mx-0">
+                  <Button asChild className="bg-gradient-to-r from-primary to-green-400 hover:from-green-400 hover:to-primary text-black font-bold py-2.5 px-6 rounded-full shadow-lg hover:shadow-primary/50 transition-all duration-300 hover:scale-105 w-full md:w-auto max-w-xs mx-auto md:mx-0">
                     <Link to={`/product/${currentProduct.slug}`}>
                       VIEW PRODUCT
                     </Link>
@@ -131,7 +131,7 @@ const FeaturedProductCarousel = ({
         
         {/* Product indicators */}
         {products.length > 1 && (
-          <div className="flex justify-center mt-6 gap-2">
+          <div className="flex justify-center mt-4 gap-2">
             {products.map((_, index) => (
               <button
                 key={index}
