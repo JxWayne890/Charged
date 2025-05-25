@@ -11,6 +11,10 @@ const PandaSupplementsPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     const loadProducts = async () => {
       try {
         setLoading(true);
