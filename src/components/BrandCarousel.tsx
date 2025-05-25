@@ -1,4 +1,3 @@
-
 import { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -7,6 +6,7 @@ interface Brand {
   name: string;
   logo: string;
   slug: string;
+  largeIcon?: boolean;
 }
 
 const brands: Brand[] = [
@@ -42,33 +42,38 @@ const brands: Brand[] = [
   },
   {
     name: 'Fresh Supps',
-    logo: '/lovable-uploads/320e640b-8084-4eec-9f43-00b98635d1ec.png',
+    logo: '/lovable-uploads/c36fc2cc-c00e-4bb0-a5b5-e87ef10881b1.png',
     slug: 'fresh-supps'
   },
   {
     name: 'Gorilla Mind',
     logo: '/lovable-uploads/d32f1b37-7b0a-4d84-bc10-add104784921.png',
-    slug: 'gorilla-mind'
+    slug: 'gorilla-mind',
+    largeIcon: true
   },
   {
     name: 'Metabolic Nutrition',
     logo: '/lovable-uploads/2dc08c1e-a358-4b0f-adc6-ff3db4e7d4dd.png',
-    slug: 'metabolic-nutrition'
+    slug: 'metabolic-nutrition',
+    largeIcon: true
   },
   {
     name: 'Raw Nutrition',
     logo: '/lovable-uploads/75a79ad8-2782-46b0-af81-8b6db375dc1c.png',
-    slug: 'raw-nutrition'
+    slug: 'raw-nutrition',
+    largeIcon: true
   },
   {
     name: 'Rule One Proteins',
     logo: '/lovable-uploads/676c2abd-8e1a-4f4b-b3ae-7d1b0a4ba33f.png',
-    slug: 'rule-one'
+    slug: 'rule-one',
+    largeIcon: true
   },
   {
     name: 'Panda Supplements',
     logo: '/lovable-uploads/841b6f3d-1334-4fb1-959b-49422919d292.png',
-    slug: 'panda-supplements'
+    slug: 'panda-supplements',
+    largeIcon: true
   }
 ];
 
@@ -151,7 +156,10 @@ const BrandCarousel = () => {
                 className="min-w-[180px] max-w-[180px] snap-start cursor-pointer group"
                 onClick={() => handleBrandClick(brand)}
               >
-                <div className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-primary/50 transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-primary/20 h-32 flex items-center justify-center overflow-hidden">
+                <div className={cn(
+                  "relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-primary/50 transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-primary/20 flex items-center justify-center overflow-hidden",
+                  brand.largeIcon ? "h-40" : "h-32"
+                )}>
                   {/* Glow effect on hover */}
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
                   
@@ -161,7 +169,10 @@ const BrandCarousel = () => {
                   <img
                     src={brand.logo}
                     alt={brand.name}
-                    className="max-w-full max-h-full object-contain filter group-hover:brightness-110 group-hover:drop-shadow-lg transition-all duration-500 relative z-10"
+                    className={cn(
+                      "object-contain filter group-hover:brightness-110 group-hover:drop-shadow-lg transition-all duration-500 relative z-10",
+                      brand.largeIcon ? "max-w-full max-h-32" : "max-w-full max-h-full"
+                    )}
                     onError={(e) => {
                       console.log(`Failed to load logo for ${brand.name}`);
                       e.currentTarget.style.display = 'none';
