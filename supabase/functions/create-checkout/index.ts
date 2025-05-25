@@ -76,7 +76,7 @@ serve(async (req) => {
 
     console.log('Using Square environment:', isProduction ? 'Production' : 'Sandbox');
 
-    // Create order items for Square
+    // Create order items for Square - REMOVED total_money field
     const orderItems = items.map(item => ({
       name: item.name + (item.flavor ? ` - ${item.flavor}` : ''),
       quantity: item.quantity.toString(),
@@ -84,14 +84,10 @@ serve(async (req) => {
       base_price_money: {
         amount: Math.round(item.price * 100), // Convert to cents
         currency: currency.toUpperCase()
-      },
-      total_money: {
-        amount: Math.round(item.price * item.quantity * 100),
-        currency: currency.toUpperCase()
       }
     }));
 
-    // Create checkout session with Square - simplified without conflicting shipping data
+    // Create checkout session with Square
     const checkoutRequest = {
       idempotency_key: crypto.randomUUID(),
       order: {
