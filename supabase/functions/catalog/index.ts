@@ -1,4 +1,3 @@
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 
@@ -22,6 +21,56 @@ const standardCategories = [
   { name: 'Anti-Aging Supplement', slug: 'anti-aging-supplement' },
   { name: 'Dry Spell', slug: 'dry-spell' }
 ];
+
+// Known brand names for extraction - order matters (longer names first to avoid partial matches)
+const knownBrands = [
+  'Black Magic Supplements',
+  'Ryse Supplements', 
+  'Fresh Supplements',
+  'Panda Supplements',
+  'Alpha Lion',
+  'Bucked Up',
+  'Raw Nutrition',
+  'Rule One Proteins',
+  'Gorilla Mind',
+  'Fresh Supps',
+  'Metabolic Nutrition',
+  'Core Nutritionals',
+  'Axe & Sledge Supplements',
+  'Chemix',
+  'Abe'
+];
+
+/**
+ * Extracts brand name from product title
+ */
+function extractBrandFromTitle(productTitle: string): string | null {
+  console.log(`🏷️ Extracting brand from: "${productTitle}"`);
+  
+  if (!productTitle) {
+    console.log('❌ No product title provided');
+    return null;
+  }
+  
+  // Check for exact brand matches at the beginning of the title
+  for (const brand of knownBrands) {
+    if (productTitle.toLowerCase().startsWith(brand.toLowerCase())) {
+      console.log(`✅ Found brand match: "${brand}" for product: "${productTitle}"`);
+      return brand;
+    }
+  }
+  
+  // Check for brand matches anywhere in the title (fallback)
+  for (const brand of knownBrands) {
+    if (productTitle.toLowerCase().includes(brand.toLowerCase())) {
+      console.log(`✅ Found brand match (partial): "${brand}" for product: "${productTitle}"`);
+      return brand;
+    }
+  }
+  
+  console.log(`❌ No brand match found for product: "${productTitle}"`);
+  return null;
+}
 
 // Map of Square category IDs to our category slugs
 let squareCategoryIdMap = {};
@@ -530,6 +579,9 @@ async function transformToProducts(squareData, squareCategoryData) {
     // Determine the product category using our improved logic
     const category = determineProductCategory(item, squareCategoryData);
     
+    // Extract brand from product title
+    const brand = extractBrandFromTitle(item.item_data.name);
+    
     // Validate the category against our standardized list
     const isValidCategory = standardCategories.some(c => c.slug === category);
     if (!isValidCategory) {
@@ -547,6 +599,7 @@ async function transformToProducts(squareData, squareCategoryData) {
       reviewCount: Math.floor(Math.random() * 50) + 5,
       slug,
       category,
+      brand, // Add the extracted brand field
       bestSeller: Math.random() > 0.7,
       featured: Math.random() > 0.8,
       benefits: [item.item_data.description || ''],
@@ -558,6 +611,24 @@ async function transformToProducts(squareData, squareCategoryData) {
 
     products.push(product);
   }
+
+  // Log brand extraction statistics
+  const productsWithBrands = products.filter(p => p.brand).length;
+  const productsWithoutBrands = products.filter(p => !p.brand).length;
+  const brandCounts = {};
+  
+  products.forEach(p => {
+    if (p.brand) {
+      brandCounts[p.brand] = (brandCounts[p.brand] || 0) + 1;
+    }
+  });
+  
+  console.log(`📊 Brand extraction statistics:`, {
+    totalProducts: products.length,
+    productsWithBrands,
+    productsWithoutBrands,
+    brandDistribution: brandCounts
+  });
 
   return products;
 }
