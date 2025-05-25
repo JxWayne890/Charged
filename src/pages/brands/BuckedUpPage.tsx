@@ -15,10 +15,13 @@ const BuckedUpPage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        const buckedUpProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('bucked up') || 
-          p.name?.toLowerCase().includes('bucked up')
-        );
+        const buckedUpProducts = fetchedProducts.filter(p => {
+          const brandMatch = p.brand?.toLowerCase().includes('bucked up');
+          const titleMatch = p.title?.toLowerCase().includes('bucked up');
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
+        });
+        console.log(`Found ${buckedUpProducts.length} Bucked Up products`);
         setProducts(buckedUpProducts);
         setError(null);
       } catch (err) {

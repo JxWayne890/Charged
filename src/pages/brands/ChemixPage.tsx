@@ -15,10 +15,13 @@ const ChemixPage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        const chemixProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('chemix') || 
-          p.name?.toLowerCase().includes('chemix')
-        );
+        const chemixProducts = fetchedProducts.filter(p => {
+          const brandMatch = p.brand?.toLowerCase().includes('chemix');
+          const titleMatch = p.title?.toLowerCase().includes('chemix');
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
+        });
+        console.log(`Found ${chemixProducts.length} Chemix products`);
         setProducts(chemixProducts);
         setError(null);
       } catch (err) {

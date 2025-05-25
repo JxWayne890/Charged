@@ -15,10 +15,13 @@ const PandaSupplementsPage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        const pandaProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('panda supplements') || 
-          p.name?.toLowerCase().includes('panda supplements')
-        );
+        const pandaProducts = fetchedProducts.filter(p => {
+          const brandMatch = p.brand?.toLowerCase().includes('panda supplements');
+          const titleMatch = p.title?.toLowerCase().includes('panda supplements');
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
+        });
+        console.log(`Found ${pandaProducts.length} Panda Supplements products`);
         setProducts(pandaProducts);
         setError(null);
       } catch (err) {

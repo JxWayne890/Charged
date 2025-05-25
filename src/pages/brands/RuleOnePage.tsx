@@ -15,10 +15,13 @@ const RuleOnePage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        const ruleOneProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('rule one') || 
-          p.name?.toLowerCase().includes('rule one')
-        );
+        const ruleOneProducts = fetchedProducts.filter(p => {
+          const brandMatch = p.brand?.toLowerCase().includes('rule one');
+          const titleMatch = p.title?.toLowerCase().includes('rule one');
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
+        });
+        console.log(`Found ${ruleOneProducts.length} Rule One products`);
         setProducts(ruleOneProducts);
         setError(null);
       } catch (err) {

@@ -18,10 +18,10 @@ const AlphaLionPage = () => {
         console.log('All products:', fetchedProducts);
         
         const alphaLionProducts = fetchedProducts.filter(p => {
-          const brandMatch = p.brand?.toLowerCase().includes('alpha lion') || 
-                           p.name?.toLowerCase().includes('alpha lion');
-          console.log(`Product: ${p.name}, Brand: ${p.brand}, Match: ${brandMatch}`);
-          return brandMatch;
+          const brandMatch = p.brand?.toLowerCase().includes('alpha lion');
+          const titleMatch = p.title?.toLowerCase().includes('alpha lion');
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
         });
         
         console.log('Filtered Alpha Lion products:', alphaLionProducts);

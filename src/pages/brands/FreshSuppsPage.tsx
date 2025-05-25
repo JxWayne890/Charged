@@ -15,10 +15,13 @@ const FreshSuppsPage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        const freshSuppsProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('fresh supps') || 
-          p.name?.toLowerCase().includes('fresh supps')
-        );
+        const freshSuppsProducts = fetchedProducts.filter(p => {
+          const brandMatch = p.brand?.toLowerCase().includes('fresh supps');
+          const titleMatch = p.title?.toLowerCase().includes('fresh supps');
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
+        });
+        console.log(`Found ${freshSuppsProducts.length} Fresh Supps products`);
         setProducts(freshSuppsProducts);
         setError(null);
       } catch (err) {

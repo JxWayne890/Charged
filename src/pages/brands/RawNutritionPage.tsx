@@ -15,10 +15,13 @@ const RawNutritionPage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        const rawNutritionProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('raw nutrition') || 
-          p.name?.toLowerCase().includes('raw nutrition')
-        );
+        const rawNutritionProducts = fetchedProducts.filter(p => {
+          const brandMatch = p.brand?.toLowerCase().includes('raw nutrition');
+          const titleMatch = p.title?.toLowerCase().includes('raw nutrition');
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
+        });
+        console.log(`Found ${rawNutritionProducts.length} Raw Nutrition products`);
         setProducts(rawNutritionProducts);
         setError(null);
       } catch (err) {

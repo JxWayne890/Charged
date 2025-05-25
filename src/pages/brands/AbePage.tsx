@@ -15,12 +15,15 @@ const AbePage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        const abeProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('abe') || 
-          p.brand?.toLowerCase().includes('all black everything') ||
-          p.name?.toLowerCase().includes('abe') ||
-          p.name?.toLowerCase().includes('all black everything')
-        );
+        const abeProducts = fetchedProducts.filter(p => {
+          const brandMatch = p.brand?.toLowerCase().includes('abe') || 
+                           p.brand?.toLowerCase().includes('all black everything');
+          const titleMatch = p.title?.toLowerCase().includes('abe') ||
+                           p.title?.toLowerCase().includes('all black everything');
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
+        });
+        console.log(`Found ${abeProducts.length} ABE products`);
         setProducts(abeProducts);
         setError(null);
       } catch (err) {

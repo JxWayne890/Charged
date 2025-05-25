@@ -15,10 +15,13 @@ const CoreNutritionalPage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        const coreProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('core nutritionals') || 
-          p.name?.toLowerCase().includes('core nutritionals')
-        );
+        const coreProducts = fetchedProducts.filter(p => {
+          const brandMatch = p.brand?.toLowerCase().includes('core nutritionals');
+          const titleMatch = p.title?.toLowerCase().includes('core nutritionals');
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
+        });
+        console.log(`Found ${coreProducts.length} Core Nutritionals products`);
         setProducts(coreProducts);
         setError(null);
       } catch (err) {

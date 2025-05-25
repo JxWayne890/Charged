@@ -15,10 +15,13 @@ const AxeSledgePage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        const axeSledgeProducts = fetchedProducts.filter(p => 
-          (p.brand?.toLowerCase().includes('axe') && p.brand?.toLowerCase().includes('sledge')) ||
-          (p.name?.toLowerCase().includes('axe') && p.name?.toLowerCase().includes('sledge'))
-        );
+        const axeSledgeProducts = fetchedProducts.filter(p => {
+          const brandMatch = (p.brand?.toLowerCase().includes('axe') && p.brand?.toLowerCase().includes('sledge'));
+          const titleMatch = (p.title?.toLowerCase().includes('axe') && p.title?.toLowerCase().includes('sledge'));
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
+        });
+        console.log(`Found ${axeSledgeProducts.length} Axe & Sledge products`);
         setProducts(axeSledgeProducts);
         setError(null);
       } catch (err) {

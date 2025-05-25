@@ -15,10 +15,13 @@ const GorillaMindPage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        const gorillaMindProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('gorilla mind') || 
-          p.name?.toLowerCase().includes('gorilla mind')
-        );
+        const gorillaMindProducts = fetchedProducts.filter(p => {
+          const brandMatch = p.brand?.toLowerCase().includes('gorilla mind');
+          const titleMatch = p.title?.toLowerCase().includes('gorilla mind');
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
+        });
+        console.log(`Found ${gorillaMindProducts.length} Gorilla Mind products`);
         setProducts(gorillaMindProducts);
         setError(null);
       } catch (err) {

@@ -15,10 +15,13 @@ const MetabolicNutritionPage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        const metabolicProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('metabolic nutrition') || 
-          p.name?.toLowerCase().includes('metabolic nutrition')
-        );
+        const metabolicProducts = fetchedProducts.filter(p => {
+          const brandMatch = p.brand?.toLowerCase().includes('metabolic nutrition');
+          const titleMatch = p.title?.toLowerCase().includes('metabolic nutrition');
+          console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
+          return brandMatch || titleMatch;
+        });
+        console.log(`Found ${metabolicProducts.length} Metabolic Nutrition products`);
         setProducts(metabolicProducts);
         setError(null);
       } catch (err) {
