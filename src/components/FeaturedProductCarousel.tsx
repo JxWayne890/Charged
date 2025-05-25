@@ -37,7 +37,7 @@ const FeaturedProductCarousel = ({
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-3">
-          <h2 className="text-lg md:text-xl font-bold text-white mb-1 electric-lime-glow">
+          <h2 className="text-lg font-bold text-white mb-1 electric-lime-glow md:text-2xl">
             FEATURED PRODUCTS
           </h2>
           <div className="w-16 h-0.5 bg-gradient-to-r from-primary to-yellow-400 mx-auto rounded-full"></div>
