@@ -39,11 +39,11 @@ const FeaturedProductCarousel = ({
   const currentProduct = products[currentIndex];
 
   return (
-    <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black py-4 overflow-hidden">
+    <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black py-3 overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(122,210,60,0.1),transparent_70%)]"></div>
-      <div className="absolute top-0 left-1/4 w-16 h-16 bg-primary/5 rounded-full blur-2xl"></div>
-      <div className="absolute bottom-0 right-1/4 w-16 h-16 bg-primary/5 rounded-full blur-2xl"></div>
+      <div className="absolute top-0 left-1/4 w-12 h-12 bg-primary/5 rounded-full blur-2xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-12 h-12 bg-primary/5 rounded-full blur-2xl"></div>
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-3">
@@ -61,46 +61,54 @@ const FeaturedProductCarousel = ({
                 : 'opacity-0 transform translate-y-2'
             }`}
           >
-            <div className="flex flex-col items-center text-center space-y-2">
-              {/* Product Image */}
-              <div className="w-32 h-32 relative overflow-hidden rounded-md">
-                <ProductImage
-                  src={currentProduct.images[0]}
-                  alt={currentProduct.title}
-                  className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
-                  width={128}
-                />
-              </div>
-              
-              {/* Product Name */}
-              <h3 className="text-sm font-bold uppercase text-white electric-lime-glow">
-                {currentProduct.title}
-              </h3>
-              
-              {/* Product Price */}
-              <div className="flex items-center justify-center gap-2">
-                {currentProduct.salePrice ? (
-                  <>
-                    <span className="text-sm font-bold text-primary electric-lime-glow">
-                      {formatPrice(currentProduct.salePrice)}
-                    </span>
-                    <span className="text-xs line-through text-gray-400">
+            <div className="flex items-center gap-4">
+              {/* Left side - Product Image with name and price underneath */}
+              <div className="flex flex-col items-center">
+                <div className="w-20 h-20 relative overflow-hidden rounded-md mb-2">
+                  <ProductImage
+                    src={currentProduct.images[0]}
+                    alt={currentProduct.title}
+                    className="w-full h-full object-cover transition-all duration-300 hover:scale-105"
+                    width={80}
+                  />
+                </div>
+                
+                {/* Product Name */}
+                <h3 className="text-xs font-bold uppercase text-white electric-lime-glow text-center mb-1">
+                  {currentProduct.title}
+                </h3>
+                
+                {/* Product Price */}
+                <div className="flex items-center justify-center gap-2">
+                  {currentProduct.salePrice ? (
+                    <>
+                      <span className="text-xs font-bold text-primary electric-lime-glow">
+                        {formatPrice(currentProduct.salePrice)}
+                      </span>
+                      <span className="text-xs line-through text-gray-400">
+                        {formatPrice(currentProduct.price)}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-xs font-bold text-white">
                       {formatPrice(currentProduct.price)}
                     </span>
-                  </>
-                ) : (
-                  <span className="text-sm font-bold text-white">
-                    {formatPrice(currentProduct.price)}
-                  </span>
-                )}
+                  )}
+                </div>
               </div>
               
-              {/* View Product Button */}
-              <Button asChild className="bg-gradient-to-r from-primary to-green-400 hover:from-green-400 hover:to-primary text-black font-bold py-1 px-3 text-xs rounded-full shadow-lg hover:shadow-primary/50 transition-all duration-300 hover:scale-105">
-                <Link to={`/product/${currentProduct.slug}`}>
-                  VIEW PRODUCT
-                </Link>
-              </Button>
+              {/* Right side - Product name and View Product button */}
+              <div className="flex flex-col items-start justify-center flex-1">
+                <h3 className="text-sm font-bold uppercase text-white electric-lime-glow mb-3">
+                  {currentProduct.title}
+                </h3>
+                
+                <Button asChild className="bg-gradient-to-r from-primary to-green-400 hover:from-green-400 hover:to-primary text-black font-bold py-1 px-3 text-xs rounded-full shadow-lg hover:shadow-primary/50 transition-all duration-300 hover:scale-105">
+                  <Link to={`/product/${currentProduct.slug}`}>
+                    VIEW PRODUCT
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
