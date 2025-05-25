@@ -4,6 +4,7 @@ import HeroSection from '@/components/HeroSection';
 import ProductCarousel from '@/components/ProductCarousel';
 import ValueStrip from '@/components/ValueStrip';
 import FeaturedProductCarousel from '@/components/FeaturedProductCarousel';
+import BrandCarousel from '@/components/BrandCarousel';
 import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
 import { toast } from "@/components/ui/use-toast";
@@ -94,6 +95,9 @@ const Index = () => {
         <h2 className="text-2xl font-bold mb-6">Shop by Category</h2>
         <QuickCategoryLinks />
       </section>
+      
+      {/* Brand Carousel */}
+      <BrandCarousel />
       
       {/* Best Sellers - Show only if we have best seller products */}
       {bestSellerProducts.length > 0 ? (

@@ -1,0 +1,183 @@
+
+import { useRef, useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface Brand {
+  name: string;
+  logo: string;
+  slug: string;
+}
+
+const brands: Brand[] = [
+  {
+    name: 'Abe (All Black Everything)',
+    logo: '/lovable-uploads/5989b1ff-d96c-481a-b0d3-9e3fa60fc4bd.png', // placeholder for now
+    slug: 'abe'
+  },
+  {
+    name: 'Alpha Lion',
+    logo: '/lovable-uploads/95fddad6-cd02-4458-8d15-b1e0dbac344b.png',
+    slug: 'alpha-lion'
+  },
+  {
+    name: 'Axe & Sledge Supplements',
+    logo: '/lovable-uploads/0fce723a-25b9-4061-94e1-75f5c078e507.png',
+    slug: 'axe-sledge'
+  },
+  {
+    name: 'Black Magic Supplements',
+    logo: '/lovable-uploads/320e640b-8084-4eec-9f43-00b98635d1ec.png',
+    slug: 'black-magic'
+  },
+  {
+    name: 'Bucked Up',
+    logo: '/lovable-uploads/b5bcf8d9-2a12-4f70-8c19-4a655b43108d.png',
+    slug: 'bucked-up'
+  },
+  {
+    name: 'Chemix',
+    logo: '/lovable-uploads/43831f2f-b13b-4610-a228-8b0039e17e4f.png',
+    slug: 'chemix'
+  },
+  {
+    name: 'Core Nutritionals',
+    logo: '/lovable-uploads/82454db8-d543-4f21-9f20-ddaebcbff76a.png',
+    slug: 'core-nutritionals'
+  },
+  {
+    name: 'Fresh Supps',
+    logo: '/lovable-uploads/6a303e96-8cdb-4d3b-bbf1-f72ab26562dd.png',
+    slug: 'fresh-supps'
+  },
+  {
+    name: 'Gorilla Mind',
+    logo: '/lovable-uploads/d32f1b37-7b0a-4d84-bc10-add104784921.png',
+    slug: 'gorilla-mind'
+  },
+  {
+    name: 'Metabolic Nutrition',
+    logo: '/lovable-uploads/2dc08c1e-a358-4b0f-adc6-ff3db4e7d4dd.png',
+    slug: 'metabolic-nutrition'
+  },
+  {
+    name: 'Raw Nutrition',
+    logo: '/lovable-uploads/75a79ad8-2782-46b0-af81-8b6db375dc1c.png',
+    slug: 'raw-nutrition'
+  },
+  {
+    name: 'Rule One Proteins',
+    logo: '/lovable-uploads/2fb1b4e5-46ac-41ba-83ef-eaedcfc02abc.png',
+    slug: 'rule-one'
+  },
+  {
+    name: 'Panda Supplements',
+    logo: '/lovable-uploads/72ae0f09-f585-4b73-8a8d-590274e589c3.png',
+    slug: 'panda-supplements'
+  }
+];
+
+const BrandCarousel = () => {
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScrollable = () => {
+    if (carouselRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (carousel) {
+      checkScrollable();
+      carousel.addEventListener('scroll', checkScrollable);
+      window.addEventListener('resize', checkScrollable);
+
+      return () => {
+        carousel.removeEventListener('scroll', checkScrollable);
+        window.removeEventListener('resize', checkScrollable);
+      };
+    }
+  }, []);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const { clientWidth } = carouselRef.current;
+      const scrollAmount = direction === 'left' ? -clientWidth / 2 : clientWidth / 2;
+      carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const handleBrandClick = (brand: Brand) => {
+    // Navigate to products filtered by brand
+    window.location.href = `/products?brand=${encodeURIComponent(brand.name)}`;
+  };
+
+  return (
+    <div className="relative bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        <h2 className="text-2xl font-bold mb-6 text-center">Shop by Brand</h2>
+        
+        <div className="relative">
+          {/* Left scroll button */}
+          {canScrollLeft && (
+            <button
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-md hover:bg-white transition-colors"
+              aria-label="Scroll left"
+            >
+              <ChevronLeft size={20} />
+            </button>
+          )}
+
+          {/* Brand carousel */}
+          <div
+            ref={carouselRef}
+            className="flex overflow-x-auto scrollbar-none gap-6 pb-2"
+            style={{ scrollSnapType: 'x mandatory' }}
+          >
+            {brands.map((brand) => (
+              <div
+                key={brand.slug}
+                className="min-w-[160px] max-w-[160px] snap-start cursor-pointer group"
+                onClick={() => handleBrandClick(brand)}
+              >
+                <div className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 group-hover:scale-105 h-24 flex items-center justify-center">
+                  <img
+                    src={brand.logo}
+                    alt={brand.name}
+                    className="max-w-full max-h-full object-contain filter group-hover:brightness-110 transition-all duration-300"
+                    onError={(e) => {
+                      console.log(`Failed to load logo for ${brand.name}`);
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                </div>
+                <p className="text-center text-xs mt-2 font-medium text-gray-700 group-hover:text-primary transition-colors">
+                  {brand.name}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Right scroll button */}
+          {canScrollRight && (
+            <button
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-md hover:bg-white transition-colors"
+              aria-label="Scroll right"
+            >
+              <ChevronRight size={20} />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BrandCarousel;
