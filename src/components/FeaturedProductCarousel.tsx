@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '@/types';
@@ -76,15 +77,15 @@ const FeaturedProductCarousel = ({
                 <div className="flex items-center justify-center gap-2">
                   {currentProduct.salePrice ? (
                     <>
-                      <span className="text-xs font-bold text-primary electric-lime-glow">
+                      <span className="text-sm font-bold text-primary electric-lime-glow">
                         {formatPrice(currentProduct.salePrice)}
                       </span>
-                      <span className="text-xs line-through text-gray-400">
+                      <span className="text-sm line-through text-gray-400">
                         {formatPrice(currentProduct.price)}
                       </span>
                     </>
                   ) : (
-                    <span className="text-xs font-bold text-white">
+                    <span className="text-sm font-bold text-white">
                       {formatPrice(currentProduct.price)}
                     </span>
                   )}
