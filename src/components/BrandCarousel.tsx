@@ -12,7 +12,7 @@ interface Brand {
 const brands: Brand[] = [
   {
     name: 'Abe (All Black Everything)',
-    logo: '/lovable-uploads/5989b1ff-d96c-481a-b0d3-9e3fa60fc4bd.png', // placeholder for now
+    logo: '/lovable-uploads/5989b1ff-d96c-481a-b0d3-9e3fa60fc4bd.png',
     slug: 'abe'
   },
   {
@@ -24,11 +24,6 @@ const brands: Brand[] = [
     name: 'Axe & Sledge Supplements',
     logo: '/lovable-uploads/0fce723a-25b9-4061-94e1-75f5c078e507.png',
     slug: 'axe-sledge'
-  },
-  {
-    name: 'Black Magic Supplements',
-    logo: '/lovable-uploads/320e640b-8084-4eec-9f43-00b98635d1ec.png',
-    slug: 'black-magic'
   },
   {
     name: 'Bucked Up',
@@ -47,7 +42,7 @@ const brands: Brand[] = [
   },
   {
     name: 'Fresh Supps',
-    logo: '/lovable-uploads/6a303e96-8cdb-4d3b-bbf1-f72ab26562dd.png',
+    logo: '/lovable-uploads/c36fc2cc-c00e-4bb0-a5b5-e87ef10881b1.png',
     slug: 'fresh-supps'
   },
   {
@@ -118,46 +113,69 @@ const BrandCarousel = () => {
   };
 
   return (
-    <div className="relative bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
-        <h2 className="text-2xl font-bold mb-6 text-center">Shop by Brand</h2>
+    <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(122,210,60,0.1),transparent_70%)]"></div>
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+      
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 electric-lime-glow">
+            SHOP BY BRAND
+          </h2>
+          <div className="w-24 h-1 bg-gradient-to-r from-primary to-yellow-400 mx-auto rounded-full"></div>
+        </div>
         
         <div className="relative">
           {/* Left scroll button */}
           {canScrollLeft && (
             <button
               onClick={() => scroll('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-md hover:bg-white transition-colors"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-gradient-to-r from-primary to-green-400 text-black rounded-full p-3 shadow-lg hover:shadow-primary/50 transition-all duration-300 hover:scale-110"
               aria-label="Scroll left"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={24} className="font-bold" />
             </button>
           )}
 
           {/* Brand carousel */}
           <div
             ref={carouselRef}
-            className="flex overflow-x-auto scrollbar-none gap-6 pb-2"
+            className="flex overflow-x-auto scrollbar-none gap-6 pb-4"
             style={{ scrollSnapType: 'x mandatory' }}
           >
-            {brands.map((brand) => (
+            {brands.map((brand, index) => (
               <div
                 key={brand.slug}
-                className="min-w-[160px] max-w-[160px] snap-start cursor-pointer group"
+                className="min-w-[180px] max-w-[180px] snap-start cursor-pointer group"
                 onClick={() => handleBrandClick(brand)}
               >
-                <div className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-all duration-300 group-hover:scale-105 h-24 flex items-center justify-center">
+                <div className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-primary/50 transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-primary/20 h-32 flex items-center justify-center overflow-hidden">
+                  {/* Glow effect on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+                  
+                  {/* Electric border effect */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary via-yellow-400 to-primary opacity-0 group-hover:opacity-20 blur-sm transition-opacity duration-500"></div>
+                  
                   <img
                     src={brand.logo}
                     alt={brand.name}
-                    className="max-w-full max-h-full object-contain filter group-hover:brightness-110 transition-all duration-300"
+                    className="max-w-full max-h-full object-contain filter group-hover:brightness-110 group-hover:drop-shadow-lg transition-all duration-500 relative z-10"
                     onError={(e) => {
                       console.log(`Failed to load logo for ${brand.name}`);
                       e.currentTarget.style.display = 'none';
                     }}
                   />
+                  
+                  {/* Animated corners */}
+                  <div className="absolute top-2 left-2 w-3 h-3 border-l-2 border-t-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
+                  <div className="absolute top-2 right-2 w-3 h-3 border-r-2 border-t-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
+                  <div className="absolute bottom-2 left-2 w-3 h-3 border-l-2 border-b-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
+                  <div className="absolute bottom-2 right-2 w-3 h-3 border-r-2 border-b-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
                 </div>
-                <p className="text-center text-xs mt-2 font-medium text-gray-700 group-hover:text-primary transition-colors">
+                
+                <p className="text-center text-sm mt-3 font-medium text-gray-300 group-hover:text-primary transition-colors duration-300 uppercase tracking-wide">
                   {brand.name}
                 </p>
               </div>
@@ -168,10 +186,10 @@ const BrandCarousel = () => {
           {canScrollRight && (
             <button
               onClick={() => scroll('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-md hover:bg-white transition-colors"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-gradient-to-r from-primary to-green-400 text-black rounded-full p-3 shadow-lg hover:shadow-primary/50 transition-all duration-300 hover:scale-110"
               aria-label="Scroll right"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={24} className="font-bold" />
             </button>
           )}
         </div>
