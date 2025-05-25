@@ -4,13 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingCart, TestTube } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Product } from '@/types';
 
 const TestCheckout = () => {
   const { addToCart, cartItems, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
 
-  // Sample test product
-  const testProduct = {
+  // Complete test product with all required Product fields
+  const testProduct: Product = {
     id: 'test-product-1',
     title: 'Test Protein Powder',
     slug: 'test-protein-powder',
@@ -19,9 +20,21 @@ const TestCheckout = () => {
     images: ['https://placeholder.svg?height=300&width=300'],
     category: 'protein',
     description: 'Test product for checkout verification',
-    inStock: true,
-    inventory: 100,
-    variants: []
+    stock: 100,
+    tags: ['test', 'protein'],
+    rating: 4.5,
+    reviewCount: 10,
+    benefits: ['High protein', 'Great taste', 'Fast absorption'],
+    ingredients: 'Whey protein isolate, natural flavors, stevia',
+    directions: 'Mix 1 scoop with 8oz of water or milk',
+    faqs: [
+      {
+        question: 'How much protein per serving?',
+        answer: '25g of high-quality protein per serving'
+      }
+    ],
+    featured: true,
+    bestSeller: false
   };
 
   const handleAddTestItem = () => {
@@ -31,13 +44,14 @@ const TestCheckout = () => {
   const handleAddMultipleItems = () => {
     addToCart(testProduct, 2);
     // Add a second test product
-    const testProduct2 = {
+    const testProduct2: Product = {
       ...testProduct,
       id: 'test-product-2',
       title: 'Test Pre-Workout',
       price: 39.99,
       salePrice: 34.99,
-      category: 'pre-workout'
+      category: 'pre-workout',
+      description: 'Test pre-workout for checkout verification'
     };
     addToCart(testProduct2, 1);
   };

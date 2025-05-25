@@ -43,10 +43,20 @@ serve(async (req) => {
 
   try {
     const squareAccessToken = Deno.env.get('SQUARE_ACCESS_TOKEN');
-    const squareApplicationId = Deno.env.get('SQUARE_APPLICATION_ID');
+    const squareLocationId = Deno.env.get('SQUARE_LOCATION_ID');
+    
+    console.log('Square Environment Check:', {
+      hasAccessToken: !!squareAccessToken,
+      hasLocationId: !!squareLocationId,
+      accessTokenPrefix: squareAccessToken?.substring(0, 10) + '...'
+    });
     
     if (!squareAccessToken) {
       throw new Error('Square access token not configured');
+    }
+    
+    if (!squareLocationId) {
+      throw new Error('Square location ID not configured');
     }
 
     const { items, customer, total, currency }: CheckoutRequest = await req.json();
@@ -54,7 +64,8 @@ serve(async (req) => {
     console.log('Creating Square checkout for order:', {
       itemCount: items.length,
       total,
-      customerEmail: customer.email
+      customerEmail: customer.email,
+      locationId: squareLocationId
     });
 
     // Determine Square environment
@@ -62,6 +73,8 @@ serve(async (req) => {
     const squareApiBase = isProduction 
       ? 'https://connect.squareup.com' 
       : 'https://connect.squareupsandbox.com';
+
+    console.log('Using Square environment:', isProduction ? 'Production' : 'Sandbox');
 
     // Create order items for Square
     const orderItems = items.map(item => ({
@@ -78,30 +91,12 @@ serve(async (req) => {
       }
     }));
 
-    // Create checkout session with Square
+    // Create checkout session with Square - simplified without conflicting shipping data
     const checkoutRequest = {
       idempotency_key: crypto.randomUUID(),
       order: {
-        location_id: Deno.env.get('SQUARE_LOCATION_ID'),
-        line_items: orderItems,
-        fulfillments: [{
-          type: 'SHIPMENT',
-          state: 'PROPOSED',
-          shipment_details: {
-            recipient: {
-              display_name: `${customer.firstName} ${customer.lastName}`,
-              email_address: customer.email,
-              phone_number: customer.phone || '',
-              address: {
-                address_line_1: customer.address,
-                locality: customer.city,
-                administrative_district_level_1: customer.state,
-                postal_code: customer.zipCode,
-                country: customer.country
-              }
-            }
-          }
-        }]
+        location_id: squareLocationId,
+        line_items: orderItems
       },
       checkout_options: {
         redirect_url: `${req.headers.get('origin')}/order-success`,
@@ -116,18 +111,11 @@ serve(async (req) => {
       },
       pre_populated_data: {
         buyer_email: customer.email,
-        buyer_phone_number: customer.phone || '',
-        buyer_address: {
-          address_line_1: customer.address,
-          locality: customer.city,
-          administrative_district_level_1: customer.state,
-          postal_code: customer.zipCode,
-          country: customer.country
-        }
+        buyer_phone_number: customer.phone || ''
       }
     };
 
-    console.log('Sending checkout request to Square API...');
+    console.log('Sending checkout request to Square API:', JSON.stringify(checkoutRequest, null, 2));
 
     const squareResponse = await fetch(`${squareApiBase}/v2/online-checkout/payment-links`, {
       method: 'POST',
@@ -141,8 +129,15 @@ serve(async (req) => {
 
     const responseData = await squareResponse.json();
 
+    console.log('Square API Response:', {
+      status: squareResponse.status,
+      statusText: squareResponse.statusText,
+      hasCheckoutUrl: !!responseData.payment_link?.url,
+      errors: responseData.errors
+    });
+
     if (!squareResponse.ok) {
-      console.error('Square API error:', responseData);
+      console.error('Square API error details:', JSON.stringify(responseData, null, 2));
       throw new Error(`Square API error: ${responseData.errors?.[0]?.detail || 'Unknown error'}`);
     }
 
@@ -163,7 +158,8 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in create-checkout function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message || 'Failed to create checkout session' 
+      error: error.message || 'Failed to create checkout session',
+      details: error.stack || 'No additional details available'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
