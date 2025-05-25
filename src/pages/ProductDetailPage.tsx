@@ -17,6 +17,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import TestCheckout from '@/components/TestCheckout';
 
 const ProductDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -116,168 +117,177 @@ const ProductDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 pt-32">
-      {/* Product Overview Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-        {/* Product Images */}
-        <div className="space-y-4">
-          <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-            <ProductImage
-              src={selectedImage} 
-              alt={product.title}
-              className="w-full h-full object-cover"
-              onError={handleImageError}
-            />
-          </div>
-          
-          <div className="flex space-x-2 overflow-x-auto pb-2">
-            {product.images.map((image, index) => (
-              <button 
-                key={index}
-                onClick={() => setSelectedImage(image)}
-                className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === image ? 'border-primary' : 'border-transparent'}`}
-              >
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8 pt-32">
+        {/* Product Overview Section */}
+        {product && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Product Images */}
+            <div className="space-y-4">
+              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                 <ProductImage
-                  src={image} 
-                  alt={`${product.title} thumbnail ${index + 1}`}
+                  src={selectedImage} 
+                  alt={product.title}
                   className="w-full h-full object-cover"
+                  onError={handleImageError}
                 />
-              </button>
-            ))}
-          </div>
-        </div>
-        
-        {/* Product Info & Add to Cart */}
-        <div className="space-y-6">
-          {/* Product badges */}
-          <div className="flex flex-wrap gap-2 mb-2">
-            {product.bestSeller && (
-              <span className="bg-black text-white text-xs py-1 px-2 rounded">Best Seller</span>
-            )}
-            {product.featured && (
-              <span className="bg-primary text-white text-xs py-1 px-2 rounded">Featured</span>
-            )}
-            {product.dietary && product.dietary.map((item, index) => (
-              <span key={index} className="bg-gray-100 text-gray-800 text-xs py-1 px-2 rounded">
-                {item}
-              </span>
-            ))}
-          </div>
-          
-          <h1 className="text-3xl md:text-4xl font-bold">{product.title}</h1>
-          
-          {/* Price */}
-          <div className="flex items-center gap-2 mb-4">
-            {product.salePrice ? (
-              <>
-                <span className="text-2xl font-bold text-primary">
-                  {isSubscription && product.subscription_price
-                    ? formatPrice(product.subscription_price)
-                    : formatPrice(product.salePrice)}
-                </span>
-                <span className="text-lg line-through text-gray-400">
-                  {formatPrice(product.price)}
-                </span>
-              </>
-            ) : (
-              <span className="text-2xl font-bold">
-                {isSubscription && product.subscription_price
-                  ? formatPrice(product.subscription_price)
-                  : formatPrice(product.price)}
-              </span>
-            )}
-          </div>
-          
-          <div className="space-y-4">
-            {/* Subscription option if available */}
-            {product.subscription_price && (
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="subscription"
-                  checked={isSubscription}
-                  onChange={(e) => setIsSubscription(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <label htmlFor="subscription" className="text-sm font-medium text-gray-700">
-                  Subscribe & Save {Math.round((1 - product.subscription_price! / product.price) * 100)}%
-                </label>
               </div>
-            )}
-            
-            {/* Flavor Selection if available */}
-            {product.flavors && product.flavors.length > 0 && (
-              <div>
-                <label htmlFor="flavor" className="block text-sm font-medium text-gray-700 mb-1">
-                  Flavor
-                </label>
-                <Select value={selectedFlavor} onValueChange={setSelectedFlavor}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a flavor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {product.flavors.map((flavor) => (
-                      <SelectItem key={flavor} value={flavor}>
-                        {flavor}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            
-            {/* Quantity Selection */}
-            <div>
-              <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">
-                Quantity
-              </label>
-              <div className="flex items-center">
-                <button
-                  type="button"
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="border border-gray-300 rounded-l-md p-2"
-                >
-                  -
-                </button>
-                <input
-                  type="number"
-                  id="quantity"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  min="1"
-                  className="border-y border-gray-300 p-2 w-16 text-center"
-                />
-                <button
-                  type="button"
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="border border-gray-300 rounded-r-md p-2"
-                >
-                  +
-                </button>
+              
+              <div className="flex space-x-2 overflow-x-auto pb-2">
+                {product.images.map((image, index) => (
+                  <button 
+                    key={index}
+                    onClick={() => setSelectedImage(image)}
+                    className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === image ? 'border-primary' : 'border-transparent'}`}
+                  >
+                    <ProductImage
+                      src={image} 
+                      alt={`${product.title} thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
               </div>
             </div>
             
-            {/* Stock Status */}
-            <div>
-              <p className={`text-sm ${product.stock > 10 ? 'text-green-600' : 'text-amber-600'}`}>
-                {product.stock > 10 
-                  ? 'In Stock' 
-                  : product.stock > 0 
-                    ? `Only ${product.stock} left in stock!` 
-                    : 'Out of Stock'}
-              </p>
+            {/* Product Info & Add to Cart */}
+            <div className="space-y-6">
+              {/* Product badges */}
+              <div className="flex flex-wrap gap-2 mb-2">
+                {product.bestSeller && (
+                  <span className="bg-black text-white text-xs py-1 px-2 rounded">Best Seller</span>
+                )}
+                {product.featured && (
+                  <span className="bg-primary text-white text-xs py-1 px-2 rounded">Featured</span>
+                )}
+                {product.dietary && product.dietary.map((item, index) => (
+                  <span key={index} className="bg-gray-100 text-gray-800 text-xs py-1 px-2 rounded">
+                    {item}
+                  </span>
+                ))}
+              </div>
+              
+              <h1 className="text-3xl md:text-4xl font-bold">{product.title}</h1>
+              
+              {/* Price */}
+              <div className="flex items-center gap-2 mb-4">
+                {product.salePrice ? (
+                  <>
+                    <span className="text-2xl font-bold text-primary">
+                      {isSubscription && product.subscription_price
+                        ? formatPrice(product.subscription_price)
+                        : formatPrice(product.salePrice)}
+                    </span>
+                    <span className="text-lg line-through text-gray-400">
+                      {formatPrice(product.price)}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-2xl font-bold">
+                    {isSubscription && product.subscription_price
+                      ? formatPrice(product.subscription_price)
+                      : formatPrice(product.price)}
+                  </span>
+                )}
+              </div>
+              
+              <div className="space-y-4">
+                {/* Subscription option if available */}
+                {product.subscription_price && (
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="subscription"
+                      checked={isSubscription}
+                      onChange={(e) => setIsSubscription(e.target.checked)}
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <label htmlFor="subscription" className="text-sm font-medium text-gray-700">
+                      Subscribe & Save {Math.round((1 - product.subscription_price! / product.price) * 100)}%
+                    </label>
+                  </div>
+                )}
+                
+                {/* Flavor Selection if available */}
+                {product.flavors && product.flavors.length > 0 && (
+                  <div>
+                    <label htmlFor="flavor" className="block text-sm font-medium text-gray-700 mb-1">
+                      Flavor
+                    </label>
+                    <Select value={selectedFlavor} onValueChange={setSelectedFlavor}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a flavor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {product.flavors.map((flavor) => (
+                          <SelectItem key={flavor} value={flavor}>
+                            {flavor}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                
+                {/* Quantity Selection */}
+                <div>
+                  <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-1">
+                    Quantity
+                  </label>
+                  <div className="flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="border border-gray-300 rounded-l-md p-2"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      id="quantity"
+                      value={quantity}
+                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      min="1"
+                      className="border-y border-gray-300 p-2 w-16 text-center"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="border border-gray-300 rounded-r-md p-2"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Stock Status */}
+                <div>
+                  <p className={`text-sm ${product.stock > 10 ? 'text-green-600' : 'text-amber-600'}`}>
+                    {product.stock > 10 
+                      ? 'In Stock' 
+                      : product.stock > 0 
+                        ? `Only ${product.stock} left in stock!` 
+                        : 'Out of Stock'}
+                  </p>
+                </div>
+                
+                {/* Add to Cart Button */}
+                <Button 
+                  onClick={handleAddToCart}
+                  disabled={product.stock === 0}
+                  size="lg"
+                  className="w-full mt-4"
+                >
+                  {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                </Button>
+              </div>
             </div>
-            
-            {/* Add to Cart Button */}
-            <Button 
-              onClick={handleAddToCart}
-              disabled={product.stock === 0}
-              size="lg"
-              className="w-full mt-4"
-            >
-              {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-            </Button>
           </div>
+        )}
+
+        {/* Add test checkout component */}
+        <div className="mt-12 flex justify-center">
+          <TestCheckout />
         </div>
       </div>
       
