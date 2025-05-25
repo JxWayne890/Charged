@@ -16,7 +16,8 @@ const PandaSupplementsPage = () => {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
         const pandaProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('panda supplements')
+          p.brand?.toLowerCase().includes('panda supplements') || 
+          p.name?.toLowerCase().includes('panda supplements')
         );
         setProducts(pandaProducts);
         setError(null);
@@ -62,14 +63,13 @@ const PandaSupplementsPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-20">
       <div className="text-center mb-8">
         <img 
           src="/lovable-uploads/841b6f3d-1334-4fb1-959b-49422919d292.png" 
           alt="Panda Supplements" 
           className="mx-auto mb-4 max-h-24 object-contain"
         />
-        <h1 className="text-3xl font-bold mb-2">Panda Supplements</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Gentle strength, powerful results. Panda Supplements combines quality ingredients with effective formulations.
         </p>

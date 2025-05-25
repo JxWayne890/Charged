@@ -16,7 +16,8 @@ const RuleOnePage = () => {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
         const ruleOneProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('rule one')
+          p.brand?.toLowerCase().includes('rule one') || 
+          p.name?.toLowerCase().includes('rule one')
         );
         setProducts(ruleOneProducts);
         setError(null);
@@ -62,14 +63,13 @@ const RuleOnePage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-20">
       <div className="text-center mb-8">
         <img 
           src="/lovable-uploads/676c2abd-8e1a-4f4b-b3ae-7d1b0a4ba33f.png" 
           alt="Rule One Proteins" 
           className="mx-auto mb-4 max-h-24 object-contain"
         />
-        <h1 className="text-3xl font-bold mb-2">Rule One Proteins</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           The first rule of fitness is quality nutrition. Rule One Proteins delivers premium supplements for serious athletes.
         </p>

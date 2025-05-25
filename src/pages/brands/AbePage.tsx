@@ -17,7 +17,9 @@ const AbePage = () => {
         const fetchedProducts = await fetchSquareProducts();
         const abeProducts = fetchedProducts.filter(p => 
           p.brand?.toLowerCase().includes('abe') || 
-          p.brand?.toLowerCase().includes('all black everything')
+          p.brand?.toLowerCase().includes('all black everything') ||
+          p.name?.toLowerCase().includes('abe') ||
+          p.name?.toLowerCase().includes('all black everything')
         );
         setProducts(abeProducts);
         setError(null);
@@ -63,14 +65,13 @@ const AbePage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-20">
       <div className="text-center mb-8">
         <img 
           src="/lovable-uploads/5989b1ff-d96c-481a-b0d3-9e3fa60fc4bd.png" 
           alt="ABE (All Black Everything)" 
           className="mx-auto mb-4 max-h-24 object-contain"
         />
-        <h1 className="text-3xl font-bold mb-2">ABE (All Black Everything)</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Discover the complete range of ABE supplements designed to fuel your fitness journey with premium quality and uncompromising performance.
         </p>

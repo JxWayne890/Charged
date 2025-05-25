@@ -16,7 +16,8 @@ const BuckedUpPage = () => {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
         const buckedUpProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('bucked up')
+          p.brand?.toLowerCase().includes('bucked up') || 
+          p.name?.toLowerCase().includes('bucked up')
         );
         setProducts(buckedUpProducts);
         setError(null);
@@ -62,14 +63,13 @@ const BuckedUpPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-20">
       <div className="text-center mb-8">
         <img 
           src="/lovable-uploads/b5bcf8d9-2a12-4f70-8c19-4a655b43108d.png" 
           alt="Bucked Up" 
           className="mx-auto mb-4 max-h-24 object-contain"
         />
-        <h1 className="text-3xl font-bold mb-2">Bucked Up</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Get bucked up with high-quality supplements that deliver real results for your fitness goals.
         </p>

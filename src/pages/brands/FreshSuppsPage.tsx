@@ -16,7 +16,8 @@ const FreshSuppsPage = () => {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
         const freshSuppsProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('fresh supps')
+          p.brand?.toLowerCase().includes('fresh supps') || 
+          p.name?.toLowerCase().includes('fresh supps')
         );
         setProducts(freshSuppsProducts);
         setError(null);
@@ -62,14 +63,13 @@ const FreshSuppsPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-20">
       <div className="text-center mb-8">
         <img 
           src="/lovable-uploads/c36fc2cc-c00e-4bb0-a5b5-e87ef10881b1.png" 
           alt="Fresh Supps" 
           className="mx-auto mb-4 max-h-24 object-contain"
         />
-        <h1 className="text-3xl font-bold mb-2">Fresh Supps</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Fresh approach to supplementation. Quality ingredients and innovative formulations for modern fitness enthusiasts.
         </p>

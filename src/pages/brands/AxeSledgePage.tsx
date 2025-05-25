@@ -16,7 +16,8 @@ const AxeSledgePage = () => {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
         const axeSledgeProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('axe') && p.brand?.toLowerCase().includes('sledge')
+          (p.brand?.toLowerCase().includes('axe') && p.brand?.toLowerCase().includes('sledge')) ||
+          (p.name?.toLowerCase().includes('axe') && p.name?.toLowerCase().includes('sledge'))
         );
         setProducts(axeSledgeProducts);
         setError(null);
@@ -62,14 +63,13 @@ const AxeSledgePage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-20">
       <div className="text-center mb-8">
         <img 
           src="/lovable-uploads/0fce723a-25b9-4061-94e1-75f5c078e507.png" 
           alt="Axe & Sledge Supplements" 
           className="mx-auto mb-4 max-h-24 object-contain"
         />
-        <h1 className="text-3xl font-bold mb-2">Axe & Sledge Supplements</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Built for those who work hard and play harder. Axe & Sledge delivers powerful supplements for serious performance.
         </p>

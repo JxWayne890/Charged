@@ -16,7 +16,8 @@ const ChemixPage = () => {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
         const chemixProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('chemix')
+          p.brand?.toLowerCase().includes('chemix') || 
+          p.name?.toLowerCase().includes('chemix')
         );
         setProducts(chemixProducts);
         setError(null);
@@ -62,14 +63,13 @@ const ChemixPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-20">
       <div className="text-center mb-8">
         <img 
           src="/lovable-uploads/43831f2f-b13b-4610-a228-8b0039e17e4f.png" 
           alt="Chemix" 
           className="mx-auto mb-4 max-h-24 object-contain"
         />
-        <h1 className="text-3xl font-bold mb-2">Chemix</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Science-backed formulations for optimal performance. Chemix delivers innovative supplements for serious athletes.
         </p>

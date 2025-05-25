@@ -16,7 +16,8 @@ const CoreNutritionalPage = () => {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
         const coreProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('core nutritionals')
+          p.brand?.toLowerCase().includes('core nutritionals') || 
+          p.name?.toLowerCase().includes('core nutritionals')
         );
         setProducts(coreProducts);
         setError(null);
@@ -62,14 +63,13 @@ const CoreNutritionalPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-20">
       <div className="text-center mb-8">
         <img 
           src="/lovable-uploads/82454db8-d543-4f21-9f20-ddaebcbff76a.png" 
           alt="Core Nutritionals" 
           className="mx-auto mb-4 max-h-24 object-contain"
         />
-        <h1 className="text-3xl font-bold mb-2">Core Nutritionals</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Core supplements for core performance. Build your foundation with Core Nutritionals' premium supplement line.
         </p>

@@ -16,7 +16,8 @@ const RawNutritionPage = () => {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
         const rawNutritionProducts = fetchedProducts.filter(p => 
-          p.brand?.toLowerCase().includes('raw nutrition')
+          p.brand?.toLowerCase().includes('raw nutrition') || 
+          p.name?.toLowerCase().includes('raw nutrition')
         );
         setProducts(rawNutritionProducts);
         setError(null);
@@ -62,14 +63,13 @@ const RawNutritionPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-20">
       <div className="text-center mb-8">
         <img 
           src="/lovable-uploads/75a79ad8-2782-46b0-af81-8b6db375dc1c.png" 
           alt="Raw Nutrition" 
           className="mx-auto mb-4 max-h-24 object-contain"
         />
-        <h1 className="text-3xl font-bold mb-2">Raw Nutrition</h1>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Raw power, raw performance. Experience the unfiltered strength of Raw Nutrition's premium supplement line.
         </p>
