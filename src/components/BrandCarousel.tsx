@@ -156,10 +156,7 @@ const BrandCarousel = () => {
                 className="min-w-[180px] max-w-[180px] snap-start cursor-pointer group"
                 onClick={() => handleBrandClick(brand)}
               >
-                <div className={cn(
-                  "relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-primary/50 transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-primary/20 flex items-center justify-center overflow-hidden",
-                  brand.largeIcon ? "h-40" : "h-32"
-                )}>
+                <div className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-primary/50 transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-primary/20 h-32 flex items-center justify-center overflow-hidden">
                   {/* Glow effect on hover */}
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
                   
@@ -171,7 +168,7 @@ const BrandCarousel = () => {
                     alt={brand.name}
                     className={cn(
                       "object-contain filter group-hover:brightness-110 group-hover:drop-shadow-lg transition-all duration-500 relative z-10",
-                      brand.largeIcon ? "max-w-full max-h-32" : "max-w-full max-h-full"
+                      brand.largeIcon ? "max-w-[90%] max-h-[90%]" : "max-w-full max-h-full"
                     )}
                     onError={(e) => {
                       console.log(`Failed to load logo for ${brand.name}`);
