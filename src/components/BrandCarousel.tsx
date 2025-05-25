@@ -42,7 +42,7 @@ const brands: Brand[] = [
   },
   {
     name: 'Fresh Supps',
-    logo: '/lovable-uploads/c36fc2cc-c00e-4bb0-a5b5-e87ef10881b1.png',
+    logo: '/lovable-uploads/320e640b-8084-4eec-9f43-00b98635d1ec.png',
     slug: 'fresh-supps'
   },
   {
@@ -62,12 +62,12 @@ const brands: Brand[] = [
   },
   {
     name: 'Rule One Proteins',
-    logo: '/lovable-uploads/2fb1b4e5-46ac-41ba-83ef-eaedcfc02abc.png',
+    logo: '/lovable-uploads/676c2abd-8e1a-4f4b-b3ae-7d1b0a4ba33f.png',
     slug: 'rule-one'
   },
   {
     name: 'Panda Supplements',
-    logo: '/lovable-uploads/72ae0f09-f585-4b73-8a8d-590274e589c3.png',
+    logo: '/lovable-uploads/841b6f3d-1334-4fb1-959b-49422919d292.png',
     slug: 'panda-supplements'
   }
 ];
