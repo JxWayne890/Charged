@@ -1,7 +1,6 @@
 
-import { useRef, useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import { Button } from './ui/button';
@@ -9,47 +8,35 @@ import ProductImage from './ProductImage';
 
 interface FeaturedProductCarouselProps {
   products: Product[];
-  autoScrollInterval?: number;
+  autoScrollInterval?: number; // in ms
 }
 
 const FeaturedProductCarousel = ({
   products,
+  autoScrollInterval = 8000, // 8 seconds for better readability
 }: FeaturedProductCarouselProps) => {
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+
+  // Auto scroll effect with smooth fade transition
+  useEffect(() => {
+    if (!products || products.length === 0) return;
+
+    const interval = setInterval(() => {
+      setIsVisible(false);
+      
+      setTimeout(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % products.length);
+        setIsVisible(true);
+      }, 800); // Smooth fade out time
+    }, autoScrollInterval);
+
+    return () => clearInterval(interval);
+  }, [products, autoScrollInterval]);
 
   if (!products || products.length === 0) return null;
 
-  const checkScrollable = () => {
-    if (carouselRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-    }
-  };
-
-  useEffect(() => {
-    const carousel = carouselRef.current;
-    if (carousel) {
-      checkScrollable();
-      carousel.addEventListener('scroll', checkScrollable);
-      window.addEventListener('resize', checkScrollable);
-
-      return () => {
-        carousel.removeEventListener('scroll', checkScrollable);
-        window.removeEventListener('resize', checkScrollable);
-      };
-    }
-  }, []);
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (carouselRef.current) {
-      const { clientWidth } = carouselRef.current;
-      const scrollAmount = direction === 'left' ? -clientWidth / 2 : clientWidth / 2;
-      carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
+  const currentProduct = products[currentIndex];
 
   return (
     <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black py-8 overflow-hidden">
@@ -60,125 +47,105 @@ const FeaturedProductCarousel = ({
       
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-2 electric-lime-glow">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 electric-lime-glow">
             FEATURED PRODUCTS
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-yellow-400 mx-auto rounded-full"></div>
         </div>
         
-        <div className="relative">
-          {/* Left scroll button */}
-          {canScrollLeft && (
-            <button
-              onClick={() => scroll('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-gradient-to-r from-primary to-green-400 text-black rounded-full p-3 shadow-lg hover:shadow-primary/50 transition-all duration-300 hover:scale-110"
-              aria-label="Scroll left"
-            >
-              <ChevronLeft size={20} className="font-bold" />
-            </button>
-          )}
-
-          {/* Product carousel */}
-          <div
-            ref={carouselRef}
-            className="flex overflow-x-auto scrollbar-none gap-4 pb-4"
-            style={{ scrollSnapType: 'x mandatory' }}
+        <div className="max-w-4xl mx-auto">
+          <div 
+            className={`transition-all duration-1000 ease-in-out ${
+              isVisible 
+                ? 'opacity-100 transform translate-y-0' 
+                : 'opacity-0 transform translate-y-2'
+            }`}
           >
-            {products.map((product) => (
-              <div
-                key={product.id}
-                className="min-w-[160px] max-w-[160px] snap-start group"
-              >
-                <div className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl p-3 border border-gray-700/50 hover:border-primary/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-primary/20 overflow-hidden h-72">
-                  {/* Glow effect on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
-                  
-                  {/* Electric border effect */}
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary via-yellow-400 to-primary opacity-0 group-hover:opacity-20 blur-sm transition-opacity duration-500"></div>
-                  
-                  {/* Animated corners */}
-                  <div className="absolute top-2 left-2 w-3 h-3 border-l-2 border-t-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
-                  <div className="absolute top-2 right-2 w-3 h-3 border-r-2 border-t-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
-                  <div className="absolute bottom-2 left-2 w-3 h-3 border-l-2 border-b-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
-                  <div className="absolute bottom-2 right-2 w-3 h-3 border-r-2 border-b-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
-                  
-                  <Link to={`/product/${product.slug}`} className="block relative z-10 h-full flex flex-col">
-                    {/* Product Image */}
-                    <div className="relative w-full h-24 mb-3 overflow-hidden rounded-lg bg-gray-900/50 border border-gray-700/50">
-                      <ProductImage
-                        src={product.images[0]}
-                        alt={product.title}
-                        className="w-full h-full object-cover transition-all duration-500 group-hover:brightness-110 group-hover:drop-shadow-lg group-hover:scale-105"
-                        width={120}
-                      />
-                      {product.bestSeller && (
-                        <div className="absolute top-1 left-1 bg-gradient-to-r from-primary to-green-400 text-black text-xs font-bold py-0.5 px-1 rounded-full shadow-lg">
-                          BEST
-                        </div>
-                      )}
-                      {product.featured && (
-                        <div className="absolute top-1 right-1 bg-gradient-to-r from-yellow-400 to-primary text-black text-xs font-bold py-0.5 px-1 rounded-full shadow-lg">
-                          FEAT
-                        </div>
-                      )}
+            <div className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:border-primary/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-primary/20 overflow-hidden group">
+              {/* Glow effect on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
+              
+              {/* Electric border effect */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-primary via-yellow-400 to-primary opacity-0 group-hover:opacity-20 blur-sm transition-opacity duration-500"></div>
+              
+              {/* Animated corners */}
+              <div className="absolute top-2 left-2 w-6 h-6 border-l-2 border-t-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
+              <div className="absolute top-2 right-2 w-6 h-6 border-r-2 border-t-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
+              <div className="absolute bottom-2 left-2 w-6 h-6 border-l-2 border-b-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
+              <div className="absolute bottom-2 right-2 w-6 h-6 border-r-2 border-b-2 border-primary/0 group-hover:border-primary transition-colors duration-300"></div>
+              
+              <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
+                {/* Product Image */}
+                <div className="w-full md:w-1/2 max-w-xs aspect-square relative overflow-hidden rounded-lg bg-gray-900/50 border border-gray-700/50">
+                  <ProductImage
+                    src={currentProduct.images[0]}
+                    alt={currentProduct.title}
+                    className="w-full h-full object-cover transition-all duration-500 group-hover:brightness-110 group-hover:drop-shadow-lg group-hover:scale-105"
+                    width={300}
+                  />
+                  {currentProduct.bestSeller && (
+                    <div className="absolute top-3 left-3 bg-gradient-to-r from-primary to-green-400 text-black text-xs font-bold py-1.5 px-3 rounded-full shadow-lg">
+                      BEST SELLER
                     </div>
-                    
-                    {/* Product Info */}
-                    <div className="text-center space-y-1 flex-1">
-                      {/* Brand/Category */}
-                      <p className="text-xs uppercase text-gray-400 tracking-wider">
-                        {product.category || 'SUPPLEMENT'}
-                      </p>
-                      
-                      {/* Product Name */}
-                      <h3 className="text-xs font-bold uppercase text-white group-hover:text-primary transition-colors duration-300 electric-lime-glow leading-tight line-clamp-2">
-                        {product.title}
-                      </h3>
-                      
-                      {/* Price */}
-                      <div className="flex items-center justify-center gap-1">
-                        {product.salePrice ? (
-                          <>
-                            <span className="text-sm font-bold text-primary electric-lime-glow">
-                              {formatPrice(product.salePrice)}
-                            </span>
-                            <span className="text-xs line-through text-gray-400">
-                              {formatPrice(product.price)}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-sm font-bold text-primary electric-lime-glow">
-                            {formatPrice(product.price)}
-                          </span>
-                        )}
-                      </div>
+                  )}
+                  {currentProduct.featured && (
+                    <div className="absolute top-3 right-3 bg-gradient-to-r from-yellow-400 to-primary text-black text-xs font-bold py-1.5 px-3 rounded-full shadow-lg">
+                      FEATURED
                     </div>
-                  </Link>
+                  )}
+                </div>
+                
+                {/* Product Info */}
+                <div className="w-full md:w-1/2 flex flex-col text-center md:text-left">
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 uppercase text-white group-hover:text-primary transition-colors duration-300 electric-lime-glow">
+                    {currentProduct.title}
+                  </h3>
                   
-                  {/* CTA Button */}
-                  <div className="mt-2 relative z-10">
-                    <Button asChild className="w-full bg-gradient-to-r from-primary to-green-400 hover:from-green-400 hover:to-primary text-black font-bold py-1 px-2 rounded-full shadow-lg hover:shadow-primary/50 transition-all duration-300 hover:scale-105 text-xs">
-                      <Link to={`/product/${product.slug}`}>
-                        VIEW
-                      </Link>
-                    </Button>
+                  <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+                    {currentProduct.salePrice ? (
+                      <>
+                        <span className="text-xl md:text-2xl font-bold text-primary electric-lime-glow">
+                          {formatPrice(currentProduct.salePrice)}
+                        </span>
+                        <span className="text-lg line-through text-gray-400">
+                          {formatPrice(currentProduct.price)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-xl md:text-2xl font-bold text-white group-hover:text-primary transition-colors duration-300">
+                        {formatPrice(currentProduct.price)}
+                      </span>
+                    )}
                   </div>
+                  
+                  <Button asChild className="bg-gradient-to-r from-primary to-green-400 hover:from-green-400 hover:to-primary text-black font-bold py-2.5 px-6 rounded-full shadow-lg hover:shadow-primary/50 transition-all duration-300 hover:scale-105 w-full md:w-auto max-w-xs mx-auto md:mx-0">
+                    <Link to={`/product/${currentProduct.slug}`}>
+                      VIEW PRODUCT
+                    </Link>
+                  </Button>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Product indicators */}
+        {products.length > 1 && (
+          <div className="flex justify-center mt-4 gap-2">
+            {products.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentIndex 
+                    ? 'bg-primary shadow-lg shadow-primary/50' 
+                    : 'bg-gray-600 hover:bg-gray-500'
+                }`}
+                aria-label={`Go to product ${index + 1}`}
+              />
             ))}
           </div>
-
-          {/* Right scroll button */}
-          {canScrollRight && (
-            <button
-              onClick={() => scroll('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-gradient-to-r from-primary to-green-400 text-black rounded-full p-3 shadow-lg hover:shadow-primary/50 transition-all duration-300 hover:scale-110"
-              aria-label="Scroll right"
-            >
-              <ChevronRight size={20} className="font-bold" />
-            </button>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
