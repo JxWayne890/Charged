@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '@/types';
@@ -62,7 +61,7 @@ const FeaturedProductCarousel = ({
             }`}
           >
             <div className="flex items-center gap-4">
-              {/* Left side - Product Image with name and price underneath */}
+              {/* Left side - Product Image with price underneath */}
               <div className="flex flex-col items-center">
                 <div className="w-20 h-20 relative overflow-hidden rounded-md mb-2">
                   <ProductImage
@@ -72,11 +71,6 @@ const FeaturedProductCarousel = ({
                     width={80}
                   />
                 </div>
-                
-                {/* Product Name */}
-                <h3 className="text-xs font-bold uppercase text-white electric-lime-glow text-center mb-1">
-                  {currentProduct.title}
-                </h3>
                 
                 {/* Product Price */}
                 <div className="flex items-center justify-center gap-2">
