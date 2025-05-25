@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   title: string;
@@ -21,6 +20,7 @@ export interface Product {
   featured?: boolean;
   bestSeller?: boolean;
   slug: string;
+  brand?: string;
 }
 
 export interface FAQ {
