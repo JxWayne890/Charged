@@ -4,11 +4,22 @@ import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
 import ProductCard from '@/components/ProductCard';
 import { toast } from "@/components/ui/use-toast";
+import { Button } from '@/components/ui/button';
+import { usePaginatedProducts } from '@/hooks/usePaginatedProducts';
 
 const BuckedUpPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const {
+    displayedProducts,
+    loadingMore,
+    handleLoadMore,
+    hasMoreItems,
+    totalProducts,
+    showingCount
+  } = usePaginatedProducts({ products });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -82,12 +93,41 @@ const BuckedUpPage = () => {
         </p>
       </div>
       
-      {products.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+      {totalProducts > 0 ? (
+        <>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">Bucked Up Products</h2>
+            <p className="text-gray-600">
+              Showing {showingCount} of {totalProducts} products
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+            {displayedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+
+          {/* Load More Button */}
+          {hasMoreItems && (
+            <div className="flex justify-center">
+              <Button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="px-8 py-3 text-lg"
+              >
+                {loadingMore ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                    Loading More...
+                  </>
+                ) : (
+                  'Load More'
+                )}
+              </Button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="text-center py-12">
           <p className="text-gray-600 text-lg">No Bucked Up products available at the moment. Check back soon!</p>

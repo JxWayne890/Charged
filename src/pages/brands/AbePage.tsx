@@ -1,13 +1,20 @@
+
 import { useEffect, useState } from 'react';
 import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
 import ProductCard from '@/components/ProductCard';
 import { toast } from "@/components/ui/use-toast";
+import { Button } from '@/components/ui/button';
+
+const PRODUCTS_PER_LOAD = 30;
 
 const AbePage = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [itemsToShow, setItemsToShow] = useState(PRODUCTS_PER_LOAD);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -45,6 +52,21 @@ const AbePage = () => {
     
     loadProducts();
   }, []);
+
+  // Update displayed products when products or itemsToShow changes
+  useEffect(() => {
+    setDisplayedProducts(products.slice(0, itemsToShow));
+  }, [products, itemsToShow]);
+
+  const handleLoadMore = async () => {
+    setLoadingMore(true);
+    // Simulate a small delay for better UX
+    await new Promise(resolve => setTimeout(resolve, 300));
+    setItemsToShow(prev => prev + PRODUCTS_PER_LOAD);
+    setLoadingMore(false);
+  };
+
+  const hasMoreItems = itemsToShow < products.length;
 
   if (loading) {
     return (
@@ -85,11 +107,40 @@ const AbePage = () => {
       </div>
       
       {products.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        <>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">ABE Products</h2>
+            <p className="text-gray-600">
+              Showing {displayedProducts.length} of {products.length} products
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+            {displayedProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+
+          {/* Load More Button */}
+          {hasMoreItems && (
+            <div className="flex justify-center">
+              <Button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="px-8 py-3 text-lg"
+              >
+                {loadingMore ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                    Loading More...
+                  </>
+                ) : (
+                  'Load More'
+                )}
+              </Button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="text-center py-12">
           <p className="text-gray-600 text-lg">No ABE products available at the moment. Check back soon!</p>
