@@ -3,9 +3,11 @@ import { useAuth } from '@/context/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables } from '@/integrations/supabase/types';
+import MyFavorites from '@/components/MyFavorites';
 
 const AccountPage = () => {
   const { user, signOut, isLoading } = useAuth();
@@ -54,7 +56,7 @@ const AccountPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-16">
-      <div className="max-w-xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">My Account</h1>
         
         <div className="bg-white p-6 rounded-lg shadow-md mb-8">
@@ -69,20 +71,48 @@ const AccountPage = () => {
               <p className="text-gray-500">{user?.email}</p>
             </div>
           </div>
-          
-          <div className="border-t pt-4">
-            <h3 className="font-medium mb-2">Account Information</h3>
-            <p className="text-gray-600">Email: {user?.email}</p>
-            {profile?.display_name && <p className="text-gray-600">Name: {profile.display_name}</p>}
-          </div>
         </div>
         
-        <div className="space-y-4">
-          <Button variant="outline" className="w-full">Order History</Button>
-          <Button variant="outline" className="w-full">Saved Addresses</Button>
-          <Button variant="outline" className="w-full">Payment Methods</Button>
-          <Button onClick={signOut} variant="destructive" className="w-full">Sign Out</Button>
-        </div>
+        <Tabs defaultValue="favorites" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="favorites">My Favorites</TabsTrigger>
+            <TabsTrigger value="orders">Order History</TabsTrigger>
+            <TabsTrigger value="addresses">Addresses</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="favorites" className="mt-6">
+            <MyFavorites />
+          </TabsContent>
+          
+          <TabsContent value="orders" className="mt-6">
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium mb-2">Order History</h3>
+              <p className="text-gray-600">Your order history will appear here.</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="addresses" className="mt-6">
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium mb-2">Saved Addresses</h3>
+              <p className="text-gray-600">Your saved addresses will appear here.</p>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="settings" className="mt-6">
+            <div className="space-y-4">
+              <div className="border-t pt-4">
+                <h3 className="font-medium mb-2">Account Information</h3>
+                <p className="text-gray-600">Email: {user?.email}</p>
+                {profile?.display_name && <p className="text-gray-600">Name: {profile.display_name}</p>}
+              </div>
+              
+              <div className="pt-4">
+                <Button onClick={signOut} variant="destructive">Sign Out</Button>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

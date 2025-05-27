@@ -7,6 +7,7 @@ import { Product } from '@/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import ProductImage from '@/components/ProductImage';
+import FavoriteButton from '@/components/FavoriteButton';
 
 interface ProductCardProps {
   product: Product;
@@ -58,8 +59,11 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
             width={400} // Optimized for card display
           />
           
+          {/* Favorite Button */}
+          <FavoriteButton productId={product.id} />
+          
           {product.bestSeller && (
-            <div className="absolute top-2 left-2 bg-black text-white text-xs py-1 px-2 rounded">
+            <div className="absolute top-2 right-2 bg-black text-white text-xs py-1 px-2 rounded">
               Best Seller
             </div>
           )}
