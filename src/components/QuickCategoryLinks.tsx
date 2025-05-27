@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import {
   Carousel,
@@ -58,10 +59,13 @@ const QuickCategoryLinks = () => {
               >
                 <div 
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-                  style={{ backgroundImage: `url(${categoryImages[category.slug] || '/placeholder.svg'})` }}
+                  style={{ 
+                    backgroundImage: `url(${categoryImages[category.slug] || '/placeholder.svg'})`,
+                    filter: 'brightness(1.3) contrast(1.1) saturate(1.2)'
+                  }}
                 ></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
-                  <span className="text-white font-oswald text-xl tracking-wide group-hover:text-primary transition-colors duration-300">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                  <span className="text-white font-oswald text-xl tracking-wide group-hover:text-primary transition-colors duration-300 drop-shadow-lg">
                     {category.name}
                   </span>
                 </div>
