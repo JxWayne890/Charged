@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import {
   Carousel,
@@ -10,18 +9,18 @@ import {
 
 // Define the mapping of category slugs to their display images
 const categoryImages = {
-  'protein': '/lovable-uploads/2aa3e52f-35ac-42ea-ac84-51ff86ec9177.png',
-  'pre-workout': '/lovable-uploads/c491ed4d-1b3a-4132-8051-e5bf2757ce56.png',
+  'protein': '/lovable-uploads/fe59bd02-c2f7-4ad7-a8c1-b555120f7b06.png',
+  'pre-workout': '/lovable-uploads/0f28b808-0759-49ce-bb49-800869dba2d2.png',
   'fat-burners': '/lovable-uploads/bc24b7f2-3784-4277-be96-81767ce6d068.png',
-  'creatine': '/lovable-uploads/ace13b36-7daf-494c-aad3-9d2470d1b72b.png',
-  'aminos': '/placeholder.svg',
+  'creatine': '/lovable-uploads/0bb2c2aa-fac1-4ad3-8fe8-3a0f0ee334bf.png',
+  'aminos': '/lovable-uploads/ed54a9b4-2dc5-422e-9bf9-4325b8347b7e.png',
+  'bcaa': '/lovable-uploads/690bac67-fe13-452c-b3bc-3904d2635dc0.png',
+  'vitamins': '/lovable-uploads/a760705d-a78c-4ca3-ab20-a8b7bac55c7f.png',
   'anti-aging-supplement': '/placeholder.svg',
-  'bcaa': '/placeholder.svg',
   'dry-spell': '/placeholder.svg',
   'multivitamin': '/placeholder.svg',
   'pump-supplement': '/placeholder.svg',
-  'testosterone': '/placeholder.svg',
-  'vitamins': '/placeholder.svg'
+  'testosterone': '/placeholder.svg'
 };
 
 // Define our standardized categories with exact matching slugs
