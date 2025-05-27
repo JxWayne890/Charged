@@ -1,13 +1,16 @@
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import { Button } from './ui/button';
 import ProductImage from './ProductImage';
+
 interface FeaturedProductCarouselProps {
   products: Product[];
   autoScrollInterval?: number; // in ms
 }
+
 const FeaturedProductCarousel = ({
   products,
   autoScrollInterval = 8000 // 8 seconds for better readability
@@ -27,9 +30,13 @@ const FeaturedProductCarousel = ({
     }, autoScrollInterval);
     return () => clearInterval(interval);
   }, [products, autoScrollInterval]);
+
   if (!products || products.length === 0) return null;
+
   const currentProduct = products[currentIndex];
-  return <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black py-3 overflow-hidden">
+
+  return (
+    <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-black py-3 overflow-hidden mt-0">
       {/* Background effects */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(122,210,60,0.1),transparent_70%)]"></div>
       <div className="absolute top-0 left-1/4 w-12 h-12 bg-primary/5 rounded-full blur-2xl"></div>
@@ -54,16 +61,20 @@ const FeaturedProductCarousel = ({
                 
                 {/* Product Price */}
                 <div className="flex items-center justify-center gap-2">
-                  {currentProduct.salePrice ? <>
+                  {currentProduct.salePrice ? (
+                    <>
                       <span className="text-sm font-bold text-primary electric-lime-glow">
                         {formatPrice(currentProduct.salePrice)}
                       </span>
                       <span className="text-sm line-through text-gray-400">
                         {formatPrice(currentProduct.price)}
                       </span>
-                    </> : <span className="text-sm font-bold text-white">
+                    </>
+                  ) : (
+                    <span className="text-sm font-bold text-white">
                       {formatPrice(currentProduct.price)}
-                    </span>}
+                    </span>
+                  )}
                 </div>
               </div>
               
@@ -84,10 +95,23 @@ const FeaturedProductCarousel = ({
         </div>
         
         {/* Product indicators */}
-        {products.length > 1 && <div className="flex justify-center mt-3 gap-1">
-            {products.map((_, index) => <button key={index} onClick={() => setCurrentIndex(index)} className={`w-1 h-1 rounded-full transition-all duration-300 ${index === currentIndex ? 'bg-primary shadow-sm shadow-primary/50' : 'bg-gray-600 hover:bg-gray-500'}`} aria-label={`Go to product ${index + 1}`} />)}
-          </div>}
+        {products.length > 1 && (
+          <div className="flex justify-center mt-3 gap-1">
+            {products.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-1 h-1 rounded-full transition-all duration-300 ${
+                  index === currentIndex ? 'bg-primary shadow-sm shadow-primary/50' : 'bg-gray-600 hover:bg-gray-500'
+                }`}
+                aria-label={`Go to product ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default FeaturedProductCarousel;

@@ -21,7 +21,7 @@ const HeroSection = ({
   const isMobile = useIsMobile();
   
   return (
-    <div className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden bg-black">
+    <div className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden bg-black mb-0">
       {/* Content */}
       <div className="relative h-full container mx-auto px-4 flex flex-col justify-center z-10">
         <div className="max-w-lg">
