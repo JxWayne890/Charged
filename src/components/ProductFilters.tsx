@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -31,16 +30,18 @@ const standardCategories = [
 // Array of major supplement brands
 const brands = [
   'Alpha Lion',
+  'Axe & Sledge Supplements',
   'Black Magic Supplements',
   'Bucked Up',
   'Chemix',
-  'Raw Nutrition',
-  'Ryse Supplements',
-  'Rule One Proteins',
-  'Fresh Supps',
-  'Metabolic Nutrition',
   'Core Nutritionals',
-  'Axe & Sledge Supplements'
+  'Fresh Supps',
+  'Gorilla Mind',
+  'Metabolic Nutrition',
+  'Panda Supplements',
+  'Raw Nutrition',
+  'Rule One Proteins',
+  'Ryse Supplements'
 ];
 
 interface ProductFiltersProps {
