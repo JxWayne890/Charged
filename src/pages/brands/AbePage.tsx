@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { fetchSquareProducts } from '@/lib/square';
 import { Product } from '@/types';
@@ -20,10 +19,11 @@ const AbePage = () => {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
         const abeProducts = fetchedProducts.filter(p => {
-          const brandMatch = p.brand?.toLowerCase().includes('abe') || 
-                           p.brand?.toLowerCase().includes('all black everything');
-          const titleMatch = p.title?.toLowerCase().includes('abe') ||
-                           p.title?.toLowerCase().includes('all black everything');
+          // More specific filtering to avoid matching "Babe" products
+          const brandMatch = p.brand?.toLowerCase() === 'abe' || 
+                           p.brand?.toLowerCase() === 'all black everything';
+          const titleMatch = p.title?.toLowerCase().includes('all black everything') ||
+                           (p.title?.toLowerCase().includes('abe') && !p.title?.toLowerCase().includes('babe'));
           console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
           return brandMatch || titleMatch;
         });
