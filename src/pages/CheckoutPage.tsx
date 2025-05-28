@@ -65,6 +65,73 @@ const CheckoutPage = () => {
     return true;
   };
 
+  const sendWebhookData = async () => {
+    try {
+      const webhookUrl = 'https://n8n-1-yvtq.onrender.com/webhook-test/3576ed45-9e1a-4911-b9e4-ad2997f1a90e';
+      
+      // Prepare order summary with all products
+      const orderSummary = cartItems.map(item => {
+        const price = item.subscription && item.product.subscription_price
+          ? item.product.subscription_price
+          : item.product.salePrice || item.product.price;
+        
+        return {
+          product: item.product.title,
+          flavor: item.flavor || null,
+          quantity: item.quantity,
+          price: price,
+          total: price * item.quantity,
+          subscription: item.subscription || false
+        };
+      });
+
+      const shippingCost = cartTotal >= freeShippingThreshold ? 0 : 9.99;
+      const finalTotal = cartTotal + shippingCost;
+
+      const webhookData = {
+        first_name: customerInfo.firstName,
+        last_name: customerInfo.lastName,
+        email: customerInfo.email,
+        phone: customerInfo.phone,
+        address: customerInfo.address,
+        city: customerInfo.city,
+        state: customerInfo.state,
+        zip: customerInfo.zipCode,
+        country: customerInfo.country,
+        order_summary: orderSummary,
+        subtotal: cartTotal,
+        shipping_cost: shippingCost,
+        total: finalTotal,
+        timestamp: new Date().toISOString()
+      };
+
+      console.log('Sending webhook data:', webhookData);
+
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Webhook failed with status: ${response.status}`);
+      }
+
+      console.log('Webhook sent successfully');
+      return true;
+    } catch (error) {
+      console.error('Webhook error:', error);
+      toast({
+        title: 'Webhook Error',
+        description: 'Failed to send order data to webhook. Proceeding with checkout anyway.',
+        variant: 'destructive'
+      });
+      return false;
+    }
+  };
+
   const handleCheckout = async () => {
     if (!validateForm()) return;
     if (cartItems.length === 0) return;
@@ -72,6 +139,9 @@ const CheckoutPage = () => {
     setLoading(true);
 
     try {
+      // Send webhook data first
+      await sendWebhookData();
+
       console.log('Creating Square checkout session...');
       
       const orderData = {
@@ -318,7 +388,7 @@ const CheckoutPage = () => {
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating Checkout...
+                      Processing...
                     </>
                   ) : (
                     'Proceed to Square Checkout'
@@ -326,7 +396,7 @@ const CheckoutPage = () => {
                 </Button>
                 
                 <p className="text-xs text-gray-500 text-center mt-2">
-                  You will be redirected to Square's secure checkout page
+                  Order details will be sent to webhook, then redirected to Square's secure checkout
                 </p>
               </CardContent>
             </Card>
