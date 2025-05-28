@@ -91,11 +91,11 @@ const ProductImage = ({ src, alt, className, onError, width = 500 }: ProductImag
       )}
       
       <img
-        key={`${optimizedSrc}-${retryCount}`} // Force re-render on retry
+        key={`${optimizedSrc}-${retryCount}`}
         src={optimizedSrc}
         alt={alt}
         className={cn(
-          "transition-opacity duration-300 object-cover w-full h-full",
+          "transition-opacity duration-300 w-full h-full",
           loading ? "opacity-0" : "opacity-100",
           className
         )}

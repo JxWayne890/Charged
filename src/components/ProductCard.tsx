@@ -50,13 +50,13 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <Link to={`/product/${product.slug}`}>
-        <div className="relative aspect-square overflow-hidden bg-gray-100">
+        <div className="relative w-full h-64 overflow-hidden bg-gray-100">
           <ProductImage
             src={product.images[currentImageIndex]} 
             alt={product.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
             onError={handleImageError}
-            width={400} // Optimized for card display
+            width={400}
           />
           
           {/* Favorite Button */}

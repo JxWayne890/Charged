@@ -55,8 +55,13 @@ const FeaturedProductCarousel = ({
             <div className="flex items-center gap-4">
               {/* Left side - Product Image with price underneath */}
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 relative overflow-hidden rounded-md mb-2">
-                  <ProductImage src={currentProduct.images[0]} alt={currentProduct.title} className="w-full h-full object-cover transition-all duration-300 hover:scale-105" width={80} />
+                <div className="w-24 h-24 relative overflow-hidden rounded-md mb-2">
+                  <ProductImage 
+                    src={currentProduct.images[0]} 
+                    alt={currentProduct.title} 
+                    className="w-full h-full object-contain transition-all duration-300 hover:scale-105" 
+                    width={96} 
+                  />
                 </div>
                 
                 {/* Product Price */}

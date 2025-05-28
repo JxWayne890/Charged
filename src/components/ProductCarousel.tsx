@@ -80,7 +80,7 @@ const ProductCarousel = ({ title, products, viewAllLink }: ProductCarouselProps)
           {displayProducts.map((product) => (
             <div
               key={product.id}
-              className="min-w-[240px] max-w-[240px] md:min-w-[260px] md:max-w-[260px] snap-start"
+              className="min-w-[280px] max-w-[280px] snap-start"
             >
               <ProductCard product={product} />
             </div>
