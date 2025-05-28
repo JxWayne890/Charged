@@ -60,10 +60,10 @@ const ProductImage = ({ src, alt, className, onError, width = 500 }: ProductImag
   if (error && (retryCount >= 2 || src.includes('placeholder.svg') || !src.startsWith('http'))) {
     return (
       <div className={cn(
-        "bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200",
+        "bg-white flex items-center justify-center text-gray-400",
         className
       )}
-      style={{ backgroundColor: '#f3f3f3', minHeight: '200px' }}
+      style={{ backgroundColor: '#ffffff', minHeight: '200px' }}
       >
         <div className="text-center p-2">
           <span className="text-sm block">No Image</span>
@@ -84,7 +84,7 @@ const ProductImage = ({ src, alt, className, onError, width = 500 }: ProductImag
           "absolute inset-0 animate-pulse flex items-center justify-center z-10",
           className
         )}
-        style={{ backgroundColor: '#f3f3f3', minHeight: '200px' }}
+        style={{ backgroundColor: '#ffffff', minHeight: '200px' }}
         >
           <span className="text-gray-400 text-sm">Loading...</span>
         </div>
@@ -95,14 +95,14 @@ const ProductImage = ({ src, alt, className, onError, width = 500 }: ProductImag
         src={optimizedSrc}
         alt={alt}
         className={cn(
-          "transition-opacity duration-300 w-full h-full",
+          "transition-opacity duration-300 w-full h-full object-contain",
           loading ? "opacity-0" : "opacity-100",
           className
         )}
         onLoad={handleLoad}
         onError={handleError}
         loading="lazy"
-        style={loading ? { backgroundColor: '#f3f3f3', minHeight: '200px' } : undefined}
+        style={loading ? { backgroundColor: '#ffffff', minHeight: '200px' } : undefined}
       />
     </div>
   );

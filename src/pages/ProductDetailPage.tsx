@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchProductBySlug } from '@/lib/square';
@@ -124,11 +125,11 @@ const ProductDetailPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Product Images */}
             <div className="space-y-4">
-              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+              <div className="aspect-square bg-white rounded-lg overflow-hidden border-0">
                 <ProductImage
                   src={selectedImage} 
                   alt={product.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain p-4"
                   onError={handleImageError}
                 />
               </div>
@@ -138,12 +139,12 @@ const ProductDetailPage = () => {
                   <button 
                     key={index}
                     onClick={() => setSelectedImage(image)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === image ? 'border-primary' : 'border-transparent'}`}
+                    className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 bg-white ${selectedImage === image ? 'border-primary' : 'border-transparent'}`}
                   >
                     <ProductImage
                       src={image} 
                       alt={`${product.title} thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain p-1"
                     />
                   </button>
                 ))}
