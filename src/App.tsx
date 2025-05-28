@@ -16,6 +16,7 @@ import BlogPage from '@/pages/BlogPage';
 import NotFound from '@/pages/NotFound';
 import CheckoutPage from '@/pages/CheckoutPage';
 import OrderSuccessPage from '@/pages/OrderSuccessPage';
+import SearchResultsPage from '@/pages/SearchResultsPage';
 
 // Brand pages
 import AbePage from '@/pages/brands/AbePage';
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/" element={<Index />} />
                 <Route path="/products" element={<AllProductsPage />} />
                 <Route path="/product/:slug" element={<ProductDetailPage />} />
+                <Route path="/search" element={<SearchResultsPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/account" element={<AccountPage />} />
                 <Route path="/blog" element={<BlogPage />} />
