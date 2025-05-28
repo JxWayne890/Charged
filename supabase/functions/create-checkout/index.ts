@@ -88,7 +88,7 @@ serve(async (req) => {
       }
     }));
 
-    // Create checkout session with Square including customer name
+    // Create checkout session with Square including customer name as display_name
     const checkoutRequest = {
       idempotency_key: crypto.randomUUID(),
       order: {
@@ -115,7 +115,8 @@ serve(async (req) => {
           administrative_district_level_1: customer.state,
           postal_code: customer.zipCode,
           country: customer.country
-        }
+        },
+        buyer_display_name: `${customer.firstName} ${customer.lastName}`
       }
     };
 
