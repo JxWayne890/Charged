@@ -65,6 +65,7 @@ serve(async (req) => {
       itemCount: items.length,
       total,
       customerEmail: customer.email,
+      customerName: `${customer.firstName} ${customer.lastName}`,
       locationId: squareLocationId
     });
 
@@ -76,7 +77,7 @@ serve(async (req) => {
 
     console.log('Using Square environment:', isProduction ? 'Production' : 'Sandbox');
 
-    // Create order items for Square - REMOVED total_money field
+    // Create order items for Square
     const orderItems = items.map(item => ({
       name: item.name + (item.flavor ? ` - ${item.flavor}` : ''),
       quantity: item.quantity.toString(),
@@ -87,7 +88,7 @@ serve(async (req) => {
       }
     }));
 
-    // Create checkout session with Square
+    // Create checkout session with Square including customer name
     const checkoutRequest = {
       idempotency_key: crypto.randomUUID(),
       order: {
@@ -107,7 +108,14 @@ serve(async (req) => {
       },
       pre_populated_data: {
         buyer_email: customer.email,
-        buyer_phone_number: customer.phone || ''
+        buyer_phone_number: customer.phone || '',
+        buyer_address: {
+          address_line_1: customer.address,
+          locality: customer.city,
+          administrative_district_level_1: customer.state,
+          postal_code: customer.zipCode,
+          country: customer.country
+        }
       }
     };
 
