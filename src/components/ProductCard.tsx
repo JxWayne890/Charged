@@ -43,14 +43,14 @@ const ProductCard = ({ product, className }: ProductCardProps) => {
   return (
     <div 
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white transition-all duration-300 hover:shadow-md",
+        "group relative flex flex-col overflow-hidden rounded-lg bg-white transition-all duration-300 hover:shadow-md",
         className
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <Link to={`/product/${product.slug}`}>
-        <div className="relative w-full h-64 overflow-hidden bg-gray-100">
+        <div className="relative w-full h-64 overflow-hidden bg-white">
           <ProductImage
             src={product.images[currentImageIndex]} 
             alt={product.title}
