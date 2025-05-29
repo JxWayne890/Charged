@@ -75,7 +75,7 @@ const Footer = () => {
               <div className="text-center lg:text-right">
                 <p className="text-xs text-gray-600 mb-1">This Webpage Created By:</p>
                 <a href="https://providersystems.netlify.app/" target="_blank" rel="noopener noreferrer">
-                  <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-20 w-auto mx-auto lg:mx-0" />
+                  <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-28 w-auto mx-auto lg:mx-0" />
                 </a>
               </div>
             </div>
