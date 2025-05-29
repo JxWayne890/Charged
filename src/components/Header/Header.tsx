@@ -50,9 +50,9 @@ const Header = () => {
           ? 'bg-black py-1 shadow-lg' // Always black on product/category pages
           : isScrolled 
             ? 'bg-black/90 backdrop-blur-sm py-1 shadow-lg' 
-            : 'bg-transparent py-2'
+            : 'bg-black py-2'
       }`}
-      style={{ top: isAnnouncementVisible ? '44px' : '0px' }} // Dynamic positioning based on announcement visibility
+      style={{ top: isAnnouncementVisible ? '36px' : '0px' }} // Reduced gap - moved closer to banner
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between lg:justify-start">
