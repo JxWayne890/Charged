@@ -30,7 +30,7 @@ const Footer = () => {
           <div className="flex items-center justify-between">
             {/* Copyright - Bottom Left */}
             <div className="flex items-center">
-              <img src="/lovable-uploads/bc24b7f2-3784-4277-be96-81767ce6d068.png" alt="Charged Up Nutrition" className="h-8 w-auto mr-2" />
+              <img src="/lovable-uploads/ace13b36-7daf-494c-aad3-9d2470d1b72b.png" alt="Charged Up Nutrition" className="h-8 w-auto mr-2" />
               <p className="text-sm text-gray-500">
                 &copy; {new Date().getFullYear()} Charged Up Nutrition. All rights reserved.
               </p>
@@ -44,7 +44,9 @@ const Footer = () => {
             {/* Provider's System Attribution - Bottom Right */}
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-600">This Webpage Created By:</span>
-              <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-12 w-auto" />
+              <a href="https://providersystems.netlify.app/" target="_blank" rel="noopener noreferrer">
+                <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-12 w-auto" />
+              </a>
             </div>
           </div>
         </div>
