@@ -60,28 +60,36 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Bottom section - single row layout */}
+        {/* Bottom section - Improved organization */}
         <div className="border-t border-gray-200 pt-6">
-          <div className="flex items-center justify-between">
-            {/* Copyright - Bottom Left */}
-            <div className="flex items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+            {/* Copyright - Left */}
+            <div className="flex items-center justify-center lg:justify-start">
               <img src="/lovable-uploads/ace13b36-7daf-494c-aad3-9d2470d1b72b.png" alt="Charged Up Nutrition" className="h-8 w-auto mr-2" />
-              <p className="text-sm text-gray-500">
-                &copy; {new Date().getFullYear()} Charged Up Nutrition. All rights reserved.
-              </p>
+              <div className="text-center lg:text-left">
+                <p className="text-sm text-gray-500">
+                  &copy; {new Date().getFullYear()} Charged Up Nutrition.
+                </p>
+                <p className="text-sm text-gray-500">All rights reserved.</p>
+              </div>
             </div>
             
-            {/* Square Secure Payment - Bottom Center */}
+            {/* Square Secure Payment - Center */}
             <div className="flex justify-center">
-              <img src="/lovable-uploads/9fab4b0f-d777-4179-a555-5e1f9f2df719.png" alt="Square Secure Payment Options" className="h-16 w-auto" />
+              <div className="text-center">
+                <p className="text-xs text-gray-600 mb-2">Secure Payment Options</p>
+                <img src="/lovable-uploads/9fab4b0f-d777-4179-a555-5e1f9f2df719.png" alt="Square Secure Payment Options" className="h-12 w-auto mx-auto" />
+              </div>
             </div>
             
-            {/* Provider's System Attribution - Bottom Right */}
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600">This Webpage Created By:</span>
-              <a href="https://providersystems.netlify.app/" target="_blank" rel="noopener noreferrer">
-                <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-12 w-auto" />
-              </a>
+            {/* Provider's System Attribution - Right */}
+            <div className="flex items-center justify-center lg:justify-end">
+              <div className="text-center lg:text-right">
+                <p className="text-xs text-gray-600 mb-1">This Webpage Created By:</p>
+                <a href="https://providersystems.netlify.app/" target="_blank" rel="noopener noreferrer">
+                  <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-10 w-auto mx-auto lg:mx-0" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
