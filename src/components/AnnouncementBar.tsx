@@ -14,7 +14,7 @@ const AnnouncementBar = () => {
       
       <div className="container mx-auto flex justify-center items-center relative z-10">
         <span className="text-primary font-bold tracking-wide electric-lime-glow animate-glow">
-          ⚡ FREE SHIPPING ON ORDERS $55+ ⚡
+          FREE SHIPPING ON ORDERS $55+
         </span>
       </div>
     </div>
