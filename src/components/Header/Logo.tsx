@@ -6,7 +6,7 @@ const Logo = () => {
       />
       </div>
       <div className="relative object-contain">
-        <img src="/lovable-uploads/ecfb1702-0578-4017-9590-96b76d9e9ec2.png" alt="Charged Up" className="h-8 w-auto md:h-14" />
+        <img src="/lovable-uploads/ecfb1702-0578-4017-9590-96b76d9e9ec2.png" alt="Charged Up" className="h-10 w-auto md:h-14" />
       </div>
     </Link>;
 };
