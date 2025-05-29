@@ -49,26 +49,26 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Center Square Secure Payment Options */}
-        <div className="flex justify-center mb-8">
-          <img src="/lovable-uploads/9fab4b0f-d777-4179-a555-5e1f9f2df719.png" alt="Square Secure Payment Options" className="h-24 w-auto" />
-        </div>
-        
-        {/* Bottom section with branding, copyright, Provider's System attribution */}
+        {/* Bottom section - single row layout */}
         <div className="border-t border-gray-200 pt-6">
-          <div className="flex flex-col items-center space-y-6">
-            {/* Provider's System Attribution */}
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600">This Webpage Create By:</span>
-              <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-12 w-auto" />
-            </div>
-            
-            {/* Copyright */}
+          <div className="flex items-center justify-between">
+            {/* Copyright - Bottom Left */}
             <div className="flex items-center">
               <img src="/lovable-uploads/bc24b7f2-3784-4277-be96-81767ce6d068.png" alt="Charged Up Nutrition" className="h-8 w-auto mr-2" />
               <p className="text-sm text-gray-500">
                 &copy; {new Date().getFullYear()} Charged Up Nutrition. All rights reserved.
               </p>
+            </div>
+            
+            {/* Square Secure Payment - Bottom Center */}
+            <div className="flex justify-center">
+              <img src="/lovable-uploads/9fab4b0f-d777-4179-a555-5e1f9f2df719.png" alt="Square Secure Payment Options" className="h-16 w-auto" />
+            </div>
+            
+            {/* Provider's System Attribution - Bottom Right */}
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600">This Webpage Created By:</span>
+              <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-12 w-auto" />
             </div>
           </div>
         </div>
