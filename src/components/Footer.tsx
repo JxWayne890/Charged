@@ -64,29 +64,14 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Trust badges */}
+        {/* Square Secure Payment Options */}
         <div className="border-t border-gray-200 pt-8 pb-6">
-          <div className="flex flex-wrap justify-center gap-8 mb-8">
-            <div className="flex flex-col items-center">
-              <img src="/icons/secure-payment.svg" alt="Secure Payment" className="h-8 w-auto mb-2" />
-              <span className="text-sm text-gray-500">Secure Payment</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <img src="/icons/square.svg" alt="Square" className="h-8 w-auto mb-2" />
-              <span className="text-sm text-gray-500">Square</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <img src="/icons/paypal.svg" alt="PayPal" className="h-8 w-auto mb-2" />
-              <span className="text-sm text-gray-500">PayPal</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <img src="/icons/afterpay.svg" alt="Afterpay" className="h-8 w-auto mb-2" />
-              <span className="text-sm text-gray-500">Afterpay</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <img src="/icons/gmp.svg" alt="GMP Certified" className="h-8 w-auto mb-2" />
-              <span className="text-sm text-gray-500">GMP Certified</span>
-            </div>
+          <div className="flex justify-center">
+            <img 
+              src="/lovable-uploads/acf619b0-2fcc-4aaa-92d5-ffb5971fb4fd.png" 
+              alt="Square Secure - Accepted Payment Methods" 
+              className="max-w-full h-auto max-h-32 object-contain" 
+            />
           </div>
         </div>
         
