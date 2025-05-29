@@ -1,10 +1,7 @@
-
 import { Link } from 'react-router-dom';
 import { Instagram } from 'lucide-react';
-
 const Footer = () => {
-  return (
-    <footer className="bg-gray-100 pt-12 pb-6">
+  return <footer className="bg-gray-100 pt-12 pb-6">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Support */}
@@ -35,23 +32,14 @@ const Footer = () => {
               {/* Snapchat */}
               <div className="flex flex-col items-center group">
                 <div className="flex items-center justify-center w-16 h-16 bg-gray-50 rounded-xl border border-gray-200 mb-2 group-hover:bg-gray-100 transition-colors overflow-hidden">
-                  <img 
-                    src="/lovable-uploads/01eec198-c74e-4a42-928d-4cf3f181ccc3.png" 
-                    alt="Snapchat" 
-                    className="w-full h-full object-cover" 
-                  />
+                  <img src="/lovable-uploads/01eec198-c74e-4a42-928d-4cf3f181ccc3.png" alt="Snapchat" className="w-full h-full object-cover" />
                 </div>
                 <span className="text-sm font-medium text-gray-700">ChargedUp325</span>
               </div>
 
               {/* Instagram */}
               <div className="flex flex-col items-center group">
-                <a 
-                  href="https://www.instagram.com/chargedupnutrition325?igsh=ZDlpM3lhY2dlcGhm" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-xl mb-2 hover:scale-110 transition-transform duration-200 shadow-md"
-                >
+                <a href="https://www.instagram.com/chargedupnutrition325?igsh=ZDlpM3lhY2dlcGhm" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-xl mb-2 hover:scale-110 transition-transform duration-200 shadow-md">
                   <Instagram className="w-8 h-8 text-white" />
                 </a>
                 <span className="text-sm font-medium text-gray-700">@chargedupnutrition325</span>
@@ -87,15 +75,13 @@ const Footer = () => {
               <div className="text-center lg:text-right">
                 <p className="text-xs text-gray-600 mb-1">This Webpage Created By:</p>
                 <a href="https://providersystems.netlify.app/" target="_blank" rel="noopener noreferrer">
-                  <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-10 w-auto mx-auto lg:mx-0" />
+                  <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-20 w-auto mx-auto lg:mx-0" />
                 </a>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
