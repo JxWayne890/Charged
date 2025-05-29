@@ -1,5 +1,3 @@
-
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -82,8 +80,8 @@ serve(async (req) => {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     console.log('Calculated subtotal:', subtotal);
 
-    // Calculate shipping cost (free shipping threshold is $50)
-    const freeShippingThreshold = 50;
+    // Calculate shipping cost (free shipping threshold is $55)
+    const freeShippingThreshold = 55;
     const shippingCost = subtotal >= freeShippingThreshold ? 0 : 6.99;
     console.log('Shipping cost:', shippingCost, 'Free shipping threshold:', freeShippingThreshold);
 
@@ -197,4 +195,3 @@ serve(async (req) => {
     });
   }
 });
-

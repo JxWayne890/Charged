@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CartItem, Product } from '../types';
 import { useToast } from '@/hooks/use-toast';
@@ -24,7 +23,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { toast } = useToast();
-  const freeShippingThreshold = 50;
+  const freeShippingThreshold = 55;
 
   // Load cart from localStorage on mount
   useEffect(() => {

@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { CartProvider } from '@/context/CartContext';
 import { AuthProvider } from '@/context/AuthContext';
+import AnnouncementBar from '@/components/AnnouncementBar';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
@@ -43,6 +44,7 @@ function App() {
         <AuthProvider>
           <CartProvider>
             <div className="min-h-screen bg-background">
+              <AnnouncementBar />
               <Header />
               <Routes>
                 <Route path="/" element={<Index />} />
