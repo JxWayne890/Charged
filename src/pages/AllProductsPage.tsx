@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '@/components/ProductCard';
@@ -116,7 +115,7 @@ const AllProductsPage = () => {
       });
     }
     
-    // Sort filtered results alphabetically by title
+    // ALWAYS sort filtered results alphabetically by title at the end
     result.sort((a, b) => a.title.localeCompare(b.title));
     
     setFilteredProducts(result);
@@ -125,7 +124,9 @@ const AllProductsPage = () => {
 
   // Update displayed products when filteredProducts or itemsToShow changes
   useEffect(() => {
-    setDisplayedProducts(filteredProducts.slice(0, itemsToShow));
+    // Ensure displayed products are also sorted alphabetically
+    const sortedDisplayed = filteredProducts.slice(0, itemsToShow).sort((a, b) => a.title.localeCompare(b.title));
+    setDisplayedProducts(sortedDisplayed);
   }, [filteredProducts, itemsToShow]);
 
   // Format category name for display (e.g., "pre-workout" to "Pre Workout")
