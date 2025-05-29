@@ -55,7 +55,7 @@ const brands: Brand[] = [
   },
   {
     name: 'Metabolic Nutrition',
-    logo: '/lovable-uploads/2dc08c1e-a358-4b0f-adc6-ff3db4e7d4dd.png',
+    logo: '/lovable-uploads/d99add88-ee60-4337-ae6c-e633ab19006c.png',
     slug: 'metabolic-nutrition',
     largeIcon: true
   },
