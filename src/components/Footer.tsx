@@ -66,7 +66,7 @@ const Footer = () => {
             <div className="flex justify-center">
               <div className="text-center">
                 <p className="text-xs text-gray-600 mb-2">Secure Payment Options</p>
-                <img src="/lovable-uploads/9fab4b0f-d777-4179-a555-5e1f9f2df719.png" alt="Square Secure Payment Options" className="h-12 w-auto mx-auto" />
+                <img src="/lovable-uploads/9fab4b0f-d777-4179-a555-5e1f9f2df719.png" alt="Square Secure Payment Options" className="h-28 w-auto mx-auto" />
               </div>
             </div>
             
