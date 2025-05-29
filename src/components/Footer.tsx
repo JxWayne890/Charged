@@ -1,10 +1,7 @@
-
 import { Link } from 'react-router-dom';
 import { Instagram } from 'lucide-react';
-
 const Footer = () => {
-  return (
-    <footer className="bg-gray-100 pt-12 pb-6">
+  return <footer className="bg-gray-100 pt-12 pb-6">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Support */}
@@ -31,7 +28,7 @@ const Footer = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-8 pb-6 border-b border-gray-200">
           {/* Snapchat (non-clickable) */}
           <div className="flex items-center gap-2">
-            <img src="/lovable-uploads/01eec198-c74e-4a42-928d-4cf3f181ccc3.png" alt="Snapchat" className="w-8 h-8 rounded-lg object-cover" />
+            <img src="/lovable-uploads/01eec198-c74e-4a42-928d-4cf3f181ccc3.png" alt="Snapchat" className="w-14 h-14 rounded-lg object-cover" />
             <span className="text-gray-700 font-medium">ChargedUp325</span>
           </div>
 
@@ -67,8 +64,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
