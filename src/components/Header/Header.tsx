@@ -10,6 +10,7 @@ import UserMenu from './UserMenu';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isAnnouncementVisible, setIsAnnouncementVisible] = useState(true);
   const location = useLocation();
   
   // Check if current page is a product or category page
@@ -18,10 +19,20 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
+      const announcementBarHeight = 44; // Height of announcement bar
+      const scrollY = window.scrollY;
+      
+      if (scrollY > 20) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
+      }
+      
+      // Check if announcement bar is still visible
+      if (scrollY > announcementBarHeight) {
+        setIsAnnouncementVisible(false);
+      } else {
+        setIsAnnouncementVisible(true);
       }
     };
 
@@ -41,7 +52,7 @@ const Header = () => {
             ? 'bg-black/90 backdrop-blur-sm py-1 shadow-lg' 
             : 'bg-transparent py-2'
       }`}
-      style={{ top: '44px' }} // Move header down by announcement bar height
+      style={{ top: isAnnouncementVisible ? '44px' : '0px' }} // Dynamic positioning based on announcement visibility
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between lg:justify-start">
