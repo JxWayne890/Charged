@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { fetchSquareProducts } from '@/lib/square';
@@ -20,7 +21,7 @@ const SearchResultsPage = () => {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
-  const [sortBy, setSortBy] = useState('relevance');
+  const [sortBy, setSortBy] = useState('name'); // Changed default to alphabetical
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [priceFilter, setPriceFilter] = useState('all');
 
@@ -33,7 +34,9 @@ const SearchResultsPage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        setProducts(fetchedProducts);
+        // Sort products alphabetically by title by default
+        const sortedProducts = fetchedProducts.sort((a, b) => a.title.localeCompare(b.title));
+        setProducts(sortedProducts);
       } catch (error) {
         console.error('Failed to load products:', error);
       } finally {
@@ -110,8 +113,8 @@ const SearchResultsPage = () => {
       case 'name':
         filtered.sort((a, b) => a.title.localeCompare(b.title));
         break;
-      default: // relevance
-        // Keep the filtered order as relevance (no additional sorting)
+      default: // relevance - but still sort alphabetically for consistency
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
         break;
     }
 

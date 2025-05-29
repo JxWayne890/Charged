@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '@/components/ProductCard';
@@ -35,7 +36,9 @@ const AllProductsPage = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        setProducts(fetchedProducts);
+        // Sort products alphabetically by title
+        const sortedProducts = fetchedProducts.sort((a, b) => a.title.localeCompare(b.title));
+        setProducts(sortedProducts);
         
         // Calculate min and max prices for the price filter
         if (fetchedProducts.length > 0) {
@@ -112,6 +115,9 @@ const AllProductsPage = () => {
         );
       });
     }
+    
+    // Sort filtered results alphabetically by title
+    result.sort((a, b) => a.title.localeCompare(b.title));
     
     setFilteredProducts(result);
     setItemsToShow(PRODUCTS_PER_LOAD); // Reset to initial load amount when filters change

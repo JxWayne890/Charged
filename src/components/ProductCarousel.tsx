@@ -45,8 +45,9 @@ const ProductCarousel = ({ title, products, viewAllLink }: ProductCarouselProps)
     }
   };
 
-  // Limit products to prevent rendering too many at once
-  const displayProducts = products.slice(0, 12);
+  // Sort products alphabetically and limit to prevent rendering too many at once
+  const sortedProducts = [...products].sort((a, b) => a.title.localeCompare(b.title));
+  const displayProducts = sortedProducts.slice(0, 12);
 
   return (
     <div className="relative">

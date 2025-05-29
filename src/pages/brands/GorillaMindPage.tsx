@@ -25,8 +25,11 @@ const GorillaMindPage = () => {
           console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
           return brandMatch || titleMatch;
         });
-        console.log(`Found ${gorillaMindProducts.length} Gorilla Mind products`);
-        setProducts(gorillaMindProducts);
+        
+        // Sort products alphabetically by title
+        const sortedProducts = gorillaMindProducts.sort((a, b) => a.title.localeCompare(b.title));
+        console.log(`Found ${sortedProducts.length} Gorilla Mind products`);
+        setProducts(sortedProducts);
         setError(null);
       } catch (err) {
         console.error('Failed to load Gorilla Mind products:', err);

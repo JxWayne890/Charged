@@ -25,8 +25,11 @@ const CoreNutritionalPage = () => {
           console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
           return brandMatch || titleMatch;
         });
-        console.log(`Found ${coreProducts.length} Core Nutritionals products`);
-        setProducts(coreProducts);
+        
+        // Sort products alphabetically by title
+        const sortedProducts = coreProducts.sort((a, b) => a.title.localeCompare(b.title));
+        console.log(`Found ${sortedProducts.length} Core Nutritionals products`);
+        setProducts(sortedProducts);
         setError(null);
       } catch (err) {
         console.error('Failed to load Core Nutritionals products:', err);

@@ -25,8 +25,11 @@ const RawNutritionPage = () => {
           console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
           return brandMatch || titleMatch;
         });
-        console.log(`Found ${rawNutritionProducts.length} Raw Nutrition products`);
-        setProducts(rawNutritionProducts);
+        
+        // Sort products alphabetically by title
+        const sortedProducts = rawNutritionProducts.sort((a, b) => a.title.localeCompare(b.title));
+        console.log(`Found ${sortedProducts.length} Raw Nutrition products`);
+        setProducts(sortedProducts);
         setError(null);
       } catch (err) {
         console.error('Failed to load Raw Nutrition products:', err);

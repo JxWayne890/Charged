@@ -20,7 +20,9 @@ const Index = () => {
       try {
         setLoading(true);
         const fetchedProducts = await fetchSquareProducts();
-        setProducts(fetchedProducts);
+        // Sort products alphabetically by title
+        const sortedProducts = fetchedProducts.sort((a, b) => a.title.localeCompare(b.title));
+        setProducts(sortedProducts);
         setError(null);
         
         if (fetchedProducts.length === 0) {
@@ -42,7 +44,7 @@ const Index = () => {
     loadProducts();
   }, []);
   
-  // Filter products for featured and best sellers
+  // Filter products for featured and best sellers, maintaining alphabetical order
   const featuredProducts = products.filter(p => p.featured);
   const bestSellerProducts = products.filter(p => p.bestSeller);
   

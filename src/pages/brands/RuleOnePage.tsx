@@ -25,8 +25,11 @@ const RuleOnePage = () => {
           console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
           return brandMatch || titleMatch;
         });
-        console.log(`Found ${ruleOneProducts.length} Rule One products`);
-        setProducts(ruleOneProducts);
+        
+        // Sort products alphabetically by title
+        const sortedProducts = ruleOneProducts.sort((a, b) => a.title.localeCompare(b.title));
+        console.log(`Found ${sortedProducts.length} Rule One products`);
+        setProducts(sortedProducts);
         setError(null);
       } catch (err) {
         console.error('Failed to load Rule One products:', err);

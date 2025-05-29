@@ -25,8 +25,11 @@ const PandaSupplementsPage = () => {
           console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
           return brandMatch || titleMatch;
         });
-        console.log(`Found ${pandaProducts.length} Panda Supplements products`);
-        setProducts(pandaProducts);
+        
+        // Sort products alphabetically by title
+        const sortedProducts = pandaProducts.sort((a, b) => a.title.localeCompare(b.title));
+        console.log(`Found ${sortedProducts.length} Panda Supplements products`);
+        setProducts(sortedProducts);
         setError(null);
       } catch (err) {
         console.error('Failed to load Panda Supplements products:', err);

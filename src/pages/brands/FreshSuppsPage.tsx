@@ -25,8 +25,11 @@ const FreshSuppsPage = () => {
           console.log(`Product: ${p.title}, Brand: ${p.brand}, Brand Match: ${brandMatch}, Title Match: ${titleMatch}`);
           return brandMatch || titleMatch;
         });
-        console.log(`Found ${freshSuppsProducts.length} Fresh Supps products`);
-        setProducts(freshSuppsProducts);
+        
+        // Sort products alphabetically by title
+        const sortedProducts = freshSuppsProducts.sort((a, b) => a.title.localeCompare(b.title));
+        console.log(`Found ${sortedProducts.length} Fresh Supps products`);
+        setProducts(sortedProducts);
         setError(null);
       } catch (err) {
         console.error('Failed to load Fresh Supps products:', err);
