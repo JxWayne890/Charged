@@ -21,7 +21,7 @@ const HeroSection = ({
   const isMobile = useIsMobile();
   
   return (
-    <div className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden bg-black mb-0">
+    <div className="relative h-[80vh] md:h-[70vh] lg:h-[80vh] overflow-hidden bg-black mb-0">
       {/* Content */}
       <div className="relative h-full container mx-auto px-4 flex flex-col justify-center z-10">
         <div className="max-w-lg">
@@ -45,7 +45,7 @@ const HeroSection = ({
         style={{
           backgroundImage: `url(${backgroundImage || '/lovable-uploads/2938ee41-0bf0-46aa-9344-11afa927721b.png'})`,
           backgroundPosition: isMobile ? 'right center' : 'right center',
-          backgroundSize: 'contain',
+          backgroundSize: isMobile ? 'cover' : 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundColor: '#000000'
         }}
