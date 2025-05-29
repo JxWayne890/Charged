@@ -54,11 +54,7 @@ const Footer = () => {
         </div>
         
         {/* Square Secure Payment Options */}
-        <div className="border-t border-gray-200 pt-8 pb-6">
-          <div className="flex justify-center">
-            <img src="/lovable-uploads/acf619b0-2fcc-4aaa-92d5-ffb5971fb4fd.png" alt="Square Secure - Accepted Payment Methods" className="max-w-full h-auto max-h-32 object-contain" />
-          </div>
-        </div>
+        
         
         {/* Bottom section with branding, copyright, Provider's System attribution, and social links */}
         <div className="border-t border-gray-200 pt-6">
