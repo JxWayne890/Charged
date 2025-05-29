@@ -36,7 +36,7 @@ const Header = () => {
 
   return (
     <header 
-      className={`fixed top-9 z-40 w-full transition-all duration-300 ${
+      className={`sticky top-0 z-40 w-full transition-all duration-300 ${
         isProductOrCategoryPage 
           ? 'bg-black py-1 shadow-lg' // Always black on product/category pages
           : isScrolled 
