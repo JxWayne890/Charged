@@ -13,7 +13,7 @@ const Logo = () => {
       </div>
       <div className="relative">
         <img 
-          src="/lovable-uploads/0c57aa3d-bade-44f5-a0d0-4f61d72397e5.png" 
+          src="/lovable-uploads/ecfb1702-0578-4017-9590-96b76d9e9ec2.png" 
           alt="Charged Up" 
           className="h-12 w-auto md:h-14" // Sized to complement the main logo
         />
