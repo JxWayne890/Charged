@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -123,11 +122,6 @@ const CheckoutPage = () => {
       return true;
     } catch (error) {
       console.error('Webhook error:', error);
-      toast({
-        title: 'Webhook Error',
-        description: 'Failed to send order data to webhook. Proceeding with checkout anyway.',
-        variant: 'destructive'
-      });
       return false;
     }
   };
@@ -396,7 +390,7 @@ const CheckoutPage = () => {
                 </Button>
                 
                 <p className="text-xs text-gray-500 text-center mt-2">
-                  Order details will be sent to webhook, then redirected to Square's secure checkout
+                  Secure checkout powered by Square
                 </p>
               </CardContent>
             </Card>
