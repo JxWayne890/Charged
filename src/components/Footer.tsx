@@ -1,5 +1,6 @@
+
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+
 const Footer = () => {
   return <footer className="bg-gray-100 pt-12 pb-6">
       <div className="container mx-auto px-4">
@@ -33,9 +34,6 @@ const Footer = () => {
             <h3 className="text-lg mb-4">SUPPORT</h3>
             <ul className="space-y-2">
               <li><Link to="/contact" className="text-gray-600 hover:text-primary transition">Contact Us</Link></li>
-              <li><Link to="/shipping-policy" className="text-gray-600 hover:text-primary transition">Shipping Policy</Link></li>
-              <li><Link to="/returns" className="text-gray-600 hover:text-primary transition">Returns & Refunds</Link></li>
-              <li><Link to="/faq" className="text-gray-600 hover:text-primary transition">FAQ</Link></li>
               <li><Link to="/track-order" className="text-gray-600 hover:text-primary transition">Track Your Order</Link></li>
             </ul>
           </div>
@@ -44,8 +42,6 @@ const Footer = () => {
           <div>
             <h3 className="text-lg mb-4">ABOUT US</h3>
             <ul className="space-y-2">
-              <li><Link to="/about" className="text-gray-600 hover:text-primary transition">Our Story</Link></li>
-              <li><Link to="/blog" className="text-gray-600 hover:text-primary transition">Blog</Link></li>
               <li><Link to="/reviews" className="text-gray-600 hover:text-primary transition">Reviews</Link></li>
               <li><Link to="/terms" className="text-gray-600 hover:text-primary transition">Terms of Service</Link></li>
               <li><Link to="/privacy" className="text-gray-600 hover:text-primary transition">Privacy Policy</Link></li>
@@ -53,43 +49,31 @@ const Footer = () => {
           </div>
         </div>
         
-        {/* Square Secure Payment Options */}
+        {/* Center Square Secure Payment Options */}
+        <div className="flex justify-center mb-8">
+          <img src="/lovable-uploads/9fab4b0f-d777-4179-a555-5e1f9f2df719.png" alt="Square Secure Payment Options" className="h-24 w-auto" />
+        </div>
         
-        
-        {/* Bottom section with branding, copyright, Provider's System attribution, and social links */}
+        {/* Bottom section with branding, copyright, Provider's System attribution */}
         <div className="border-t border-gray-200 pt-6">
           <div className="flex flex-col items-center space-y-6">
             {/* Provider's System Attribution */}
-            <div className="flex justify-center">
-              
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600">This Webpage Create By:</span>
+              <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-12 w-auto" />
             </div>
             
-            {/* Copyright and Social Links */}
-            <div className="flex flex-col md:flex-row justify-between items-center w-full">
-              <div className="flex items-center mb-4 md:mb-0">
-                <img src="/lovable-uploads/bc24b7f2-3784-4277-be96-81767ce6d068.png" alt="Charged Up Nutrition" className="h-8 w-auto mr-2" />
-                <p className="text-sm text-gray-500">
-                  &copy; {new Date().getFullYear()} Charged Up Nutrition. All rights reserved.
-                </p>
-              </div>
-              <div className="flex space-x-4">
-                <a href="https://facebook.com/chargedup" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition">
-                  <Facebook size={20} />
-                </a>
-                <a href="https://instagram.com/chargedup" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition">
-                  <Instagram size={20} />
-                </a>
-                <a href="https://twitter.com/chargedup" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition">
-                  <Twitter size={20} />
-                </a>
-                <a href="https://youtube.com/chargedup" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition">
-                  <Youtube size={20} />
-                </a>
-              </div>
+            {/* Copyright */}
+            <div className="flex items-center">
+              <img src="/lovable-uploads/bc24b7f2-3784-4277-be96-81767ce6d068.png" alt="Charged Up Nutrition" className="h-8 w-auto mr-2" />
+              <p className="text-sm text-gray-500">
+                &copy; {new Date().getFullYear()} Charged Up Nutrition. All rights reserved.
+              </p>
             </div>
           </div>
         </div>
       </div>
     </footer>;
 };
+
 export default Footer;
