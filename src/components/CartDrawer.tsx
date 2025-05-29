@@ -105,14 +105,22 @@ const CartDrawer = () => {
               </div>
             
               <ScrollArea className="flex-1 pb-16">
-                <div className="space-y-4 pt-4">
+                <div className="space-y-4 pt-4 pr-2">
                   {cartItems.map((item) => {
                     const price = item.subscription && item.product.subscription_price
                       ? item.product.subscription_price
                       : item.product.salePrice || item.product.price;
                       
                     return (
-                      <div key={`${item.product.id}-${item.flavor || 'default'}`} className="flex border-b pb-4">
+                      <div key={`${item.product.id}-${item.flavor || 'default'}`} className="relative flex border-b pb-4 pr-8">
+                        {/* Remove button - positioned absolutely in top right */}
+                        <button 
+                          onClick={() => removeFromCart(item.product.id)} 
+                          className="absolute top-0 right-0 z-10 w-6 h-6 rounded-full bg-gray-100 hover:bg-red-100 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                        
                         <div className="w-20 h-20 bg-gray-100 rounded overflow-hidden flex-shrink-0">
                           <img
                             src={item.product.images[0]}
@@ -122,27 +130,21 @@ const CartDrawer = () => {
                         </div>
                         
                         <div className="flex-1 ml-4">
-                          <div className="flex justify-between">
+                          <div className="pr-2">
                             <Link 
                               to={`/product/${item.product.slug}`} 
-                              className="font-medium hover:text-primary transition line-clamp-2"
+                              className="font-medium hover:text-primary transition line-clamp-2 block"
                               onClick={handleClose}
                             >
                               {item.product.title}
                             </Link>
-                            <button 
-                              onClick={() => removeFromCart(item.product.id)} 
-                              className="text-gray-400 hover:text-red-500"
-                            >
-                              <X size={16} />
-                            </button>
                           </div>
                           
                           {item.flavor && (
-                            <p className="text-sm text-gray-500">Flavor: {item.flavor}</p>
+                            <p className="text-sm text-gray-500 mt-1">Flavor: {item.flavor}</p>
                           )}
                           
-                          <div className="mt-1 flex items-center justify-between">
+                          <div className="mt-2 flex items-center justify-between">
                             <div className="flex items-center border rounded">
                               <button
                                 onClick={() => updateQuantity(item.product.id, Math.max(1, item.quantity - 1))}
