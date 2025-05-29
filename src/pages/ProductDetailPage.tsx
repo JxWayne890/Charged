@@ -18,7 +18,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import TestCheckout from '@/components/TestCheckout';
 
 const ProductDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -285,11 +284,6 @@ const ProductDetailPage = () => {
             </div>
           </div>
         )}
-
-        {/* Add test checkout component */}
-        <div className="mt-12 flex justify-center">
-          <TestCheckout />
-        </div>
       </div>
       
       {/* Product Details Accordion - More Compact */}
