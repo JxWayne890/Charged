@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, X, ChevronDown, ChevronRight } from 'lucide-react';
+import { Menu, X, ChevronDown, ChevronRight, ShoppingCart, User, LogIn, LogOut } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import Logo from './Logo';
 
 interface MenuItem {
@@ -36,7 +37,8 @@ const menuItems: MenuItem[] = [
 
 const MobileNav = () => {
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
-  const { cartCount } = useCart();
+  const { cartCount, setIsCartOpen } = useCart();
+  const { user, signOut } = useAuth();
 
   const toggleSubMenu = (label: string) => {
     setExpandedItems((prev) =>
@@ -46,12 +48,20 @@ const MobileNav = () => {
     );
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <Sheet>
       <SheetTrigger className="lg:hidden p-2 text-white">
         <Menu size={24} />
       </SheetTrigger>
-      <SheetContent side="right" className="w-3/4 sm:max-w-md bg-black/90 backdrop-blur-sm border-gray-800 text-white p-0">
+      <SheetContent side="left" className="w-3/4 sm:max-w-md bg-black/90 backdrop-blur-sm border-gray-800 text-white p-0">
         <div className="flex flex-col h-full">
           <div className="flex justify-between items-center p-4 border-b border-gray-800">
             <Logo />
@@ -109,15 +119,49 @@ const MobileNav = () => {
           
           <div className="mt-auto p-4 border-t border-gray-800 bg-black/50">
             <div className="flex flex-col space-y-3">
-              <Link to="/account" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center">
-                <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
-                My Account
-              </Link>
-              <Link to="/track-order" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center">
+              {/* Cart */}
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="flex items-center justify-between text-sm text-gray-300 hover:text-primary transition-colors py-2 px-3 hover:bg-gray-800/50 rounded"
+              >
+                <div className="flex items-center">
+                  <ShoppingCart size={16} className="mr-2" />
+                  <span>Cart</span>
+                </div>
+                {cartCount > 0 && (
+                  <span className="bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+              
+              {/* Auth */}
+              {user ? (
+                <>
+                  <Link to="/account" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
+                    <User size={16} className="mr-2" />
+                    My Account
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded text-left"
+                  >
+                    <LogOut size={16} className="mr-2" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link to="/auth" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
+                  <LogIn size={16} className="mr-2" />
+                  Sign In
+                </Link>
+              )}
+              
+              <Link to="/track-order" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
                 <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
                 Track Order
               </Link>
-              <Link to="/contact" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center">
+              <Link to="/contact" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
                 <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
                 Contact Us
               </Link>

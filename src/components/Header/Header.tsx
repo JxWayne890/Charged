@@ -43,20 +43,29 @@ const Header = () => {
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
+        <div className="flex items-center justify-between lg:justify-start">
+          {/* Mobile/Tablet: Hamburger menu on left */}
+          <div className="flex items-center lg:hidden">
             <MobileNav />
           </div>
           
-          <div className="flex items-center py-2">
+          {/* Mobile/Tablet: Search in center */}
+          <div className="flex-1 flex justify-center lg:hidden">
+            <SearchBar />
+          </div>
+          
+          {/* Mobile/Tablet: Logo on right, Desktop: Logo on left */}
+          <div className="flex items-center lg:mr-8">
             <Logo />
           </div>
           
+          {/* Desktop: Navigation in center */}
           <div className="hidden lg:flex flex-1 justify-center">
             <DesktopNav />
           </div>
           
-          <div className="flex items-center space-x-1">
+          {/* Desktop: Search, User Menu, Cart on right */}
+          <div className="hidden lg:flex items-center space-x-1">
             <SearchBar />
             <UserMenu />
             <CartButton />
