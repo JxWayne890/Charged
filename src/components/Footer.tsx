@@ -65,7 +65,7 @@ const Footer = () => {
             {/* Square Secure Payment - Center */}
             <div className="flex justify-center">
               <div className="text-center">
-                <p className="text-xs text-gray-600 mb-2">Secure Payment Options</p>
+                <p className="text-gray-600 mb-2 text-sm">Secure Payment Options</p>
                 <img src="/lovable-uploads/9fab4b0f-d777-4179-a555-5e1f9f2df719.png" alt="Square Secure Payment Options" className="h-28 w-auto mx-auto" />
               </div>
             </div>
@@ -73,7 +73,7 @@ const Footer = () => {
             {/* Provider's System Attribution - Right */}
             <div className="flex items-center justify-center lg:justify-end">
               <div className="text-center lg:text-right">
-                <p className="text-xs text-gray-600 mb-1">This Webpage Created By:</p>
+                <p className="text-gray-600 mb-1 text-sm">This Website Created By:</p>
                 <a href="https://providersystems.netlify.app/" target="_blank" rel="noopener noreferrer">
                   <img src="/lovable-uploads/a5d368da-6387-4918-b630-c85ee9d30d07.png" alt="The Provider's System" className="h-28 w-auto mx-auto lg:mx-0" />
                 </a>
