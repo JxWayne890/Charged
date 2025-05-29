@@ -74,28 +74,12 @@ const AccountPage = () => {
         </div>
         
         <Tabs defaultValue="favorites" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-1">
             <TabsTrigger value="favorites">My Favorites</TabsTrigger>
-            <TabsTrigger value="orders">Order History</TabsTrigger>
-            <TabsTrigger value="addresses">Saved Addresses</TabsTrigger>
           </TabsList>
           
           <TabsContent value="favorites" className="mt-6">
             <MyFavorites />
-          </TabsContent>
-          
-          <TabsContent value="orders" className="mt-6">
-            <div className="text-center py-12">
-              <h3 className="text-lg font-medium mb-2">Order History</h3>
-              <p className="text-gray-600">Your order history will appear here.</p>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="addresses" className="mt-6">
-            <div className="text-center py-12">
-              <h3 className="text-lg font-medium mb-2">Saved Addresses</h3>
-              <p className="text-gray-600">Your saved addresses will appear here.</p>
-            </div>
           </TabsContent>
         </Tabs>
       </div>
