@@ -1,4 +1,5 @@
 
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -77,6 +78,15 @@ serve(async (req) => {
 
     console.log('Using Square environment:', isProduction ? 'Production' : 'Sandbox');
 
+    // Calculate subtotal from items
+    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    console.log('Calculated subtotal:', subtotal);
+
+    // Calculate shipping cost (free shipping threshold is $50)
+    const freeShippingThreshold = 50;
+    const shippingCost = subtotal >= freeShippingThreshold ? 0 : 6.99;
+    console.log('Shipping cost:', shippingCost, 'Free shipping threshold:', freeShippingThreshold);
+
     // Create order items for Square
     const orderItems = items.map(item => ({
       name: item.name + (item.flavor ? ` - ${item.flavor}` : ''),
@@ -87,6 +97,22 @@ serve(async (req) => {
         currency: currency.toUpperCase()
       }
     }));
+
+    // Add shipping as a line item if applicable
+    if (shippingCost > 0) {
+      orderItems.push({
+        name: 'Shipping',
+        quantity: '1',
+        item_type: 'ITEM',
+        base_price_money: {
+          amount: Math.round(shippingCost * 100), // Convert to cents
+          currency: currency.toUpperCase()
+        }
+      });
+      console.log('Added shipping line item:', shippingCost);
+    } else {
+      console.log('Free shipping applied - no shipping line item added');
+    }
 
     // Create checkout session with Square including customer name as display_name
     const checkoutRequest = {
@@ -171,3 +197,4 @@ serve(async (req) => {
     });
   }
 });
+
