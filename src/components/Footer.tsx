@@ -34,11 +34,11 @@ const Footer = () => {
             <div className="flex justify-center items-center gap-8">
               {/* Snapchat */}
               <div className="flex flex-col items-center group">
-                <div className="flex items-center justify-center w-16 h-16 bg-gray-50 rounded-xl border border-gray-200 mb-2 group-hover:bg-gray-100 transition-colors">
+                <div className="flex items-center justify-center w-16 h-16 bg-gray-50 rounded-xl border border-gray-200 mb-2 group-hover:bg-gray-100 transition-colors overflow-hidden">
                   <img 
                     src="/lovable-uploads/01eec198-c74e-4a42-928d-4cf3f181ccc3.png" 
                     alt="Snapchat" 
-                    className="w-10 h-10 rounded-lg object-cover" 
+                    className="w-full h-full object-cover" 
                   />
                 </div>
                 <span className="text-sm font-medium text-gray-700">ChargedUp325</span>
