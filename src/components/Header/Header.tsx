@@ -41,6 +41,7 @@ const Header = () => {
             ? 'bg-black/90 backdrop-blur-sm py-1 shadow-lg' 
             : 'bg-transparent py-2'
       }`}
+      style={{ top: '44px' }} // Move header down by announcement bar height
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between lg:justify-start">
