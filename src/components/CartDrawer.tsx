@@ -1,4 +1,3 @@
-
 import { Minus, Plus, X, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
 import { useCart } from '@/context/CartContext';
@@ -9,6 +8,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatPrice } from '@/lib/utils';
 import CheckoutAuthDialog from './CheckoutAuthDialog';
+import { fetchSquareProducts } from '@/lib/square';
+import { useQuery } from '@tanstack/react-query';
+import { Product } from '@/types';
 
 const CartDrawer = () => {
   const { 
@@ -20,12 +22,114 @@ const CartDrawer = () => {
     cartTotal,
     freeShippingThreshold,
     amountToFreeShipping,
-    toggleSubscription
+    toggleSubscription,
+    addToCart
   } = useCart();
   
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+
+  // Fetch products for recommendations
+  const { data: allProducts = [] } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchSquareProducts,
+  });
+
+  // Category recommendation mapping
+  const categoryRecommendations: Record<string, string[]> = {
+    'protein': ['pre-workout', 'bcaa', 'creatine'],
+    'pre-workout': ['pump-supplement', 'protein', 'bcaa'],
+    'pump-supplement': ['pre-workout', 'creatine', 'bcaa'],
+    'bcaa': ['protein', 'pre-workout', 'vitamins'],
+    'creatine': ['pre-workout', 'protein', 'multivitamin'],
+    'multivitamin': ['vitamins', 'anti-aging-supplement', 'testosterone'],
+    'vitamins': ['multivitamin', 'anti-aging-supplement', 'bcaa'],
+    'anti-aging-supplement': ['vitamins', 'multivitamin'],
+    'fat-burners': ['protein', 'multivitamin', 'testosterone'],
+    'weight-loss': ['protein', 'multivitamin', 'testosterone'], // Map weight-loss to fat-burners logic
+    'testosterone': ['fat-burners', 'multivitamin', 'anti-aging-supplement'],
+    'aminos': ['bcaa', 'protein', 'creatine'],
+    'dry-spell': ['fat-burners', 'vitamins', 'multivitamin'],
+    'daily-essentials': ['vitamins', 'multivitamin', 'anti-aging-supplement'] // Map daily-essentials
+  };
+
+  const getRecommendedProducts = (): Product[] => {
+    if (cartItems.length === 0 || allProducts.length === 0) return [];
+
+    // Get categories from cart items
+    const cartCategories = [...new Set(cartItems.map(item => item.product.category))];
+    const cartProductIds = new Set(cartItems.map(item => item.product.id));
+    
+    const recommendations: Product[] = [];
+    const addedProductIds = new Set<string>();
+
+    // For each category in cart, find recommendations
+    for (const category of cartCategories) {
+      const recommendedCategories = categoryRecommendations[category] || [];
+      
+      // Get the brand of the current category products in cart
+      const cartItemsInCategory = cartItems.filter(item => item.product.category === category);
+      const brandsInCategory = [...new Set(cartItemsInCategory.map(item => item.product.brand).filter(Boolean))];
+
+      for (const recommendedCategory of recommendedCategories) {
+        if (recommendations.length >= 3) break;
+
+        // First try to find products from the same brand
+        for (const brand of brandsInCategory) {
+          const brandProduct = allProducts.find(product => 
+            product.category === recommendedCategory &&
+            product.brand === brand &&
+            product.stock > 0 &&
+            product.images.length > 0 &&
+            !cartProductIds.has(product.id) &&
+            !addedProductIds.has(product.id)
+          );
+
+          if (brandProduct) {
+            recommendations.push(brandProduct);
+            addedProductIds.add(brandProduct.id);
+            break;
+          }
+        }
+
+        // If no brand match found, get any product from the recommended category
+        if (recommendations.length < 3) {
+          const categoryProduct = allProducts.find(product => 
+            product.category === recommendedCategory &&
+            product.stock > 0 &&
+            product.images.length > 0 &&
+            !cartProductIds.has(product.id) &&
+            !addedProductIds.has(product.id)
+          );
+
+          if (categoryProduct) {
+            recommendations.push(categoryProduct);
+            addedProductIds.add(categoryProduct.id);
+          }
+        }
+      }
+    }
+
+    // Fill remaining slots with best sellers if we have less than 3
+    if (recommendations.length < 3) {
+      const bestSellers = allProducts
+        .filter(product => 
+          product.bestSeller &&
+          product.stock > 0 &&
+          product.images.length > 0 &&
+          !cartProductIds.has(product.id) &&
+          !addedProductIds.has(product.id)
+        )
+        .slice(0, 3 - recommendations.length);
+
+      recommendations.push(...bestSellers);
+    }
+
+    return recommendations.slice(0, 3);
+  };
+
+  const recommendedProducts = getRecommendedProducts();
 
   const handleClose = () => {
     setIsCartOpen(false);
@@ -46,6 +150,10 @@ const CartDrawer = () => {
     setShowAuthDialog(false);
     navigate('/checkout');
     handleClose();
+  };
+
+  const handleAddRecommendedProduct = (product: Product) => {
+    addToCart(product, 1);
   };
 
   // Calculate progress towards free shipping
@@ -187,45 +295,34 @@ const CartDrawer = () => {
                     );
                   })}
                   
-                  {cartItems.length > 0 && (
+                  {/* Dynamic "You might also like" section */}
+                  {recommendedProducts.length > 0 && (
                     <div className="pt-4">
                       <h4 className="font-medium mb-2">You might also like:</h4>
                       <div className="flex overflow-x-auto space-x-4 pb-2 scrollbar-none">
-                        {/* First cross-sell item */}
-                        <div className="w-32 flex-shrink-0">
-                          <div className="bg-gray-100 rounded overflow-hidden aspect-square mb-2">
-                            <img 
-                              src="/products/multivitamin-1.jpg" 
-                              alt="Daily Multivitamin Plus" 
-                              className="w-full h-full object-cover"
-                            />
+                        {recommendedProducts.map((product) => (
+                          <div key={product.id} className="w-32 flex-shrink-0">
+                            <div className="bg-gray-100 rounded overflow-hidden aspect-square mb-2">
+                              <img 
+                                src={product.images[0]} 
+                                alt={product.title} 
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <h5 className="text-xs font-medium line-clamp-2">{product.title}</h5>
+                            <div className="flex justify-between items-center mt-1">
+                              <span className="text-xs price">
+                                ${(product.salePrice || product.price).toFixed(2)}
+                              </span>
+                              <button 
+                                onClick={() => handleAddRecommendedProduct(product)}
+                                className="text-xs text-primary hover:text-primary-dark"
+                              >
+                                + Add
+                              </button>
+                            </div>
                           </div>
-                          <h5 className="text-xs font-medium line-clamp-2">Daily Multivitamin Plus</h5>
-                          <div className="flex justify-between items-center mt-1">
-                            <span className="text-xs price">$29.99</span>
-                            <button className="text-xs text-primary hover:text-primary-dark">
-                              + Add
-                            </button>
-                          </div>
-                        </div>
-                        
-                        {/* Second cross-sell item */}
-                        <div className="w-32 flex-shrink-0">
-                          <div className="bg-gray-100 rounded overflow-hidden aspect-square mb-2">
-                            <img 
-                              src="/products/collagen-1.jpg" 
-                              alt="Collagen Peptides" 
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <h5 className="text-xs font-medium line-clamp-2">Collagen Peptides</h5>
-                          <div className="flex justify-between items-center mt-1">
-                            <span className="text-xs price">$34.99</span>
-                            <button className="text-xs text-primary hover:text-primary-dark">
-                              + Add
-                            </button>
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   )}
