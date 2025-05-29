@@ -84,7 +84,7 @@ const CheckoutPage = () => {
         };
       });
 
-      const shippingCost = cartTotal >= freeShippingThreshold ? 0 : 9.99;
+      const shippingCost = cartTotal >= freeShippingThreshold ? 0 : 6.99;
       const finalTotal = cartTotal + shippingCost;
 
       const webhookData = {
@@ -203,7 +203,7 @@ const CheckoutPage = () => {
     );
   }
 
-  const shippingCost = cartTotal >= freeShippingThreshold ? 0 : 9.99;
+  const shippingCost = cartTotal >= freeShippingThreshold ? 0 : 6.99;
   const finalTotal = cartTotal + shippingCost;
 
   return (
