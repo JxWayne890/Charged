@@ -14,6 +14,24 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { label: 'All Products', href: '/products' },
+  {
+    label: 'Categories',
+    href: '#',
+    submenu: [
+      { label: 'Pre Workout', href: '/products?category=pre-workout' },
+      { label: 'Protein', href: '/products?category=protein' },
+      { label: 'Creatine', href: '/products?category=creatine' },
+      { label: 'BCAA', href: '/products?category=bcaa' },
+      { label: 'Aminos', href: '/products?category=aminos' },
+      { label: 'Vitamins', href: '/products?category=vitamins' },
+      { label: 'Multivitamin', href: '/products?category=multivitamin' },
+      { label: 'Fat Burners', href: '/products?category=fat-burners' },
+      { label: 'Pump Supplement', href: '/products?category=pump-supplement' },
+      { label: 'Testosterone', href: '/products?category=testosterone' },
+      { label: 'Anti-Aging Supplement', href: '/products?category=anti-aging-supplement' },
+      { label: 'Dry Spell', href: '/products?category=dry-spell' }
+    ]
+  }
 ];
 
 const MobileNav = () => {
