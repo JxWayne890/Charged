@@ -1,8 +1,5 @@
-
-
 import { Link } from 'react-router-dom';
 import { Instagram } from 'lucide-react';
-
 const Footer = () => {
   return <footer className="bg-gray-100 pt-12 pb-6">
       <div className="container mx-auto px-4">
@@ -31,21 +28,12 @@ const Footer = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-8 pb-6 border-b border-gray-200">
           {/* Snapchat (non-clickable) */}
           <div className="flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/53233c53-6b20-4ca1-a60b-43074c895670.png" 
-              alt="Snapchat" 
-              className="w-8 h-8 rounded-lg"
-            />
+            <img src="/lovable-uploads/53233c53-6b20-4ca1-a60b-43074c895670.png" alt="Snapchat" className="w-8 h-8 rounded-lg object-fill" />
             <span className="text-gray-700 font-medium">ChargedUp325</span>
           </div>
 
           {/* Instagram (clickable) */}
-          <a 
-            href="https://www.instagram.com/chargedupnutrition325?igsh=ZDlpM3lhY2dlcGhm" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="w-8 h-8 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center hover:scale-110 transition-transform duration-200"
-          >
+          <a href="https://www.instagram.com/chargedupnutrition325?igsh=ZDlpM3lhY2dlcGhm" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center hover:scale-110 transition-transform duration-200">
             <Instagram className="w-5 h-5 text-white" />
           </a>
         </div>
@@ -78,6 +66,4 @@ const Footer = () => {
       </div>
     </footer>;
 };
-
 export default Footer;
-
