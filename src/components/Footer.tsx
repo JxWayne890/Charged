@@ -4,31 +4,7 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
   return <footer className="bg-gray-100 pt-12 pb-6">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {/* Newsletter Signup */}
-          <div className="lg:col-span-1">
-            <h3 className="text-lg mb-4">JOIN OUR NEWSLETTER</h3>
-            <p className="text-gray-600 mb-4">Get 10% off your first order and stay updated on new products and promotions.</p>
-            <form className="flex flex-col sm:flex-row gap-2">
-              <input type="email" placeholder="Your email" className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required />
-              <button type="submit" className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition duration-200 btn-hover-effect">
-                Subscribe
-              </button>
-            </form>
-          </div>
-          
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg mb-4">SHOP</h3>
-            <ul className="space-y-2">
-              <li><Link to="/category/protein" className="text-gray-600 hover:text-primary transition">Protein</Link></li>
-              <li><Link to="/category/pre-workout" className="text-gray-600 hover:text-primary transition">Pre-Workout</Link></li>
-              <li><Link to="/category/weight-loss" className="text-gray-600 hover:text-primary transition">Weight Loss</Link></li>
-              <li><Link to="/category/daily-essentials" className="text-gray-600 hover:text-primary transition">Daily Essentials</Link></li>
-              <li><Link to="/bundles" className="text-gray-600 hover:text-primary transition">Bundles</Link></li>
-            </ul>
-          </div>
-          
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Support */}
           <div>
             <h3 className="text-lg mb-4">SUPPORT</h3>
