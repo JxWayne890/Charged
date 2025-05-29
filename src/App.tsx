@@ -46,35 +46,37 @@ function App() {
             <div className="min-h-screen bg-background">
               <AnnouncementBar />
               <Header />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/products" element={<AllProductsPage />} />
-                <Route path="/product/:slug" element={<ProductDetailPage />} />
-                <Route path="/search" element={<SearchResultsPage />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/account" element={<AccountPage />} />
-                <Route path="/blog" element={<BlogPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/order-success" element={<OrderSuccessPage />} />
-                <Route path="/terms" element={<TermsOfServicePage />} />
-                <Route path="/privacy" element={<PrivacyPolicyPage />} />
-                
-                {/* Brand pages */}
-                <Route path="/brands/abe" element={<AbePage />} />
-                <Route path="/brands/alpha-lion" element={<AlphaLionPage />} />
-                <Route path="/brands/axe-sledge" element={<AxeSledgePage />} />
-                <Route path="/brands/bucked-up" element={<BuckedUpPage />} />
-                <Route path="/brands/chemix" element={<ChemixPage />} />
-                <Route path="/brands/core-nutritionals" element={<CoreNutritionalPage />} />
-                <Route path="/brands/fresh-supps" element={<FreshSuppsPage />} />
-                <Route path="/brands/gorilla-mind" element={<GorillaMindPage />} />
-                <Route path="/brands/metabolic-nutrition" element={<MetabolicNutritionPage />} />
-                <Route path="/brands/raw-nutrition" element={<RawNutritionPage />} />
-                <Route path="/brands/rule-one" element={<RuleOnePage />} />
-                <Route path="/brands/panda-supplements" element={<PandaSupplementsPage />} />
-                
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <main className="pt-20 lg:pt-0">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/products" element={<AllProductsPage />} />
+                  <Route path="/product/:slug" element={<ProductDetailPage />} />
+                  <Route path="/search" element={<SearchResultsPage />} />
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/account" element={<AccountPage />} />
+                  <Route path="/blog" element={<BlogPage />} />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="/order-success" element={<OrderSuccessPage />} />
+                  <Route path="/terms" element={<TermsOfServicePage />} />
+                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                  
+                  {/* Brand pages */}
+                  <Route path="/brands/abe" element={<AbePage />} />
+                  <Route path="/brands/alpha-lion" element={<AlphaLionPage />} />
+                  <Route path="/brands/axe-sledge" element={<AxeSledgePage />} />
+                  <Route path="/brands/bucked-up" element={<BuckedUpPage />} />
+                  <Route path="/brands/chemix" element={<ChemixPage />} />
+                  <Route path="/brands/core-nutritionals" element={<CoreNutritionalPage />} />
+                  <Route path="/brands/fresh-supps" element={<FreshSuppsPage />} />
+                  <Route path="/brands/gorilla-mind" element={<GorillaMindPage />} />
+                  <Route path="/brands/metabolic-nutrition" element={<MetabolicNutritionPage />} />
+                  <Route path="/brands/raw-nutrition" element={<RawNutritionPage />} />
+                  <Route path="/brands/rule-one" element={<RuleOnePage />} />
+                  <Route path="/brands/panda-supplements" element={<PandaSupplementsPage />} />
+                  
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
               <Footer />
               <CartDrawer />
               <Toaster />
