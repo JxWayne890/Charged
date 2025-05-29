@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import HeroSection from '@/components/HeroSection';
 import ProductCarousel from '@/components/ProductCarousel';
@@ -82,8 +81,8 @@ const Index = () => {
       <HeroSection 
         title="Fuel Your Everyday Fitness"
         subtitle="Premium supplements backed by science to help you reach your goals."
-        ctaText="Shop Best-Sellers"
-        ctaLink="/best-sellers"
+        ctaText="Shop All Products"
+        ctaLink="/products"
         backgroundImage="/lovable-uploads/2938ee41-0bf0-46aa-9344-11afa927721b.png"
       />
       
