@@ -1,10 +1,7 @@
-
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
-
 const Footer = () => {
-  return (
-    <footer className="bg-gray-100 pt-12 pb-6">
+  return <footer className="bg-gray-100 pt-12 pb-6">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Newsletter Signup */}
@@ -12,16 +9,8 @@ const Footer = () => {
             <h3 className="text-lg mb-4">JOIN OUR NEWSLETTER</h3>
             <p className="text-gray-600 mb-4">Get 10% off your first order and stay updated on new products and promotions.</p>
             <form className="flex flex-col sm:flex-row gap-2">
-              <input 
-                type="email" 
-                placeholder="Your email" 
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" 
-                required 
-              />
-              <button 
-                type="submit" 
-                className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition duration-200 btn-hover-effect"
-              >
+              <input type="email" placeholder="Your email" className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required />
+              <button type="submit" className="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-md transition duration-200 btn-hover-effect">
                 Subscribe
               </button>
             </form>
@@ -67,11 +56,7 @@ const Footer = () => {
         {/* Square Secure Payment Options */}
         <div className="border-t border-gray-200 pt-8 pb-6">
           <div className="flex justify-center">
-            <img 
-              src="/lovable-uploads/acf619b0-2fcc-4aaa-92d5-ffb5971fb4fd.png" 
-              alt="Square Secure - Accepted Payment Methods" 
-              className="max-w-full h-auto max-h-32 object-contain" 
-            />
+            <img src="/lovable-uploads/acf619b0-2fcc-4aaa-92d5-ffb5971fb4fd.png" alt="Square Secure - Accepted Payment Methods" className="max-w-full h-auto max-h-32 object-contain" />
           </div>
         </div>
         
@@ -80,64 +65,28 @@ const Footer = () => {
           <div className="flex flex-col items-center space-y-6">
             {/* Provider's System Attribution */}
             <div className="flex justify-center">
-              <a 
-                href="https://providersystems.netlify.app/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center text-gray-500 hover:text-gray-700 transition-colors"
-              >
-                <span className="text-sm mr-2">This site created by</span>
-                <img 
-                  src="/lovable-uploads/db180b3c-808f-4386-b782-74e5cd612929.png" 
-                  alt="The Provider's System" 
-                  className="h-12 w-auto object-contain" 
-                />
-              </a>
+              
             </div>
             
             {/* Copyright and Social Links */}
             <div className="flex flex-col md:flex-row justify-between items-center w-full">
               <div className="flex items-center mb-4 md:mb-0">
-                <img 
-                  src="/lovable-uploads/bc24b7f2-3784-4277-be96-81767ce6d068.png" 
-                  alt="Charged Up Nutrition" 
-                  className="h-8 w-auto mr-2" 
-                />
+                <img src="/lovable-uploads/bc24b7f2-3784-4277-be96-81767ce6d068.png" alt="Charged Up Nutrition" className="h-8 w-auto mr-2" />
                 <p className="text-sm text-gray-500">
                   &copy; {new Date().getFullYear()} Charged Up Nutrition. All rights reserved.
                 </p>
               </div>
               <div className="flex space-x-4">
-                <a 
-                  href="https://facebook.com/chargedup" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-gray-500 hover:text-primary transition"
-                >
+                <a href="https://facebook.com/chargedup" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition">
                   <Facebook size={20} />
                 </a>
-                <a 
-                  href="https://instagram.com/chargedup" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-gray-500 hover:text-primary transition"
-                >
+                <a href="https://instagram.com/chargedup" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition">
                   <Instagram size={20} />
                 </a>
-                <a 
-                  href="https://twitter.com/chargedup" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-gray-500 hover:text-primary transition"
-                >
+                <a href="https://twitter.com/chargedup" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition">
                   <Twitter size={20} />
                 </a>
-                <a 
-                  href="https://youtube.com/chargedup" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-gray-500 hover:text-primary transition"
-                >
+                <a href="https://youtube.com/chargedup" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-primary transition">
                   <Youtube size={20} />
                 </a>
               </div>
@@ -145,8 +94,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
