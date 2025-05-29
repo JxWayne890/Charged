@@ -54,7 +54,10 @@ const ProductCarousel = ({ title, products, viewAllLink }: ProductCarouselProps)
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl md:text-2xl font-bold">{title}</h2>
         {viewAllLink && (
-          <a href={viewAllLink} className="text-primary hover:text-primary-dark text-sm font-medium transition">
+          <a 
+            href={viewAllLink} 
+            className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors shadow-md"
+          >
             View All Available Products
           </a>
         )}

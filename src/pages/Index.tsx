@@ -101,19 +101,19 @@ const Index = () => {
       {/* Brand Carousel */}
       <BrandCarousel />
       
-      {/* Best Sellers - Show only if we have best seller products */}
+      {/* Available Items - Show only if we have best seller products */}
       {bestSellerProducts.length > 0 ? (
         <section className="container mx-auto px-4 py-12">
           <ProductCarousel 
-            title="Best Sellers" 
+            title="Available Items" 
             products={bestSellerProducts} 
             viewAllLink="/products" 
           />
         </section>
       ) : (
         <section className="container mx-auto px-4 py-12">
-          <h2 className="text-2xl font-bold mb-6">Best Sellers</h2>
-          <p className="text-center text-gray-600">No best sellers available at the moment. Check back soon!</p>
+          <h2 className="text-2xl font-bold mb-6">Available Items</h2>
+          <p className="text-center text-gray-600">No items available at the moment. Check back soon!</p>
         </section>
       )}
       
