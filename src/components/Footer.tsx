@@ -53,7 +53,7 @@ const Footer = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
             {/* Copyright - Left */}
             <div className="flex items-center justify-center lg:justify-start">
-              <img src="/lovable-uploads/ace13b36-7daf-494c-aad3-9d2470d1b72b.png" alt="Charged Up Nutrition" className="h-8 w-auto mr-2" />
+              <img src="/lovable-uploads/ace13b36-7daf-494c-aad3-9d2470d1b72b.png" alt="Charged Up Nutrition" className="h-20 w-auto mr-2" />
               <div className="text-center lg:text-left">
                 <p className="text-sm text-gray-500">
                   &copy; {new Date().getFullYear()} Charged Up Nutrition.
