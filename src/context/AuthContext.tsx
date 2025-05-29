@@ -25,13 +25,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
+      async (event, currentSession) => {
+        console.log('Auth state change:', event, currentSession);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
-        // Don't do anything else in this callback to prevent deadlocks
         if (event === 'SIGNED_IN') {
-          // User signed in, show toast notification
           setTimeout(() => {
             toast({
               title: "Signed in successfully",
@@ -39,7 +38,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             });
           }, 0);
         } else if (event === 'SIGNED_OUT') {
-          // User signed out, show toast notification
+          console.log('User signed out - clearing state');
+          setSession(null);
+          setUser(null);
           setTimeout(() => {
             toast({
               title: "Signed out",
@@ -52,6 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session);
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -116,9 +118,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      console.log('Starting sign out process...');
+      
+      // Clear local state immediately
+      setSession(null);
+      setUser(null);
+      
+      // Then call Supabase signOut
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        throw error;
+      }
+      
+      console.log('Sign out successful, navigating to home');
       navigate('/');
+      
     } catch (error: any) {
+      console.error('Sign out failed:', error);
       toast({
         title: "Sign out failed",
         description: error.message,

@@ -6,13 +6,10 @@ import DesktopNav from './DesktopNav';
 import MobileNav from './MobileNav';
 import SearchBar from './SearchBar';
 import CartButton from './CartButton';
-import { User } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
+import UserMenu from './UserMenu';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { user } = useAuth();
   const location = useLocation();
   
   // Check if current page is a product or category page
@@ -61,12 +58,7 @@ const Header = () => {
           
           <div className="flex items-center space-x-1">
             <SearchBar />
-            <Link 
-              to={user ? "/account" : "/auth"} 
-              className="p-2 text-white hover:text-primary transition-colors duration-200"
-            >
-              <User size={20} />
-            </Link>
+            <UserMenu />
             <CartButton />
           </div>
         </div>

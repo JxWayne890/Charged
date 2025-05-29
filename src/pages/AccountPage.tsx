@@ -74,11 +74,10 @@ const AccountPage = () => {
         </div>
         
         <Tabs defaultValue="favorites" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="favorites">My Favorites</TabsTrigger>
             <TabsTrigger value="orders">Order History</TabsTrigger>
-            <TabsTrigger value="addresses">Addresses</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="addresses">Saved Addresses</TabsTrigger>
           </TabsList>
           
           <TabsContent value="favorites" className="mt-6">
@@ -96,20 +95,6 @@ const AccountPage = () => {
             <div className="text-center py-12">
               <h3 className="text-lg font-medium mb-2">Saved Addresses</h3>
               <p className="text-gray-600">Your saved addresses will appear here.</p>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="settings" className="mt-6">
-            <div className="space-y-4">
-              <div className="border-t pt-4">
-                <h3 className="font-medium mb-2">Account Information</h3>
-                <p className="text-gray-600">Email: {user?.email}</p>
-                {profile?.display_name && <p className="text-gray-600">Name: {profile.display_name}</p>}
-              </div>
-              
-              <div className="pt-4">
-                <Button onClick={signOut} variant="destructive">Sign Out</Button>
-              </div>
             </div>
           </TabsContent>
         </Tabs>
