@@ -17,6 +17,8 @@ import NotFound from '@/pages/NotFound';
 import CheckoutPage from '@/pages/CheckoutPage';
 import OrderSuccessPage from '@/pages/OrderSuccessPage';
 import SearchResultsPage from '@/pages/SearchResultsPage';
+import TermsOfServicePage from '@/pages/TermsOfServicePage';
+import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
 
 // Brand pages
 import AbePage from '@/pages/brands/AbePage';
@@ -52,6 +54,8 @@ function App() {
                 <Route path="/blog" element={<BlogPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order-success" element={<OrderSuccessPage />} />
+                <Route path="/terms" element={<TermsOfServicePage />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
                 
                 {/* Brand pages */}
                 <Route path="/brands/abe" element={<AbePage />} />
