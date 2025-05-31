@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { Menu, X, ChevronDown, ChevronRight, ShoppingCart, User, LogIn, LogOut } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -56,6 +56,10 @@ const MobileNav = () => {
     }
   };
 
+  const handleCartClick = () => {
+    setIsCartOpen(true);
+  };
+
   return (
     <Sheet>
       <SheetTrigger className="lg:hidden p-2 text-white">
@@ -65,9 +69,9 @@ const MobileNav = () => {
         <div className="flex flex-col h-full">
           <div className="flex justify-between items-center p-4 border-b border-gray-800">
             <Logo />
-            <SheetTrigger className="p-2 text-white hover:text-primary transition-colors">
+            <SheetClose className="p-2 text-white hover:text-primary transition-colors">
               <X size={24} />
-            </SheetTrigger>
+            </SheetClose>
           </div>
           
           <nav className="flex-grow overflow-y-auto p-4">
@@ -92,25 +96,29 @@ const MobileNav = () => {
                         <ul className="pl-4 space-y-1 py-2 bg-gray-900/50 rounded-md my-1">
                           {item.submenu.map((subItem) => (
                             <li key={subItem.label}>
-                              <Link
-                                to={subItem.href}
-                                className="block py-2 px-3 hover:text-primary transition rounded-md hover:bg-black/30"
-                              >
-                                <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2 inline-block"></span>
-                                {subItem.label}
-                              </Link>
+                              <SheetClose asChild>
+                                <Link
+                                  to={subItem.href}
+                                  className="block py-2 px-3 hover:text-primary transition rounded-md hover:bg-black/30"
+                                >
+                                  <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2 inline-block"></span>
+                                  {subItem.label}
+                                </Link>
+                              </SheetClose>
                             </li>
                           ))}
                         </ul>
                       )}
                     </div>
                   ) : (
-                    <Link
-                      to={item.href}
-                      className="block py-3 px-2 hover:bg-gray-800/50 rounded transition"
-                    >
-                      <span className="font-medium text-white">{item.label}</span>
-                    </Link>
+                    <SheetClose asChild>
+                      <Link
+                        to={item.href}
+                        className="block py-3 px-2 hover:bg-gray-800/50 rounded transition"
+                      >
+                        <span className="font-medium text-white">{item.label}</span>
+                      </Link>
+                    </SheetClose>
                   )}
                 </li>
               ))}
@@ -120,51 +128,63 @@ const MobileNav = () => {
           <div className="mt-auto p-4 border-t border-gray-800 bg-black/50">
             <div className="flex flex-col space-y-3">
               {/* Cart */}
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="flex items-center justify-between text-sm text-gray-300 hover:text-primary transition-colors py-2 px-3 hover:bg-gray-800/50 rounded"
-              >
-                <div className="flex items-center">
-                  <ShoppingCart size={16} className="mr-2" />
-                  <span>Cart</span>
-                </div>
-                {cartCount > 0 && (
-                  <span className="bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
+              <SheetClose asChild>
+                <button
+                  onClick={handleCartClick}
+                  className="flex items-center justify-between text-sm text-gray-300 hover:text-primary transition-colors py-2 px-3 hover:bg-gray-800/50 rounded"
+                >
+                  <div className="flex items-center">
+                    <ShoppingCart size={16} className="mr-2" />
+                    <span>Cart</span>
+                  </div>
+                  {cartCount > 0 && (
+                    <span className="bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+              </SheetClose>
               
               {/* Auth */}
               {user ? (
                 <>
-                  <Link to="/account" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
-                    <User size={16} className="mr-2" />
-                    My Account
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded text-left"
-                  >
-                    <LogOut size={16} className="mr-2" />
-                    Sign Out
-                  </button>
+                  <SheetClose asChild>
+                    <Link to="/account" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
+                      <User size={16} className="mr-2" />
+                      My Account
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <button
+                      onClick={handleSignOut}
+                      className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded text-left"
+                    >
+                      <LogOut size={16} className="mr-2" />
+                      Sign Out
+                    </button>
+                  </SheetClose>
                 </>
               ) : (
-                <Link to="/auth" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
-                  <LogIn size={16} className="mr-2" />
-                  Sign In
-                </Link>
+                <SheetClose asChild>
+                  <Link to="/auth" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
+                    <LogIn size={16} className="mr-2" />
+                    Sign In
+                  </Link>
+                </SheetClose>
               )}
               
-              <Link to="/track-order" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
-                <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
-                Track Order
-              </Link>
-              <Link to="/contact" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
-                <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
-                Contact Us
-              </Link>
+              <SheetClose asChild>
+                <Link to="/track-order" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
+                  <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
+                  Track Order
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link to="/contact" className="text-sm text-gray-300 hover:text-primary transition-colors flex items-center py-2 px-3 hover:bg-gray-800/50 rounded">
+                  <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
+                  Contact Us
+                </Link>
+              </SheetClose>
             </div>
           </div>
         </div>
