@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -32,6 +33,8 @@ interface CheckoutRequest {
   customer: CustomerInfo;
   total: number;
   currency: string;
+  deliveryMethod?: string;
+  localDelivery?: boolean;
 }
 
 serve(async (req) => {
@@ -58,14 +61,18 @@ serve(async (req) => {
       throw new Error('Square location ID not configured');
     }
 
-    const { items, customer, total, currency }: CheckoutRequest = await req.json();
+    const { items, customer, total, currency, deliveryMethod, localDelivery }: CheckoutRequest = await req.json();
 
     console.log('Creating Square checkout for order:', {
       itemCount: items.length,
       total,
       customerEmail: customer.email,
       customerName: `${customer.firstName} ${customer.lastName}`,
-      locationId: squareLocationId
+      locationId: squareLocationId,
+      deliveryMethod,
+      localDelivery,
+      customerCity: customer.city,
+      customerState: customer.state
     });
 
     // Determine Square environment
@@ -80,10 +87,32 @@ serve(async (req) => {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     console.log('Calculated subtotal:', subtotal);
 
-    // Calculate shipping cost (free shipping threshold is $55)
-    const freeShippingThreshold = 55;
-    const shippingCost = subtotal >= freeShippingThreshold ? 0 : 6.99;
-    console.log('Shipping cost:', shippingCost, 'Free shipping threshold:', freeShippingThreshold);
+    // Calculate shipping cost based on delivery method
+    let shippingCost = 0;
+    let shippingMethodName = 'Standard Shipping';
+
+    if (localDelivery && deliveryMethod === 'local') {
+      // Validate local delivery eligibility
+      const isSanAngelo = customer.city.toLowerCase().trim() === 'san angelo';
+      const isTexas = customer.state.toLowerCase().trim() === 'tx' || customer.state.toLowerCase().trim() === 'texas';
+      
+      if (isSanAngelo && isTexas) {
+        shippingCost = 0;
+        shippingMethodName = 'Local Delivery (San Angelo Only)';
+        console.log('Local delivery confirmed for San Angelo, TX - shipping cost: $0.00');
+      } else {
+        console.log('Local delivery requested but customer not in San Angelo, TX - falling back to standard shipping');
+        // Fall back to standard shipping
+        const freeShippingThreshold = 55;
+        shippingCost = subtotal >= freeShippingThreshold ? 0 : 6.99;
+        shippingMethodName = 'Standard Shipping';
+      }
+    } else {
+      // Standard shipping logic
+      const freeShippingThreshold = 55;
+      shippingCost = subtotal >= freeShippingThreshold ? 0 : 6.99;
+      console.log('Standard shipping cost:', shippingCost, 'Free shipping threshold:', freeShippingThreshold);
+    }
 
     // Create order items for Square
     const orderItems = items.map(item => ({
@@ -99,7 +128,7 @@ serve(async (req) => {
     // Add shipping as a line item if applicable
     if (shippingCost > 0) {
       orderItems.push({
-        name: 'Shipping',
+        name: shippingMethodName,
         quantity: '1',
         item_type: 'ITEM',
         base_price_money: {
@@ -107,9 +136,9 @@ serve(async (req) => {
           currency: currency.toUpperCase()
         }
       });
-      console.log('Added shipping line item:', shippingCost);
+      console.log('Added shipping line item:', shippingMethodName, shippingCost);
     } else {
-      console.log('Free shipping applied - no shipping line item added');
+      console.log('Free shipping applied - no shipping line item added. Method:', shippingMethodName);
     }
 
     // Create checkout session with Square including customer name as display_name
@@ -121,7 +150,7 @@ serve(async (req) => {
       },
       checkout_options: {
         redirect_url: `${req.headers.get('origin')}/order-success`,
-        ask_for_shipping_address: true,
+        ask_for_shipping_address: !localDelivery, // Don't ask for shipping address if local delivery
         accepted_payment_methods: {
           card: true,
           square_gift_card: false,

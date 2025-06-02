@@ -7,10 +7,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { formatPrice } from '@/lib/utils';
-import { Loader2, ShoppingCart } from 'lucide-react';
+import { Loader2, ShoppingCart, MapPin } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+
+interface LocalDeliveryInfo {
+  isLocalDeliveryAvailable: boolean;
+  deliveryMethod?: {
+    name: string;
+    cost: number;
+    description: string;
+  };
+}
 
 const CheckoutPage = () => {
   const { cartItems, cartTotal, clearCart, freeShippingThreshold } = useCart();
@@ -18,6 +28,8 @@ const CheckoutPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [localDeliveryInfo, setLocalDeliveryInfo] = useState<LocalDeliveryInfo>({ isLocalDeliveryAvailable: false });
+  const [selectedDeliveryMethod, setSelectedDeliveryMethod] = useState<'shipping' | 'local'>('shipping');
   const [customerInfo, setCustomerInfo] = useState({
     email: user?.email || '',
     firstName: '',
@@ -33,6 +45,47 @@ const CheckoutPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Validate local delivery when city or state changes
+  useEffect(() => {
+    const validateLocalDelivery = async () => {
+      if (customerInfo.city && customerInfo.state) {
+        try {
+          const { data, error } = await supabase.functions.invoke('validate-local-delivery', {
+            body: {
+              city: customerInfo.city,
+              state: customerInfo.state
+            }
+          });
+
+          if (error) {
+            console.error('Local delivery validation error:', error);
+            setLocalDeliveryInfo({ isLocalDeliveryAvailable: false });
+            return;
+          }
+
+          setLocalDeliveryInfo(data);
+
+          // If local delivery becomes unavailable, switch back to shipping
+          if (!data.isLocalDeliveryAvailable && selectedDeliveryMethod === 'local') {
+            setSelectedDeliveryMethod('shipping');
+          }
+        } catch (error) {
+          console.error('Failed to validate local delivery:', error);
+          setLocalDeliveryInfo({ isLocalDeliveryAvailable: false });
+        }
+      } else {
+        setLocalDeliveryInfo({ isLocalDeliveryAvailable: false });
+        if (selectedDeliveryMethod === 'local') {
+          setSelectedDeliveryMethod('shipping');
+        }
+      }
+    };
+
+    // Debounce the validation to avoid too many API calls
+    const timeoutId = setTimeout(validateLocalDelivery, 500);
+    return () => clearTimeout(timeoutId);
+  }, [customerInfo.city, customerInfo.state, selectedDeliveryMethod]);
 
   const handleInputChange = (field: string, value: string) => {
     setCustomerInfo(prev => ({ ...prev, [field]: value }));
@@ -84,7 +137,7 @@ const CheckoutPage = () => {
         };
       });
 
-      const shippingCost = cartTotal >= freeShippingThreshold ? 0 : 6.99;
+      const shippingCost = getShippingCost();
       const finalTotal = cartTotal + shippingCost;
 
       const webhookData = {
@@ -100,6 +153,7 @@ const CheckoutPage = () => {
         order_summary: orderSummary,
         subtotal: cartTotal,
         shipping_cost: shippingCost,
+        shipping_method: selectedDeliveryMethod === 'local' ? 'Local Delivery (San Angelo Only)' : 'Standard Shipping',
         total: finalTotal,
         timestamp: new Date().toISOString()
       };
@@ -124,6 +178,21 @@ const CheckoutPage = () => {
       console.error('Webhook error:', error);
       return false;
     }
+  };
+
+  const getShippingCost = () => {
+    if (selectedDeliveryMethod === 'local') {
+      return 0;
+    }
+    return cartTotal >= freeShippingThreshold ? 0 : 6.99;
+  };
+
+  const getShippingDescription = () => {
+    if (selectedDeliveryMethod === 'local') {
+      return 'FREE';
+    }
+    const shippingCost = cartTotal >= freeShippingThreshold ? 0 : 6.99;
+    return shippingCost === 0 ? 'FREE' : formatPrice(shippingCost);
   };
 
   const handleCheckout = async () => {
@@ -151,7 +220,9 @@ const CheckoutPage = () => {
         })),
         customer: customerInfo,
         total: cartTotal,
-        currency: 'USD'
+        currency: 'USD',
+        deliveryMethod: selectedDeliveryMethod,
+        localDelivery: selectedDeliveryMethod === 'local'
       };
 
       const { data, error } = await supabase.functions.invoke('create-checkout', {
@@ -203,7 +274,7 @@ const CheckoutPage = () => {
     );
   }
 
-  const shippingCost = cartTotal >= freeShippingThreshold ? 0 : 6.99;
+  const shippingCost = getShippingCost();
   const finalTotal = cartTotal + shippingCost;
 
   return (
@@ -310,6 +381,58 @@ const CheckoutPage = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Delivery Options */}
+            {localDeliveryInfo.isLocalDeliveryAvailable && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    Delivery Options
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <p className="text-green-800 text-sm font-medium">
+                      🎉 Free Local Delivery available in San Angelo, TX!
+                    </p>
+                  </div>
+                  
+                  <RadioGroup 
+                    value={selectedDeliveryMethod} 
+                    onValueChange={(value: 'shipping' | 'local') => setSelectedDeliveryMethod(value)}
+                  >
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                      <RadioGroupItem value="shipping" id="shipping" />
+                      <Label htmlFor="shipping" className="flex-1 cursor-pointer">
+                        <div>
+                          <div className="font-medium">Standard Shipping</div>
+                          <div className="text-sm text-gray-600">
+                            {cartTotal >= freeShippingThreshold ? 'FREE shipping (order over $55)' : '$6.99 shipping fee'}
+                          </div>
+                        </div>
+                      </Label>
+                      <span className="font-medium">
+                        {cartTotal >= freeShippingThreshold ? 'FREE' : '$6.99'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 p-3 border rounded-lg border-primary bg-primary/5">
+                      <RadioGroupItem value="local" id="local" />
+                      <Label htmlFor="local" className="flex-1 cursor-pointer">
+                        <div>
+                          <div className="font-medium text-primary">Local Delivery (San Angelo Only)</div>
+                          <div className="text-sm text-gray-600">
+                            Free local delivery within San Angelo, TX
+                          </div>
+                        </div>
+                      </Label>
+                      <span className="font-medium text-primary">FREE</span>
+                    </div>
+                  </RadioGroup>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Order Summary */}
@@ -358,11 +481,16 @@ const CheckoutPage = () => {
                     <span>{formatPrice(cartTotal)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Shipping</span>
-                    <span>{shippingCost === 0 ? 'FREE' : formatPrice(shippingCost)}</span>
+                    <span>
+                      {selectedDeliveryMethod === 'local' ? 'Local Delivery' : 'Shipping'}
+                    </span>
+                    <span>{getShippingDescription()}</span>
                   </div>
-                  {cartTotal >= freeShippingThreshold && (
+                  {selectedDeliveryMethod === 'shipping' && cartTotal >= freeShippingThreshold && (
                     <p className="text-sm text-primary">🎉 You've unlocked FREE shipping!</p>
+                  )}
+                  {selectedDeliveryMethod === 'local' && (
+                    <p className="text-sm text-primary">🚚 Free local delivery in San Angelo, TX!</p>
                   )}
                 </div>
                 
