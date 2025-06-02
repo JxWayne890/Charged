@@ -10,6 +10,7 @@ interface LocalDeliveryInfo {
     name: string;
     cost: number;
     description: string;
+    expectedDeliveryDate?: string;
   };
 }
 
@@ -72,10 +73,15 @@ export const DeliveryOptionsCard = ({
             <RadioGroupItem value="local" id="local" />
             <Label htmlFor="local" className="flex-1 cursor-pointer">
               <div>
-                <div className="font-medium text-primary">Local Delivery (San Angelo Only)</div>
+                <div className="font-medium text-primary">Local Delivery (San Angelo Only) — FREE</div>
                 <div className="text-sm text-gray-600">
                   Free local delivery within San Angelo, TX
                 </div>
+                {localDeliveryInfo.deliveryMethod?.expectedDeliveryDate && (
+                  <div className="text-sm text-primary font-medium mt-1">
+                    Expected delivery by {localDeliveryInfo.deliveryMethod.expectedDeliveryDate}
+                  </div>
+                )}
               </div>
             </Label>
             <span className="font-medium text-primary">FREE</span>

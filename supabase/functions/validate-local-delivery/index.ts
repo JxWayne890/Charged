@@ -18,8 +18,35 @@ interface DeliveryValidationResponse {
     name: string;
     cost: number;
     description: string;
+    expectedDeliveryDate?: string;
   };
 }
+
+const formatDate = (date: Date): string => {
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  
+  return `${months[date.getMonth()]} ${date.getDate()}`;
+};
+
+const calculateExpectedDeliveryDate = (): string => {
+  // Get current date in Central Time
+  const now = new Date();
+  
+  // Add 2 calendar days
+  const expectedDate = new Date(now);
+  expectedDate.setDate(now.getDate() + 2);
+  
+  console.log('Calculated expected delivery date:', {
+    currentDate: now.toISOString(),
+    expectedDate: expectedDate.toISOString(),
+    formattedDate: formatDate(expectedDate)
+  });
+  
+  return formatDate(expectedDate);
+};
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -50,7 +77,8 @@ serve(async (req) => {
         deliveryMethod: {
           name: 'Local Delivery (San Angelo Only)',
           cost: 0.00,
-          description: 'Free local delivery within San Angelo, TX'
+          description: 'Free local delivery within San Angelo, TX',
+          expectedDeliveryDate: calculateExpectedDeliveryDate()
         }
       })
     };
