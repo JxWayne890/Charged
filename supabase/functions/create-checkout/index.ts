@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -101,8 +100,15 @@ serve(async (req) => {
       if (isSanAngelo && isTexas) {
         shippingCost = 0;
         shippingMethodName = 'Local Delivery (San Angelo Only)';
-        orderNote = 'Delivery method: Free Local Delivery (San Angelo)';
-        console.log('Local delivery confirmed for San Angelo, TX - shipping cost: $0.00, adding order note');
+        
+        // Create detailed order note with customer shipping information
+        orderNote = `Delivery method: Free Local Delivery (San Angelo)
+Customer: ${customer.firstName} ${customer.lastName}
+Phone: ${customer.phone || 'Not provided'}
+Delivery Address: ${customer.address}, ${customer.city}, ${customer.state} ${customer.zipCode}
+Email: ${customer.email}`;
+
+        console.log('Local delivery confirmed for San Angelo, TX - shipping cost: $0.00, adding detailed order note with customer info');
       } else {
         console.log('Local delivery requested but customer not in San Angelo, TX - falling back to standard shipping');
         // Fall back to standard shipping
