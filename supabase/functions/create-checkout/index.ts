@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -142,6 +141,23 @@ serve(async (req) => {
       console.log('Free shipping applied - no shipping line item added. Method:', shippingMethodName);
     }
 
+    // Format phone number to ensure it has +1 prefix
+    const formatPhoneNumber = (phone: string) => {
+      if (!phone) return '';
+      // Remove any existing country code and formatting
+      const cleaned = phone.replace(/\D/g, '');
+      // If it's a 10-digit US number, add +1
+      if (cleaned.length === 10) {
+        return `+1${cleaned}`;
+      }
+      // If it already has country code, ensure it starts with +1
+      if (cleaned.length === 11 && cleaned.startsWith('1')) {
+        return `+${cleaned}`;
+      }
+      // Return as is if already formatted or invalid
+      return phone.startsWith('+') ? phone : `+1${cleaned}`;
+    };
+
     // Create checkout session with Square - Always ask for shipping address to ensure it's captured
     const checkoutRequest = {
       idempotency_key: crypto.randomUUID(),
@@ -158,26 +174,31 @@ serve(async (req) => {
           google_pay: true,
           apple_pay: true,
           afterpay_clearpay: false
-        }
+        },
+        // Restrict to US only
+        allowed_locations: [{
+          country: 'US'
+        }]
       },
       pre_populated_data: {
         buyer_email: customer.email,
-        buyer_phone_number: customer.phone || '',
+        buyer_phone_number: formatPhoneNumber(customer.phone || ''),
         buyer_address: {
           address_line_1: customer.address,
           locality: customer.city,
           administrative_district_level_1: customer.state,
           postal_code: customer.zipCode,
-          country: customer.country
+          country: 'US' // Force US country
         },
         buyer_display_name: `${customer.firstName} ${customer.lastName}`
       }
     };
 
-    console.log('Sending checkout request to Square API with shipping address:', JSON.stringify({
+    console.log('Sending checkout request to Square API with US-only restriction:', JSON.stringify({
       ...checkoutRequest,
       shipping_address_included: true,
-      customer_address: checkoutRequest.pre_populated_data.buyer_address
+      customer_address: checkoutRequest.pre_populated_data.buyer_address,
+      phone_formatted: checkoutRequest.pre_populated_data.buyer_phone_number
     }, null, 2));
 
     const squareResponse = await fetch(`${squareApiBase}/v2/online-checkout/payment-links`, {
