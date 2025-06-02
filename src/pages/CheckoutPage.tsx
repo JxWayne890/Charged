@@ -198,35 +198,17 @@ const CheckoutPage = () => {
   const handleCheckout = async () => {
     if (!validateForm()) return;
     if (cartItems.length === 0) return;
-
-    // If local delivery is selected, redirect to delivery confirmation page
-    if (selectedDeliveryMethod === 'local') {
-      navigate('/delivery-confirmation', {
-        state: {
-          customerInfo,
-          cartItems,
-          cartTotal
-        }
-      });
-      return;
-    }
-
     setLoading(true);
-
     try {
       // Send webhook data first
       await sendWebhookData();
-
       console.log('Creating Square checkout session...');
-      
       const orderData = {
         items: cartItems.map(item => ({
           productId: item.product.id,
           name: item.product.title,
           quantity: item.quantity,
-          price: item.subscription && item.product.subscription_price 
-            ? item.product.subscription_price 
-            : item.product.salePrice || item.product.price,
+          price: item.subscription && item.product.subscription_price ? item.product.subscription_price : item.product.salePrice || item.product.price,
           flavor: item.flavor,
           subscription: item.subscription
         })),
@@ -236,11 +218,12 @@ const CheckoutPage = () => {
         deliveryMethod: selectedDeliveryMethod,
         localDelivery: selectedDeliveryMethod === 'local'
       };
-
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('create-checkout', {
         body: orderData
       });
-
       if (error) {
         console.error('Checkout creation error:', error);
         toast({
@@ -250,7 +233,6 @@ const CheckoutPage = () => {
         });
         return;
       }
-
       if (data?.checkout_url) {
         console.log('Redirecting to Square checkout:', data.checkout_url);
         // Redirect to Square hosted checkout page
@@ -258,7 +240,6 @@ const CheckoutPage = () => {
       } else {
         throw new Error('No checkout URL received from Square');
       }
-
     } catch (error) {
       console.error('Checkout error:', error);
       toast({
