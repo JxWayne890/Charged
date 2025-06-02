@@ -91,6 +91,7 @@ serve(async (req) => {
     // Calculate shipping cost based on delivery method
     let shippingCost = 0;
     let shippingMethodName = 'Standard Shipping';
+    let orderNote = '';
 
     if (localDelivery && deliveryMethod === 'local') {
       // Validate local delivery eligibility
@@ -100,7 +101,8 @@ serve(async (req) => {
       if (isSanAngelo && isTexas) {
         shippingCost = 0;
         shippingMethodName = 'Local Delivery (San Angelo Only)';
-        console.log('Local delivery confirmed for San Angelo, TX - shipping cost: $0.00');
+        orderNote = 'Delivery method: Free Local Delivery (San Angelo)';
+        console.log('Local delivery confirmed for San Angelo, TX - shipping cost: $0.00, adding order note');
       } else {
         console.log('Local delivery requested but customer not in San Angelo, TX - falling back to standard shipping');
         // Fall back to standard shipping
@@ -164,7 +166,8 @@ serve(async (req) => {
       idempotency_key: crypto.randomUUID(),
       order: {
         location_id: squareLocationId,
-        line_items: orderItems
+        line_items: orderItems,
+        ...(orderNote && { note: orderNote })
       },
       checkout_options: {
         redirect_url: `${req.headers.get('origin')}/order-success`,
@@ -204,7 +207,8 @@ serve(async (req) => {
       customer_address: checkoutRequest.pre_populated_data.buyer_address,
       phone_formatted: checkoutRequest.pre_populated_data.buyer_phone_number,
       customer_first_name: checkoutRequest.pre_populated_data.buyer_first_name,
-      customer_last_name: checkoutRequest.pre_populated_data.buyer_last_name
+      customer_last_name: checkoutRequest.pre_populated_data.buyer_last_name,
+      order_note: orderNote || 'No note'
     }, null, 2));
 
     const squareResponse = await fetch(`${squareApiBase}/v2/online-checkout/payment-links`, {
