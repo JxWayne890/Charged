@@ -1,18 +1,14 @@
-
 import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { formatPrice } from '@/lib/utils';
-import { Loader2, ShoppingCart, MapPin } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { CustomerInfoForm } from '@/components/checkout/CustomerInfoForm';
+import { ShippingAddressForm } from '@/components/checkout/ShippingAddressForm';
+import { DeliveryOptionsCard } from '@/components/checkout/DeliveryOptionsCard';
+import { OrderSummaryCard } from '@/components/checkout/OrderSummaryCard';
+import { EmptyCartMessage } from '@/components/checkout/EmptyCartMessage';
 
 interface LocalDeliveryInfo {
   isLocalDeliveryAvailable: boolean;
@@ -202,7 +198,7 @@ const CheckoutPage = () => {
       return 'FREE';
     }
     const shippingCost = cartTotal >= freeShippingThreshold ? 0 : 6.99;
-    return shippingCost === 0 ? 'FREE' : formatPrice(shippingCost);
+    return shippingCost === 0 ? 'FREE' : `$${shippingCost.toFixed(2)}`;
   };
   
   const handleCheckout = async () => {
@@ -263,194 +259,50 @@ const CheckoutPage = () => {
   };
 
   if (cartItems.length === 0) {
-    return <div className="container mx-auto px-4 py-12 pt-32">
-        <div className="text-center p-8 max-w-lg mx-auto">
-          <ShoppingCart className="h-16 w-16 text-gray-300 mb-4 mx-auto" />
-          <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-          <p className="mb-6 text-gray-600">Add some products to your cart before checkout.</p>
-          <Button asChild>
-            <Link to="/products">Continue Shopping</Link>
-          </Button>
-        </div>
-      </div>;
+    return <EmptyCartMessage />;
   }
   const shippingCost = getShippingCost();
   const finalTotal = cartTotal + shippingCost;
-  return <div className="container mx-auto px-4 pt-32 py-[13px]">
+  return (
+    <div className="container mx-auto px-4 pt-32 py-[13px]">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Customer Information */}
           <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Customer Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">First Name *</Label>
-                    <Input id="firstName" value={customerInfo.firstName} onChange={e => handleInputChange('firstName', e.target.value)} required />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">Last Name *</Label>
-                    <Input id="lastName" value={customerInfo.lastName} onChange={e => handleInputChange('lastName', e.target.value)} required />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="email">Email *</Label>
-                  <Input id="email" type="email" value={customerInfo.email} onChange={e => handleInputChange('email', e.target.value)} required />
-                </div>
-                
-                <div>
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" type="tel" value={customerInfo.phone} onChange={e => handleInputChange('phone', e.target.value)} />
-                </div>
-              </CardContent>
-            </Card>
+            <CustomerInfoForm 
+              customerInfo={customerInfo}
+              onInputChange={handleInputChange}
+            />
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Shipping Address</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="address">Address *</Label>
-                  <Input id="address" value={customerInfo.address} onChange={e => handleInputChange('address', e.target.value)} required />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="city">City *</Label>
-                    <Input id="city" value={customerInfo.city} onChange={e => handleInputChange('city', e.target.value)} required />
-                  </div>
-                  <div>
-                    <Label htmlFor="state">State *</Label>
-                    <Input id="state" value={customerInfo.state} onChange={e => handleInputChange('state', e.target.value)} required />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="zipCode">ZIP Code *</Label>
-                  <Input id="zipCode" value={customerInfo.zipCode} onChange={e => handleInputChange('zipCode', e.target.value)} required />
-                </div>
-              </CardContent>
-            </Card>
+            <ShippingAddressForm
+              customerInfo={customerInfo}
+              onInputChange={handleInputChange}
+            />
 
-            {/* Delivery Options */}
-            {localDeliveryInfo.isLocalDeliveryAvailable && <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-primary" />
-                    Delivery Options
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                    <p className="text-green-800 text-sm font-medium">
-                      🎉 Free Local Delivery available in San Angelo, TX!
-                    </p>
-                  </div>
-                  
-                  <RadioGroup value={selectedDeliveryMethod} onValueChange={(value: 'shipping' | 'local') => setSelectedDeliveryMethod(value)}>
-                    <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                      <RadioGroupItem value="shipping" id="shipping" />
-                      <Label htmlFor="shipping" className="flex-1 cursor-pointer">
-                        <div>
-                          <div className="font-medium">Standard Shipping</div>
-                          <div className="text-sm text-gray-600">
-                            {cartTotal >= freeShippingThreshold ? 'FREE shipping (order over $55)' : '$6.99 shipping fee'}
-                          </div>
-                        </div>
-                      </Label>
-                      <span className="font-medium">
-                        {cartTotal >= freeShippingThreshold ? 'FREE' : '$6.99'}
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2 p-3 border rounded-lg border-primary bg-primary/5">
-                      <RadioGroupItem value="local" id="local" />
-                      <Label htmlFor="local" className="flex-1 cursor-pointer">
-                        <div>
-                          <div className="font-medium text-primary">Local Delivery (San Angelo Only)</div>
-                          <div className="text-sm text-gray-600">
-                            Free local delivery within San Angelo, TX
-                          </div>
-                        </div>
-                      </Label>
-                      <span className="font-medium text-primary">FREE</span>
-                    </div>
-                  </RadioGroup>
-                </CardContent>
-              </Card>}
+            <DeliveryOptionsCard
+              localDeliveryInfo={localDeliveryInfo}
+              selectedDeliveryMethod={selectedDeliveryMethod}
+              onDeliveryMethodChange={setSelectedDeliveryMethod}
+              cartTotal={cartTotal}
+              freeShippingThreshold={freeShippingThreshold}
+            />
           </div>
 
-          {/* Order Summary */}
-          <div>
-            <Card className="sticky top-32">
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {cartItems.map(item => {
-                const price = item.subscription && item.product.subscription_price ? item.product.subscription_price : item.product.salePrice || item.product.price;
-                return <div key={`${item.product.id}-${item.flavor || 'default'}`} className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                        <img src={item.product.images[0]} alt={item.product.title} className="w-full h-full object-cover" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm">{item.product.title}</h4>
-                        {item.flavor && <p className="text-xs text-gray-500">Flavor: {item.flavor}</p>}
-                        {item.subscription && <p className="text-xs text-primary">Subscription</p>}
-                        <p className="text-sm">Qty: {item.quantity}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium">{formatPrice(price * item.quantity)}</p>
-                      </div>
-                    </div>;
-              })}
-                
-                <Separator />
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Subtotal</span>
-                    <span>{formatPrice(cartTotal)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>
-                      {selectedDeliveryMethod === 'local' ? 'Local Delivery' : 'Shipping'}
-                    </span>
-                    <span>{getShippingDescription()}</span>
-                  </div>
-                  {selectedDeliveryMethod === 'shipping' && cartTotal >= freeShippingThreshold && <p className="text-sm text-primary">🎉 You've unlocked FREE shipping!</p>}
-                  {selectedDeliveryMethod === 'local' && <p className="text-sm text-primary">🚚 Free local delivery in San Angelo, TX!</p>}
-                </div>
-                
-                <Separator />
-                
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Total</span>
-                  <span>{formatPrice(finalTotal)}</span>
-                </div>
-                
-                <Button onClick={handleCheckout} disabled={loading || cartItems.length === 0} className="w-full mt-6" size="lg">
-                  {loading ? <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </> : 'Proceed to Square Checkout'}
-                </Button>
-                
-                <p className="text-xs text-gray-500 text-center mt-2">
-                  Secure checkout powered by Square
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <OrderSummaryCard
+            cartItems={cartItems}
+            cartTotal={cartTotal}
+            selectedDeliveryMethod={selectedDeliveryMethod}
+            freeShippingThreshold={freeShippingThreshold}
+            loading={loading}
+            onCheckout={handleCheckout}
+            getShippingCost={getShippingCost}
+            getShippingDescription={getShippingDescription}
+          />
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default CheckoutPage;
