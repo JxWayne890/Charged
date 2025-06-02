@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -12,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formatPrice } from '@/lib/utils';
 import { Loader2, ShoppingCart, MapPin } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+
 interface LocalDeliveryInfo {
   isLocalDeliveryAvailable: boolean;
   deliveryMethod?: {
@@ -20,6 +22,7 @@ interface LocalDeliveryInfo {
     description: string;
   };
 }
+
 const CheckoutPage = () => {
   const {
     cartItems,
@@ -50,6 +53,7 @@ const CheckoutPage = () => {
     zipCode: '',
     country: 'US'
   });
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -101,12 +105,14 @@ const CheckoutPage = () => {
     const timeoutId = setTimeout(validateLocalDelivery, 500);
     return () => clearTimeout(timeoutId);
   }, [customerInfo.city, customerInfo.state, selectedDeliveryMethod]);
+  
   const handleInputChange = (field: string, value: string) => {
     setCustomerInfo(prev => ({
       ...prev,
       [field]: value
     }));
   };
+  
   const validateForm = () => {
     const required = ['email', 'firstName', 'lastName', 'address', 'city', 'state', 'zipCode'];
     const missing = required.filter(field => !customerInfo[field]);
@@ -129,6 +135,7 @@ const CheckoutPage = () => {
     }
     return true;
   };
+  
   const sendWebhookData = async () => {
     try {
       const webhookUrl = 'https://n8n-1-yvtq.onrender.com/webhook-test/3576ed45-9e1a-4911-b9e4-ad2997f1a90e';
@@ -182,12 +189,14 @@ const CheckoutPage = () => {
       return false;
     }
   };
+  
   const getShippingCost = () => {
     if (selectedDeliveryMethod === 'local') {
       return 0;
     }
     return cartTotal >= freeShippingThreshold ? 0 : 6.99;
   };
+  
   const getShippingDescription = () => {
     if (selectedDeliveryMethod === 'local') {
       return 'FREE';
@@ -195,6 +204,7 @@ const CheckoutPage = () => {
     const shippingCost = cartTotal >= freeShippingThreshold ? 0 : 6.99;
     return shippingCost === 0 ? 'FREE' : formatPrice(shippingCost);
   };
+  
   const handleCheckout = async () => {
     if (!validateForm()) return;
     if (cartItems.length === 0) return;
@@ -251,6 +261,7 @@ const CheckoutPage = () => {
       setLoading(false);
     }
   };
+
   if (cartItems.length === 0) {
     return <div className="container mx-auto px-4 py-12 pt-32">
         <div className="text-center p-8 max-w-lg mx-auto">
