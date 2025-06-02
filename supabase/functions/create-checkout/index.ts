@@ -68,6 +68,7 @@ serve(async (req) => {
       total,
       customerEmail: customer.email,
       customerName: `${customer.firstName} ${customer.lastName}`,
+      customerAddress: `${customer.address}, ${customer.city}, ${customer.state} ${customer.zipCode}`,
       locationId: squareLocationId,
       deliveryMethod,
       localDelivery,
@@ -141,7 +142,7 @@ serve(async (req) => {
       console.log('Free shipping applied - no shipping line item added. Method:', shippingMethodName);
     }
 
-    // Create checkout session with Square including customer name as display_name
+    // Create checkout session with Square - Always ask for shipping address to ensure it's captured
     const checkoutRequest = {
       idempotency_key: crypto.randomUUID(),
       order: {
@@ -150,7 +151,7 @@ serve(async (req) => {
       },
       checkout_options: {
         redirect_url: `${req.headers.get('origin')}/order-success`,
-        ask_for_shipping_address: !localDelivery, // Don't ask for shipping address if local delivery
+        ask_for_shipping_address: true, // Always ask for shipping address
         accepted_payment_methods: {
           card: true,
           square_gift_card: false,
@@ -173,7 +174,11 @@ serve(async (req) => {
       }
     };
 
-    console.log('Sending checkout request to Square API:', JSON.stringify(checkoutRequest, null, 2));
+    console.log('Sending checkout request to Square API with shipping address:', JSON.stringify({
+      ...checkoutRequest,
+      shipping_address_included: true,
+      customer_address: checkoutRequest.pre_populated_data.buyer_address
+    }, null, 2));
 
     const squareResponse = await fetch(`${squareApiBase}/v2/online-checkout/payment-links`, {
       method: 'POST',
@@ -199,7 +204,7 @@ serve(async (req) => {
       throw new Error(`Square API error: ${responseData.errors?.[0]?.detail || 'Unknown error'}`);
     }
 
-    console.log('Square checkout created successfully');
+    console.log('Square checkout created successfully with shipping address');
 
     const checkoutUrl = responseData.payment_link?.url;
     if (!checkoutUrl) {
