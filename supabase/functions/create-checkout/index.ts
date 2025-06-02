@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -190,15 +191,20 @@ serve(async (req) => {
           postal_code: customer.zipCode,
           country: 'US' // Force US country
         },
-        buyer_display_name: `${customer.firstName} ${customer.lastName}`
+        buyer_display_name: `${customer.firstName} ${customer.lastName}`,
+        // Add first and last name separately for Square checkout form
+        buyer_first_name: customer.firstName,
+        buyer_last_name: customer.lastName
       }
     };
 
-    console.log('Sending checkout request to Square API with US-only restriction:', JSON.stringify({
+    console.log('Sending checkout request to Square API with customer name pre-populated:', JSON.stringify({
       ...checkoutRequest,
       shipping_address_included: true,
       customer_address: checkoutRequest.pre_populated_data.buyer_address,
-      phone_formatted: checkoutRequest.pre_populated_data.buyer_phone_number
+      phone_formatted: checkoutRequest.pre_populated_data.buyer_phone_number,
+      customer_first_name: checkoutRequest.pre_populated_data.buyer_first_name,
+      customer_last_name: checkoutRequest.pre_populated_data.buyer_last_name
     }, null, 2));
 
     const squareResponse = await fetch(`${squareApiBase}/v2/online-checkout/payment-links`, {
@@ -225,7 +231,7 @@ serve(async (req) => {
       throw new Error(`Square API error: ${responseData.errors?.[0]?.detail || 'Unknown error'}`);
     }
 
-    console.log('Square checkout created successfully with shipping address');
+    console.log('Square checkout created successfully with customer name pre-populated');
 
     const checkoutUrl = responseData.payment_link?.url;
     if (!checkoutUrl) {
