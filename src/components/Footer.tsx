@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { Instagram } from 'lucide-react';
 const Footer = () => {
@@ -10,6 +11,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><Link to="/contact" className="text-gray-600 hover:text-primary transition">Contact Us</Link></li>
               <li><Link to="/track-order" className="text-gray-600 hover:text-primary transition">Track Your Order</Link></li>
+              <li><Link to="/returns" className="text-gray-600 hover:text-primary transition">Return Policy</Link></li>
             </ul>
           </div>
           

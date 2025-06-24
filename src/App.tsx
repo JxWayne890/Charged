@@ -20,6 +20,7 @@ import OrderSuccessPage from '@/pages/OrderSuccessPage';
 import SearchResultsPage from '@/pages/SearchResultsPage';
 import TermsOfServicePage from '@/pages/TermsOfServicePage';
 import PrivacyPolicyPage from '@/pages/PrivacyPolicyPage';
+import ReturnPolicyPage from '@/pages/ReturnPolicyPage';
 
 // Brand pages
 import AbePage from '@/pages/brands/AbePage';
@@ -58,6 +59,7 @@ function App() {
                 <Route path="/order-success" element={<OrderSuccessPage />} />
                 <Route path="/terms" element={<TermsOfServicePage />} />
                 <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                <Route path="/returns" element={<ReturnPolicyPage />} />
                 
                 {/* Brand pages */}
                 <Route path="/brands/abe" element={<AbePage />} />
